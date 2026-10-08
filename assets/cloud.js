@@ -1,15 +1,19 @@
 /* The Agent's Ascent — cloud sync (Supabase). Loads only when assets/config.js has a URL and key.
    Model: the browser's localStorage stays the working copy; every change is pushed to the `progress` table,
-   and on sign-in the cloud copy is pulled and merged. Sign-in is a magic link by email; only the signed-in
-   owner can write (Row-Level Security). */
+   and on sign-in the cloud copy is pulled and merged. Signed out, the site pulls the owner's rows through the
+   public-read policy and shows them read-only, so progress is visible on any device without signing in.
+   Sign-in is a magic link by email; only the signed-in owner can write (Row-Level Security). */
 (function () {
   "use strict";
   const cfg = window.AA_CONFIG || {};
-  AA.cloud = { enabled: false, user: null, ready: false };
+  AA.cloud = { configured: false, enabled: false, user: null, ready: false, viewOnly: false };
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) { AA.cloud.ready = true; window.dispatchEvent(new CustomEvent("aa:auth")); return; }
+  AA.cloud.configured = true;
 
   const LIB = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.min.js";
-  const s = document.createElement("script"); s.src = LIB; s.onload = init; s.onerror = () => status("Sync library didn't load; working locally.", true); document.head.appendChild(s);
+  const s = document.createElement("script"); s.src = LIB; s.onload = init;
+  s.onerror = () => { AA.cloud.ready = true; status("Sync library didn't load; working locally.", true); window.dispatchEvent(new CustomEvent("aa:auth")); };
+  document.head.appendChild(s);
 
   let sb = null, user = null, pulling = false, timers = {}, cloudKeys = { module: new Set(), checkin: new Set(), session: new Set() };
   let ui = null;
@@ -18,12 +22,18 @@
     sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
     AA.cloud.enabled = true;
     mountUI();
-    sb.auth.onAuthStateChange((ev, session) => { user = session ? session.user : null; AA.cloud.user = user; AA.cloud.ready = true; paint(); window.dispatchEvent(new CustomEvent("aa:auth")); if (user) pull(); });
+    sb.auth.onAuthStateChange((ev, session) => {
+      user = session ? session.user : null; AA.cloud.user = user; AA.cloud.ready = true; AA.cloud.viewOnly = !user;
+      paint(); window.dispatchEvent(new CustomEvent("aa:auth"));
+      if (user) pull(); else pullPublic();
+    });
     window.addEventListener("aa:store", e => { if (!user || pulling) return; const k = e.detail && e.detail.key; if (k === "modules" || k === "checkins" || k === "sessions") schedulePush(k); });
-    AA.cloud.signIn = signIn; AA.cloud.signOut = () => sb.auth.signOut(); AA.cloud.pull = pull;
+    AA.cloud.signIn = signIn; AA.cloud.signOut = () => sb.auth.signOut(); AA.cloud.pull = () => (user ? pull() : pullPublic());
+    AA.cloud.openPanel = () => { if (!ui) return; const p = ui.querySelector("#syncPanel"); p.hidden = false; paint(); const em = p.querySelector("#syncEmail"); if (em) em.focus(); };
   }
 
   function status(msg, warn) { if (!ui) return; const el = ui.querySelector("#syncMsg"); el.textContent = msg; el.style.color = warn ? "var(--warn)" : "var(--muted)"; }
+  function synced(kind, ok, message) { window.dispatchEvent(new CustomEvent("aa:synced", { detail: { kind: kind, ok: ok, message: message || "" } })); }
 
   function mountUI() {
     const navIn = document.querySelector(".nav-in"); if (!navIn) return;
@@ -34,7 +44,7 @@
     ui.style.position = "relative";
     navIn.insertBefore(ui, navIn.querySelector("#themeBtn"));
     ui.querySelector("#syncBtn").addEventListener("click", () => { const p = ui.querySelector("#syncPanel"); p.hidden = !p.hidden; if (!p.hidden) paint(); });
-    document.addEventListener("click", e => { if (!ui.contains(e.target)) ui.querySelector("#syncPanel").hidden = true; });
+    document.addEventListener("click", e => { if (!ui.contains(e.target) && !(e.target.closest && e.target.closest("[data-opens-sync]"))) ui.querySelector("#syncPanel").hidden = true; });
     paint();
   }
 
@@ -48,9 +58,9 @@
       body.querySelector("#syncNow").addEventListener("click", () => pull().then(() => status("Pulled the latest copy.")));
       body.querySelector("#syncOut").addEventListener("click", () => sb.auth.signOut());
     } else {
-      btn.textContent = "Sync"; btn.style.borderColor = ""; btn.style.color = "";
-      body.innerHTML = '<form id="syncForm" style="display:grid;gap:6px"><label style="font-size:12px;color:var(--muted)">Email for a sign-in link<input type="email" id="syncEmail" required placeholder="you@example.com" autocomplete="email"></label><button class="primary" type="submit">Send magic link</button></form>' +
-        '<div class="muted" style="font-size:12px">Signing in syncs this browser with your database so progress follows you between devices and Claude can read it.</div>';
+      btn.textContent = "Sign in"; btn.style.borderColor = "var(--accent)"; btn.style.color = "var(--accent)";
+      body.innerHTML = '<form id="syncForm" style="display:grid;gap:6px"><label style="font-size:12px;color:var(--muted)">Email for a sign-in link<input type="email" id="syncEmail" required placeholder="you@example.com" autocomplete="email" inputmode="email"></label><button class="primary" type="submit">Send magic link</button></form>' +
+        '<div class="muted" style="font-size:12px">You can already see your synced progress. Signing in lets you edit it from this device. Open the link on this same device; if it opens inside your mail app, choose "Open in browser".</div>';
       body.querySelector("#syncForm").addEventListener("submit", e => { e.preventDefault(); signIn(body.querySelector("#syncEmail").value.trim()); });
     }
   }
@@ -61,7 +71,7 @@
     const redirect = location.origin + location.pathname;
     const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
     if (error) { status(error.message, true); return; }
-    status("Check your inbox for the sign-in link (it opens this page signed in).");
+    status("Link sent. Open it on this device (it brings you back here, signed in). It works once and expires in an hour.");
   }
 
   function rowsFor(kind) {
@@ -81,29 +91,44 @@
       if (rows.length) { for (let i = 0; i < rows.length; i += 100) { const { error } = await sb.from("progress").upsert(rows.slice(i, i + 100), { onConflict: "user_id,kind,key" }); if (error) throw error; } }
       const localKeys = new Set(rows.map(r => r.key)); const gone = [...cloudKeys[kind]].filter(key => !localKeys.has(key));
       if (gone.length) { const { error } = await sb.from("progress").delete().eq("user_id", user.id).eq("kind", kind).in("key", gone); if (error) throw error; }
-      cloudKeys[kind] = localKeys; status("Saved " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + ".");
-    } catch (err) { status("Couldn't save (" + (err.message || "error") + "). Will retry on the next change.", true); }
+      cloudKeys[kind] = localKeys; status("Saved " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + "."); synced(kind, true);
+    } catch (err) { const m = err.message || "error"; status("Couldn't save (" + m + "). Will retry on the next change.", true); synced(kind, false, m); }
   }
 
-  async function pull() {
-    if (!user) return;
-    const { data, error } = await sb.from("progress").select("kind,key,data").eq("user_id", user.id);
-    if (error) { status("Couldn't read your database: " + error.message, true); return; }
+  /* Merge a set of cloud rows into localStorage: cloud wins per module; check-ins and sessions are unioned by id. */
+  function merge(data) {
     const cloud = { module: {}, checkin: {}, session: {} };
     data.forEach(r => { if (cloud[r.kind]) cloud[r.kind][r.key] = r.data; });
-    cloudKeys = { module: new Set(Object.keys(cloud.module)), checkin: new Set(Object.keys(cloud.checkin)), session: new Set(Object.keys(cloud.session)) };
     pulling = true;
     try {
-      // Modules: the cloud copy wins where both exist; local-only modules are kept and pushed.
-      const modules = Object.assign({}, AA.modules(), cloud.module); AA.setModules(modules);
+      AA.setModules(Object.assign({}, AA.modules(), cloud.module));
       const ci = {}; AA.checkins().forEach(c => { if (c && c.id) ci[c.id] = c; }); Object.assign(ci, cloud.checkin);
       AA.setCheckins(Object.values(ci).sort((a, b) => (b.created || 0) - (a.created || 0)));
       const ss = {}; AA.sessions().forEach(x => { if (x && x.id) ss[x.id] = x; }); Object.assign(ss, cloud.session);
       AA.store.set("sessions", Object.values(ss).sort((a, b) => (b.start || 0) - (a.start || 0)));
     } finally { pulling = false; }
     window.dispatchEvent(new CustomEvent("aa:progress")); window.dispatchEvent(new CustomEvent("aa:sessions"));
+    return cloud;
+  }
+
+  async function pull() {
+    if (!user) return;
+    const { data, error } = await sb.from("progress").select("kind,key,data").eq("user_id", user.id);
+    if (error) { status("Couldn't read your database: " + error.message, true); return; }
+    const cloud = merge(data);
+    cloudKeys = { module: new Set(Object.keys(cloud.module)), checkin: new Set(Object.keys(cloud.checkin)), session: new Set(Object.keys(cloud.session)) };
     // Push anything that only existed locally.
     await push("modules"); await push("checkins"); await push("sessions");
     status("Synced.");
+  }
+
+  /* Signed-out read: the owner's rows through the public-read policy. Nothing is written. */
+  async function pullPublic() {
+    if (user) return;
+    let q = sb.from("progress").select("kind,key,data"); if (cfg.ownerId) q = q.eq("user_id", cfg.ownerId);
+    const { data, error } = await q;
+    if (error) { status("Couldn't read the database: " + error.message, true); return; }
+    merge(data);
+    status("Showing the synced copy (read-only until you sign in).");
   }
 })();

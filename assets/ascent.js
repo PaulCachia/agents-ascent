@@ -156,14 +156,23 @@
     const r = $("rocket"); if (ok(state, "m23")) { if (!r.classList.contains("launch")) r.classList.add("launch"); } else r.classList.remove("launch");
   }
 
-  function saveModule(key, patch, celebrate) { const cur = modOf(key); const next = Object.assign({}, cur, patch); if (JSON.stringify(cur) === JSON.stringify(next)) return;
+  /* "Saved" flash on a module row: local save at once, then the database result when the push lands. */
+  const pendingSaves = new Set();
+  function flashRow(key, text, warn) { const row = document.querySelector('.mod[data-key="' + key + '"]'); if (!row) return; let tag = row.querySelector(".saved");
+    if (!tag) { tag = document.createElement("span"); tag.className = "saved"; const nm = row.querySelector(".name"); nm.insertBefore(tag, nm.querySelector("small")); }
+    tag.textContent = text; tag.classList.toggle("warn", !!warn); tag.classList.add("show"); clearTimeout(tag._t); tag._t = setTimeout(() => tag.classList.remove("show"), warn ? 5000 : 2200); }
+  window.addEventListener("aa:synced", e => { const d = e.detail || {}; if (d.kind === "module") { pendingSaves.forEach(k => flashRow(k, d.ok ? "SAVED TO YOUR DATABASE ✓" : "NOT SAVED · " + d.message, !d.ok)); if (d.ok) pendingSaves.clear(); }
+    else if (d.kind === "checkin") toast(d.ok ? "Check-in saved to your database" : "Check-in not saved: " + d.message); });
+
+  function saveModule(key, patch, celebrate) { if (!AA.requireSignIn("edit your camps")) { render(); return; } const cur = modOf(key); const next = Object.assign({}, cur, patch); if (JSON.stringify(cur) === JSON.stringify(next)) return;
     const was = cur.status, now = next.status; state.modules[key] = next; AA.setModules(state.modules); render();
+    if (AA.cloud && AA.cloud.user) { pendingSaves.add(key); flashRow(key, "SAVING…"); } else flashRow(key, "SAVED ON THIS DEVICE ✓");
     if (celebrate && now === "done" && was !== "done") { const i = MODULES.findIndex(m => m.key === key); const m = MODULES[i]; const p = campPts[i];
       if (key === "m23") { toast("Summit reached. Launch!"); confetti(260, p.x, p.y); setTimeout(() => confetti(200, 500, 120), 900); }
       else if (m.cap) { toast("Capstone passed: " + m.name.split(":")[0] + " · +300 XP"); confetti(160, p.x, p.y); }
       else { toast("Checkpoint passed · +100 XP"); confetti(70, p.x, p.y); } } }
 
-  $("ciForm").addEventListener("submit", e => { e.preventDefault(); const rec = { id: AA.uid(), date: $("ciDate").value || AA.todayISO(), what: $("ciWhat").value.trim(), hours: Number($("ciHours").value) || 0, quiz: $("ciQuiz").value.trim(), next: $("ciNext").value.trim(), created: Date.now() }; if (!rec.what) return;
+  $("ciForm").addEventListener("submit", e => { e.preventDefault(); if (!AA.requireSignIn("log a check-in")) return; const rec = { id: AA.uid(), date: $("ciDate").value || AA.todayISO(), what: $("ciWhat").value.trim(), hours: Number($("ciHours").value) || 0, quiz: $("ciQuiz").value.trim(), next: $("ciNext").value.trim(), created: Date.now() }; if (!rec.what) return;
     state.checkins.unshift(rec); state.checkins.sort((a, b) => (b.created || 0) - (a.created || 0)); AA.setCheckins(state.checkins);
     $("ciWhat").value = ""; $("ciHours").value = ""; $("ciQuiz").value = ""; $("ciNext").value = ""; $("ciDate").value = AA.todayISO(); toast("Check-in logged"); render(); });
 
@@ -173,15 +182,31 @@
   $("btnImport").addEventListener("click", () => { const ta = $("ioText"); ta.hidden = false; const txt = ta.value.trim(); if (!txt) { ta.placeholder = "Paste an export here, then press Import again."; ta.focus(); return; } const r = AA.importJSON(txt, "merge"); if (!r.ok) { AA.toast(r.error); return; } state.modules = AA.modules(); state.checkins = AA.checkins(); render(); AA.toast("Progress imported and merged."); });
   $("btnReset").addEventListener("click", () => { const btn = $("btnReset"); if (btn.dataset.armed !== "1") { btn.dataset.armed = "1"; btn.textContent = "Really reset? Click again"; setTimeout(() => { btn.dataset.armed = "0"; btn.textContent = "Reset all progress"; }, 4000); return; } AA.setModules({}); AA.setCheckins([]); AA.store.set("sessions", []); AA.store.set("tracker", null); state.modules = {}; state.checkins = []; btn.dataset.armed = "0"; btn.textContent = "Reset all progress"; render(); AA.toast("Progress reset."); });
 
+  /* Mode: local (no cloud configured) · pending (checking sign-in) · view (signed out: read-only copy) · edit (signed in) · offline (library failed). */
+  function mode() { const c = AA.cloud || {}; if (!c.configured) return "local"; if (!c.ready) return "pending"; if (!c.enabled) return "offline"; return c.user ? "edit" : "view"; }
+  function applyMode() {
+    const m = mode(); const bar = $("authBar"), txt = $("authText"), btn = $("authBtn");
+    const ro = m === "view"; document.body.classList.toggle("ro", ro);
+    document.querySelectorAll("#modList select, #modList input, #ciForm input, #ciBtn").forEach(el => { el.disabled = ro; });
+    if (bar) {
+      bar.className = "authbar" + (m === "view" ? " view" : m === "offline" ? " warn" : ""); bar.hidden = m === "local" || m === "edit"; btn.hidden = m !== "view";
+      if (m === "pending") txt.textContent = "Checking your sign-in…";
+      else if (m === "view") txt.innerHTML = "<b>Read-only on this device.</b> This is your synced progress from the database. Sign in to edit it here.";
+      else if (m === "offline") txt.textContent = "The sync library didn't load, so changes stay on this device until it does. Reload to try again.";
+    }
+    paintProf();
+  }
+  $("authBtn").addEventListener("click", () => { if (AA.cloud && AA.cloud.openPanel) AA.cloud.openPanel(); });
   function paintProf() {
     const st = $("profState"), tx = $("profText"); if (!st || !tx) return;
-    const c = AA.cloud || {};
-    if (!c.enabled) { st.textContent = "local only"; tx.textContent = "Cloud sync isn't configured on this copy of the site, so progress stays in this browser. Use the manual backup below to share it with Claude."; return; }
-    if (!c.ready) { st.textContent = "checking…"; tx.textContent = "Checking your sign-in…"; return; }
-    if (c.user) { st.textContent = "synced"; tx.textContent = "Signed in as " + (c.user.email || "you") + ". Every change here saves to your database as you make it. Claude reads it before each check-in; put quiz scores in the Quiz % box on the module row. There is nothing to copy or paste."; }
-    else { st.textContent = "not signed in"; tx.textContent = "Click Sync in the top bar and use the magic link. Until then, progress stays in this browser and Claude can't see it."; }
+    const c = AA.cloud || {}; const m = mode();
+    if (m === "local") { st.textContent = "local only"; tx.textContent = "Cloud sync isn't configured on this copy of the site, so progress stays in this browser. Use the manual backup below to share it with Claude."; return; }
+    if (m === "pending") { st.textContent = "checking…"; tx.textContent = "Checking your sign-in…"; return; }
+    if (m === "offline") { st.textContent = "offline"; tx.textContent = "The sync library didn't load. Changes stay on this device until you reload with a connection."; return; }
+    if (m === "edit") { st.textContent = "synced"; tx.textContent = "Signed in as " + (c.user.email || "you") + ". Every change here saves to your database as you make it. Claude reads it before each check-in; put quiz scores in the Quiz % box on the module row. There is nothing to copy or paste."; }
+    else { st.textContent = "read-only"; tx.textContent = "You're looking at the synced copy of your progress; Claude reads the same database. To edit from this device, tap Sign in (top right) and open the magic link on this device."; }
   }
-  window.addEventListener("aa:auth", paintProf); paintProf();
+  window.addEventListener("aa:auth", applyMode); applyMode();
   window.addEventListener("aa:sessions", render);
   window.addEventListener("aa:progress", () => { state.modules = AA.modules(); state.checkins = AA.checkins(); render(); });
   window.addEventListener("storage", () => { state.modules = AA.modules(); state.checkins = AA.checkins(); render(); });

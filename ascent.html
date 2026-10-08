@@ -21,6 +21,8 @@
     </div>
   </header>
 
+  <div class="authbar" id="authBar" hidden><span id="authText"></span><button class="primary" type="button" id="authBtn" data-opens-sync hidden>Sign in to edit here</button></div>
+
   <div class="scene" id="sceneWrap">
     <svg id="scene" viewBox="0 0 1000 560" role="img" aria-label="A mountain trail with 24 camps leading to a launch pad on the summit">
       <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="sky-a"/><stop offset="1" class="sky-b"/></linearGradient></defs>
@@ -95,7 +97,7 @@
       </section>
     </div>
   </div>
-  <footer>Signed in, everything here saves to your own Supabase database (Row-Level Security on; only you can write). Signed out, it stays in this browser until you sign in. Claude reads the database before each check-in; you record quiz scores on the module rows.</footer>
+  <footer>Signed in, everything here saves to your own Supabase database as you type (Row-Level Security on; only you can write). Signed out, any device shows a read-only copy of the same database. Claude reads it before each check-in; you record quiz scores on the module rows.</footer>
 </div>
 <script src="assets/site.js"></script>
 <script src="assets/config.js"></script>

@@ -21,7 +21,7 @@
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:18px">
         <a class="primary" href="ascent.html" style="text-decoration:none;display:inline-block;font-weight:700;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:10px 16px">Open the Ascent</a>
         <a class="ghost" href="course.html" style="text-decoration:none;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:10px 16px;color:var(--fg)">Read the course</a>
-        <button class="ghost" type="button" id="heroStart" style="font-size:14px;padding:10px 16px;border-radius:10px">▶ Start a study session</button>
+        <button class="ghost" type="button" id="heroStart" data-opens-sync style="font-size:14px;padding:10px 16px;border-radius:10px">▶ Start a study session</button>
       </div>
     </div>
     <div class="art" aria-hidden="true">
@@ -62,7 +62,7 @@
     </div>
   </section>
 
-  <footer>Built in week 1 of the course as the first deployed project. Hosted on GitHub Pages; progress lives in your own Supabase database once you sign in (Sync, top right). Rebuilding both by hand is part of Phases 4 and 5.</footer>
+  <footer>Built in week 1 of the course as the first deployed project. Hosted on GitHub Pages; progress lives in your own Supabase database; any device can view it, and signing in (top right) lets that device edit it. Rebuilding both by hand is part of Phases 4 and 5.</footer>
 </div>
 <script src="assets/site.js"></script>
 <script src="assets/config.js"></script>
@@ -77,7 +77,7 @@ AA.nav("home"); AA.mountTracker();
   document.getElementById("hstars").innerHTML = s;
   var b = document.getElementById("heroStart");
   function paintBtn(){ b.textContent = AA.tracker() ? "■ Stop the session" : "▶ Start a study session"; }
-  b.addEventListener("click", function(){ if (AA.tracker()) { var r = AA.stopSession(); AA.toast("Session saved: " + AA.fmtMins(r.mins)); } else { AA.startSession(""); AA.toast("Session started"); } paintBtn(); });
+  b.addEventListener("click", function(){ if (AA.tracker()) { var r = AA.stopSession(); AA.toast("Session saved: " + AA.fmtMins(r.mins)); } else { if (!AA.requireSignIn("put time on the clock")) return; AA.startSession(""); AA.toast("Session started"); } paintBtn(); });
   window.addEventListener("aa:sessions", paintBtn); paintBtn();
 })();
 </script>

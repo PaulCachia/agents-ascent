@@ -75,6 +75,16 @@ window.AA = (function () {
   function fmtMins(m) { const h = Math.floor(m / 60), r = m % 60; return h ? h + " h " + (r ? r + " min" : "") : r + " min"; }
   function hms(ms) { const s = Math.floor(ms / 1000); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60; return (h ? String(h).padStart(2, "0") + ":" : "") + String(m).padStart(2, "0") + ":" + String(x).padStart(2, "0"); }
 
+  /* Editing is allowed locally, or when signed in; signed out with cloud sync configured, the site is read-only. */
+  function canEdit() { const c = window.AA && window.AA.cloud; if (!c || !c.configured || !c.enabled) return true; return !!c.user; }
+  function requireSignIn(what) {
+    if (canEdit()) return true;
+    const c = window.AA.cloud;
+    toast(c.ready ? "Sign in (top right) to " + (what || "edit") + " from this device." : "Still checking your sign-in; try again in a moment.");
+    if (c.ready && c.openPanel) c.openPanel();
+    return false;
+  }
+
   let toastT = null;
   function toast(msg) { let t = document.getElementById("toastg"); if (!t) { t = document.createElement("div"); t.id = "toastg"; t.className = "toastg"; document.body.appendChild(t); } t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2600); }
 
@@ -82,7 +92,7 @@ window.AA = (function () {
     const root = document.createElement("div"); root.className = "trk";
     root.innerHTML = '<div class="trk-panel" id="trkPanel" hidden><div class="eyebrow">Session</div><input type="text" id="trkNote" placeholder="What are you working on? (optional)" maxlength="120">' +
       '<div class="row"><span>Today</span><b id="trkToday">0 min</b></div><div class="row"><span>This week</span><b id="trkWeek">0 min</b></div><div class="row"><span>All time</span><b id="trkAll">0 min</b></div>' +
-      '<div class="muted" style="font-size:12px">Sessions are saved in this browser and count towards the hours on the Ascent page.</div></div>' +
+      '<div class="muted" style="font-size:12px">Sessions count towards the hours on the Ascent page and save to your database when you are signed in.</div></div>' +
       '<div class="trk-pill" id="trkPill" role="group" aria-label="Time tracker"><button class="go" id="trkGo" type="button" aria-label="Start session">▶</button><span class="t" id="trkTime">00:00</span><span class="lbl" id="trkLbl">Start session</span></div>';
     document.body.appendChild(root);
     const pill = root.querySelector("#trkPill"), go = root.querySelector("#trkGo"), time = root.querySelector("#trkTime"), lbl = root.querySelector("#trkLbl"), panel = root.querySelector("#trkPanel"), note = root.querySelector("#trkNote");
@@ -100,7 +110,7 @@ window.AA = (function () {
       e.stopPropagation();
       const t = tracker();
       if (t) { const rec = stopSession(note.value.trim()); note.value = ""; toast("Session saved: " + fmtMins(rec.mins)); }
-      else { if (!startSession(note.value.trim())) return; toast("Session started"); }
+      else { if (!requireSignIn("put time on the clock")) return; if (!startSession(note.value.trim())) return; toast("Session started"); }
       paint();
     });
     pill.addEventListener("click", () => { panel.hidden = !panel.hidden; if (!panel.hidden) note.focus(); });
@@ -133,6 +143,6 @@ window.AA = (function () {
   }
   async function copyText(text) { try { await navigator.clipboard.writeText(text); return true; } catch (e) { return false; } }
 
-  return { store, START, TOTAL_WEEKS, PLAN, todayISO, currentWeek, fmtDate, uid, esc, applyTheme, toggleTheme, nav, sessions, tracker, startSession, stopSession, deleteSession, minsToday, minsThisWeek, fmtMins, hms, toast, mountTracker, modules, setModules, checkins, setCheckins, exportJSON, importJSON, copyText };
+  return { store, START, TOTAL_WEEKS, PLAN, todayISO, currentWeek, fmtDate, uid, esc, applyTheme, toggleTheme, nav, sessions, tracker, startSession, stopSession, deleteSession, minsToday, minsThisWeek, fmtMins, hms, toast, canEdit, requireSignIn, mountTracker, modules, setModules, checkins, setCheckins, exportJSON, importJSON, copyText };
 })();
 AA.applyTheme();

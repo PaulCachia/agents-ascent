@@ -42,7 +42,11 @@ sign-in, so progress follows you between devices and Claude can read it.
    (anon) key can read, so Claude can see progress without holding a secret.
 3. Authentication → URL Configuration → set Site URL to the site's address (so magic links come back here).
 4. Put the project URL and anon key into `assets/config.js`. Both are public values; security is the RLS.
-5. Open the site, click **Sync** in the nav, enter your email, click the magic link.
+5. Open the site, click **Sign in** in the nav, enter your email, open the magic link **on that same device**
+   (if it opens inside a mail app's viewer, choose "Open in browser"). Sign-in is per browser.
+6. After the first sign-in, copy your `user_id` from the `progress` table into `ownerId` in `assets/config.js`.
+   Signed-out visitors (your phone, say) then see a read-only copy of your progress through the public-read
+   policy; editing and the study clock need sign-in. Module rows flash "Saved to your database" as pushes land.
 
 Claude reads it with one call:
 
