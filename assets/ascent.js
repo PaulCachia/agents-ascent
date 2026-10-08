@@ -178,7 +178,7 @@
     const c = AA.cloud || {};
     if (!c.enabled) { st.textContent = "local only"; tx.textContent = "Cloud sync isn't configured on this copy of the site, so progress stays in this browser. Use the manual backup below to share it with Claude."; return; }
     if (!c.ready) { st.textContent = "checking…"; tx.textContent = "Checking your sign-in…"; return; }
-    if (c.user) { st.textContent = "synced"; tx.textContent = "Signed in as " + (c.user.email || "you") + ". Every change here saves to your database as you make it. Claude reads it before each check-in and writes quiz scores back; there is nothing to copy or paste."; }
+    if (c.user) { st.textContent = "synced"; tx.textContent = "Signed in as " + (c.user.email || "you") + ". Every change here saves to your database as you make it. Claude reads it before each check-in; put quiz scores in the Quiz % box on the module row. There is nothing to copy or paste."; }
     else { st.textContent = "not signed in"; tx.textContent = "Click Sync in the top bar and use the magic link. Until then, progress stays in this browser and Claude can't see it."; }
   }
   window.addEventListener("aa:auth", paintProf); paintProf();
