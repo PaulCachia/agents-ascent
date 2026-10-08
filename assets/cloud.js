@@ -8,7 +8,7 @@
   AA.cloud = { enabled: false, user: null };
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) return;
 
-  const LIB = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js";
+  const LIB = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.min.js";
   const s = document.createElement("script"); s.src = LIB; s.onload = init; s.onerror = () => status("Sync library didn't load; working locally.", true); document.head.appendChild(s);
 
   let sb = null, user = null, pulling = false, timers = {}, cloudKeys = { module: new Set(), checkin: new Set(), session: new Set() };
