@@ -4,7 +4,7 @@ window.AA = (function () {
   const KEY = "aa.v1.";
   const store = {
     get(k, d) { try { const v = localStorage.getItem(KEY + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+    set(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) { return false; } try { window.dispatchEvent(new CustomEvent("aa:store", { detail: { key: k } })); } catch (e) {} return true; }
   };
   const START = new Date(2026, 9, 8); // 8 Oct 2026, week 1
   const TOTAL_WEEKS = 26;
