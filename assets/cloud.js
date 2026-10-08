@@ -5,8 +5,8 @@
 (function () {
   "use strict";
   const cfg = window.AA_CONFIG || {};
-  AA.cloud = { enabled: false, user: null };
-  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) return;
+  AA.cloud = { enabled: false, user: null, ready: false };
+  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) { AA.cloud.ready = true; window.dispatchEvent(new CustomEvent("aa:auth")); return; }
 
   const LIB = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.min.js";
   const s = document.createElement("script"); s.src = LIB; s.onload = init; s.onerror = () => status("Sync library didn't load; working locally.", true); document.head.appendChild(s);
@@ -18,7 +18,7 @@
     sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
     AA.cloud.enabled = true;
     mountUI();
-    sb.auth.onAuthStateChange((ev, session) => { user = session ? session.user : null; AA.cloud.user = user; paint(); if (user) pull(); });
+    sb.auth.onAuthStateChange((ev, session) => { user = session ? session.user : null; AA.cloud.user = user; AA.cloud.ready = true; paint(); window.dispatchEvent(new CustomEvent("aa:auth")); if (user) pull(); });
     window.addEventListener("aa:store", e => { if (!user || pulling) return; const k = e.detail && e.detail.key; if (k === "modules" || k === "checkins" || k === "sessions") schedulePush(k); });
     AA.cloud.signIn = signIn; AA.cloud.signOut = () => sb.auth.signOut(); AA.cloud.pull = pull;
   }

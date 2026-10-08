@@ -79,20 +79,23 @@
         <div class="card-h"><h2>Badges</h2><span class="eyebrow" id="badgeCount">0 of 14</span></div>
         <div class="badges" id="badges"></div>
       </section>
-      <section class="card">
-        <div class="card-h"><h2>Share with Claude</h2><span class="eyebrow">check-in ritual</span></div>
-        <p class="muted" style="margin:0;font-size:13px">Progress lives in this browser. At each check-in, copy it and paste it into the Project chat so Claude can read it, quiz you and record the result. On a new device, paste an export here and import it.</p>
-        <div class="io">
-          <button class="primary" type="button" id="btnCopy">Copy progress for Claude</button>
-          <button class="ghost" type="button" id="btnShow">Show / hide JSON</button>
-          <button class="ghost" type="button" id="btnImport">Import pasted JSON</button>
-          <button class="ghost" type="button" id="btnReset">Reset all progress</button>
-        </div>
-        <textarea id="ioText" hidden aria-label="Progress export" spellcheck="false"></textarea>
+      <section class="card" id="profCard">
+        <div class="card-h"><h2>Professor link</h2><span class="eyebrow" id="profState">checking…</span></div>
+        <p class="muted" style="margin:0;font-size:13px" id="profText">Checking your sign-in…</p>
+        <details id="backup">
+          <summary class="muted" style="font-size:12px;cursor:pointer">Manual backup (only needed if you can't sign in)</summary>
+          <div class="io" style="margin-top:8px">
+            <button class="ghost" type="button" id="btnCopy">Copy progress as JSON</button>
+            <button class="ghost" type="button" id="btnShow">Show / hide JSON</button>
+            <button class="ghost" type="button" id="btnImport">Import pasted JSON</button>
+            <button class="ghost" type="button" id="btnReset">Reset all progress</button>
+          </div>
+          <textarea id="ioText" hidden aria-label="Progress export" spellcheck="false" style="margin-top:8px"></textarea>
+        </details>
       </section>
     </div>
   </div>
-  <footer>Status, quiz scores, check-ins and sessions are stored in this browser only (localStorage). Replacing that with a real database you own, with Row-Level Security, is part of Phase 5 of the course.</footer>
+  <footer>Signed in, everything here saves to your own Supabase database (Row-Level Security on; only you can write). Signed out, it stays in this browser until you sign in. Claude reads the database before each check-in and writes quiz scores back.</footer>
 </div>
 <script src="assets/site.js"></script>
 <script src="assets/config.js"></script>
