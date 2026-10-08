@@ -1,0 +1,1885 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Agent's Ascent — Course</title>
+<meta name="description" content="The full 26-week curriculum: nine phases, 24 modules, four capstones, with video resources, exercises and checkpoints.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 20 9 7l4 6 2-3 7 10Z' fill='%23f0a04b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Nunito+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('aa.v1.theme'));if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+</head>
+<body>
+<div class="wrap" style="padding-top:20px">
+  <header>
+    <div class="eyebrow">The map · October 2026 edition</div>
+    <h1>Novice to Agentic AI Developer</h1>
+    <p class="muted" style="margin:6px 0 0;max-width:62ch">The full fast-track curriculum. ✔ marks a resource that was opened and checked during research; ◐ marks an official page not opened individually. Track your progress on the <a href="ascent.html">Ascent</a>.</p>
+  </header>
+  <div class="course">
+    <aside class="toc" id="toc" aria-label="Sections">
+<a href="#tl-dr">TL;DR</a>
+<a href="#how-to-use-this-curriculum">How to use this curriculum</a>
+<a href="#phase-0-orientation">Phase 0 – Orientation</a>
+<a href="#phase-1-computer-foundations">Phase 1 – Computer Foundations</a>
+<a href="#phase-2-programming-foundations-fast">Phase 2 – Programming Foundations, Fast</a>
+<a href="#phase-3-how-llms-work-practically">Phase 3 – How LLMs Work, Practically</a>
+<a href="#phase-4-ai-assisted-coding-tools">Phase 4 – AI-Assisted Coding Tools</a>
+<a href="#phase-5-building-real-apps">Phase 5 – Building Real Apps</a>
+<a href="#phase-6-building-ai-agents">Phase 6 – Building AI Agents</a>
+<a href="#phase-7-automation-and-multi-agent-business-systems">Phase 7 – Automation and Multi-Agent Business Systems</a>
+<a href="#phase-8-shipping-product-and-entrepreneurship">Phase 8 – Shipping, Product and Entrepreneurship</a>
+<a href="#week-by-week-schedules">Week-by-Week Schedules</a>
+<a href="#day-one-toolkit-and-monthly-costs">Day-One Toolkit and Monthly Costs</a>
+<a href="#staying-current">Staying Current</a>
+<a href="#glossary">Glossary</a>
+<a href="#skip-list">Skip List</a>
+<a href="#caveats-and-verification-notes">Caveats and Verification Notes</a>
+    </aside>
+    <article class="prose" id="content">
+<h2 id="tl-dr">TL;DR</h2>
+<p>At 12 hours a week, plan on about 26 weeks (roughly six months) to go from zero to competent: shipping a paid SaaS product and running a supervised multi-agent business system. Full-time at 7 hours a day, the same plan takes about 9 weeks. The quickest route is not "learn to code first, then AI". Build something real with an AI coding agent in week 2, then go back and learn just enough terminal, Git, Python/TypeScript, web stack and security to understand, check and fix what the agent produced. Karpathy now says the field has moved past "vibe coding" to "agentic engineering", and that gap between producing code and supervising it is the skill this curriculum teaches.</p>
+<ul>
+<li><strong>Path:</strong> about 324 hours over 9 phases, ordered by how soon each one gets you shipping. First deployed app in week 2, a paid SaaS around week 16, a supervised multi-agent "business ops" system by week 26. Full-time: about 9 weeks. The best free 2025–2026 resources are the freeCodeCamp Claude Code courses (2026), Anthropic's free Claude Academy (relaunched 20 August 2026), DeepLearning.AI's Anthropic short courses, Andrew Ng's <em>Agentic AI</em>, Karpathy's talks, GitHub's own <em>GitHub for Beginners</em> series (season 3, 2026) and the Hugging Face MCP course.</li>
+<li><strong>Tools:</strong> use Claude Code as your main agent (Claude Pro, $20/month, about £16–£20). Keep a second agent (Codex CLI or Gemini CLI, both with free or cheap tiers) to cross-check its work and avoid lock-in. Use Lovable/Bolt/v0 only for throwaway prototypes. The two best-documented ways vibe-coded products fail are security (Supabase tables with Row-Level Security switched off) and agents with unchecked access to production.</li>
+<li><strong>GitHub is the backbone, not a side topic.</strong> It is taught in depth in Phase 1 (Module 1.4) and then used in every later phase as the task queue, review gate and audit trail for your agents.</li>
+<li><strong>Reality check on "a company that builds companies":</strong> in late 2026, agents can reliably automate well-specified workflows (research, drafting, coding, triage, reporting) when a human approves the results. A fully autonomous business is still a demo, not a dependable way to operate. Design for "human as CEO and approver, agents as staff", and give agents more autonomy only once evals and logs show they can handle it.</li>
+</ul>
+<h2 id="how-to-use-this-curriculum">How to use this curriculum</h2>
+<ul>
+<li><strong>Skip rule:</strong> every module ends with a "ready to move on when…" checkpoint. If you can already pass it, skip the module. With a light coding background you will probably skim Phase 1 and parts of Phase 2, but do not skip Module 1.4 (GitHub in depth).</li>
+<li><strong>Verification marks:</strong> ✔ means the page was confirmed to exist during research and its key details were checked. ◐ means an official docs URL or well-known resource that was not opened individually, so check it loads first. If a duration or date could not be confirmed, the table says so. YouTube creators often retitle or re-upload videos; if a link breaks, search for the exact title on the named channel.</li>
+<li><strong>Pricing:</strong> USD prices are converted at roughly £0.80 per $1, before UK VAT. Your checkout price in GBP may be higher once 20% VAT is added.</li>
+<li><strong>Core habit:</strong> build alongside every resource. Pause the video, make the agent do the step, then ask it to explain what it did. Watching without building is the most common reason self-taught learners stall.</li>
+<li><strong>One rule for the whole course:</strong> never ship code you cannot get the agent to explain to you.</li>
+</ul>
+<h2 id="phase-0-orientation">Phase 0 – Orientation (Week 1, ~6 hours)</h2>
+<p><strong>Objectives:</strong> understand what vibe coding and agentic engineering mean, where the field is in late 2026, and how to learn with an AI pair. <strong>Prerequisites:</strong> none.</p>
+<h3 id="key-context">Key context</h3>
+<ul>
+<li><strong>Origin:</strong> Andrej Karpathy coined "vibe coding" in a post on X on 2 February 2025, meaning it for throwaway weekend projects. Collins English Dictionary made it Word of the Year for 2025 (CNN, 6 November 2025).</li>
+<li><strong>The 2026 shift:</strong> at Sequoia's AI Ascent (released 29 April 2026), Karpathy separated the two ideas. Vibe coding raises the floor; agentic engineering is about preserving the quality bar of professional software. His written summary calls the agent fallible and stochastic and says the agentic engineer does not blindly accept generated code. Secondary sources report he joined Anthropic's pre-training team in May 2026, worth bearing in mind when he talks about Claude.</li>
+<li><strong>Model landscape in late 2026 (from release trackers, so check vendor pages):</strong> Anthropic shipped Claude Fable 5.1 and Claude Mythos 5.1 (restricted) on 1 September, Claude Opus 5.5 on 22 September and, per one tracker, Claude Sonnet 5.5 on 28 September. OpenAI shipped GPT-6 Astra on 3 September, GPT-6 Sol and Luna on 22 September and GPT-6.1 Sol on 29 September. Google shipped Gemini 3.8 Flash on 2 September; trackers disagree on whether "Gemini 4 Argon" (30 September) has shipped. Open-weight options include DeepSeek V4.1, Qwen 3.8 and Mistral Large 4.</li>
+<li><strong>What this means for you:</strong> frontier models change every few weeks. Learn concepts and workflows rather than model names.</li>
+</ul>
+<h3 id="resources">Resources</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Andrej Karpathy: From Vibe Coding to Agentic Engineering</td>
+<td>Sequoia Capital</td>
+<td>https://www.youtube.com/watch?v=96jN2OCOfLs</td>
+<td>29:49</td>
+<td>29 Apr 2026</td>
+<td>Free</td>
+<td><strong>Primary.</strong> The framing from the man who coined the term. 15:46 onwards is the core.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Sequoia Ascent 2026 summary</td>
+<td>Karpathy (blog)</td>
+<td>https://karpathy.bearblog.dev/sequoia-ascent-2026/</td>
+<td>~20 min read</td>
+<td>2026</td>
+<td>Free</td>
+<td>His own cleaned-up transcript. Keep section 7.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Claude Code: A Highly Agentic Coding Assistant (first 2 lessons now)</td>
+<td>DeepLearning.AI × Anthropic</td>
+<td>https://www.deeplearning.ai/courses/claude-code-a-highly-agentic-coding-assistant</td>
+<td>~1–2 h total</td>
+<td>Aug 2025</td>
+<td>Free</td>
+<td>Shows how simple an agent's architecture is: a few search, list and read tools. Takes away the "magic".</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>AI Fluency: Framework &amp; Foundations</td>
+<td>Claude Academy</td>
+<td>https://academy.claude.com</td>
+<td>~1–2 h</td>
+<td>relaunched 20 Aug 2026</td>
+<td>Free</td>
+<td>A short "4D" model for working with AI. Skip the educator and nonprofit variants.</td>
+<td>✔</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Exercise:</strong> write a one-page "learning contract": three products you want to build, your weekly hours, and one rule: <em>I never ship code I cannot get the agent to explain to me.</em></p>
+<p><strong>Ready to move on when…</strong> you can explain to a non-technical co-founder how vibe coding (prototype, accept all changes) differs from agentic engineering (write a spec, review diffs, run tests and evals).</p>
+<p><strong>Pitfalls:</strong> binge-watching hype videos, hopping between tools, and believing "no-code" means "no understanding needed".</p>
+<h2 id="phase-1-computer-foundations">Phase 1 – Computer Foundations (Weeks 1–3, ~24 hours; Module 1.4 Part B lands in Week 11)</h2>
+<p><strong>Objectives:</strong> use the terminal on macOS or Windows/WSL; understand file systems and environment variables; install software with Homebrew or winget; work in VS Code; use Git and GitHub properly, including SSH keys, conflicts, rebase, pull request review, Issues/Projects and the GitHub CLI; understand HTTP, DNS, client/server and hosting. <strong>Prerequisites:</strong> Phase 0.</p>
+<h3 id="module-1-1-terminal-file-system-environment-variables-package-managers">Module 1.1 – Terminal, file system, environment variables, package managers (~6 h)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>60 Linux Commands you NEED to know (in 10 minutes)</td>
+<td>NetworkChuck</td>
+<td>https://www.youtube.com/watch?v=gd7BXuUQ91w</td>
+<td>~10 min</td>
+<td>~2021–23 (older, foundational)</td>
+<td>Free</td>
+<td>The fastest tour of commands that also work in the macOS terminal.</td>
+<td>✔ exists</td>
+</tr>
+<tr>
+<td>Linux for Hackers EP 1 (8+ episode series)</td>
+<td>NetworkChuck</td>
+<td>https://www.youtube.com/watch?v=VbEx7B_PTOE</td>
+<td>not confirmed</td>
+<td>~2021–23 (older, foundational)</td>
+<td>Free</td>
+<td>Watch EP1–2 for shell basics. Skip the "hacking" episodes.</td>
+<td>✔ exists</td>
+</tr>
+<tr>
+<td>Install WSL</td>
+<td>Microsoft Learn</td>
+<td>https://learn.microsoft.com/windows/wsl/install</td>
+<td>Reference</td>
+<td>Current</td>
+<td>Free</td>
+<td><strong>Windows users: do all development inside WSL (Ubuntu).</strong> Agent tooling assumes a Unix shell.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>Homebrew / winget</td>
+<td>Official</td>
+<td>https://brew.sh · https://learn.microsoft.com/windows/package-manager/</td>
+<td>Reference</td>
+<td>Current</td>
+<td>Free</td>
+<td>Install everything through a package manager.</td>
+<td>◐</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Exercise:</strong> in the terminal, create <code>~/code/sandbox</code>, make some files, set an environment variable, print it and add it to your shell profile. Then remove it again, and learn why secrets shouldn't live in profiles that get synced.</p>
+<h3 id="module-1-2-vs-code-git-and-github-from-zero-ssh-keys">Module 1.2 – VS Code, Git and GitHub from zero, SSH keys (~6 h)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git and GitHub for Beginners – Crash Course</td>
+<td>freeCodeCamp (Gwen Faraday)</td>
+<td>https://www.youtube.com/watch?v=RGOj5yH7evk</td>
+<td>~1 h 08 m</td>
+<td>~2020 (older, foundational)</td>
+<td>Free</td>
+<td><strong>Primary.</strong> Commits, branches, PRs and SSH. Skip password auth; use SSH or the GitHub CLI instead.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>GitHub for Beginners S3: Git and GitHub in VS Code</td>
+<td>GitHub (Kedasha Kerr)</td>
+<td>https://github.blog/developer-skills/github/github-for-beginners-getting-started-with-git-and-github-in-vs-code/</td>
+<td>~15 min</td>
+<td>25 May 2026</td>
+<td>Free</td>
+<td>Stage, commit, push and review diffs from the editor.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>VS Code Docs</td>
+<td>Microsoft</td>
+<td>https://code.visualstudio.com/docs</td>
+<td>Reference/videos</td>
+<td>Current</td>
+<td>Free</td>
+<td>Learn the integrated terminal, Source Control panel and extensions.</td>
+<td>◐</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="module-1-3-how-the-web-works">Module 1.3 – How the web works (~4 h)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DNS Explained in 100 Seconds</td>
+<td>Fireship</td>
+<td>https://www.youtube.com/watch?v=UVR9lhUGAyU</td>
+<td>~2 min</td>
+<td>not confirmed (older, foundational)</td>
+<td>Free</td>
+<td>The fastest mental model of DNS. Then watch Fireship's other "100 Seconds" videos (HTTP, REST, JSON) as each comes up.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>MDN – Learn web development / HTTP</td>
+<td>Mozilla</td>
+<td>https://developer.mozilla.org/en-US/docs/Learn</td>
+<td>Reading</td>
+<td>Current</td>
+<td>Free</td>
+<td>The best free reference on HTTP methods, status codes and headers.</td>
+<td>◐</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="module-1-4-github-in-depth">Module 1.4 – GitHub in Depth (~8 h: Part A in Week 3, Part B in Week 11)</h3>
+<p><strong>Objectives:</strong> resolve merge conflicts calmly, know when to merge vs rebase, tidy history with interactive rebase and recover anything with reflog; review a pull request properly, including PRs an agent wrote (read the diff, run it, comment inline, request changes, approve, squash-merge); run a project with Issues, Projects boards, labels and <code>Closes #n</code> automation, which becomes the task queue your agents work from; use the GitHub CLI (<code>gh</code>), which Claude Code itself depends on; protect <code>main</code> with rulesets, required checks, secret scanning and push protection; connect Claude Code to GitHub with <code>/install-github-app</code>, <code>@claude</code> in issues and PRs, automatic code review, and worktrees for running agents in parallel.</p>
+<h4>Part A – Git depth (Week 3, ~3.5 h)</h4>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Learn Git Rebase in 6 minutes // explained with live animations!</td>
+<td>The Modern Coder</td>
+<td>https://www.youtube.com/watch?v=f1wnYdLEpgI</td>
+<td>6:43</td>
+<td>Nov 2017 (older, foundational)</td>
+<td>Free</td>
+<td>The best-rated rebase explainer on YouTube; the animations make it click.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Git MERGE vs REBASE: The Definitive Guide</td>
+<td>The Modern Coder</td>
+<td>https://www.youtube.com/watch?v=zOnwgxiC0OA</td>
+<td>~8 min</td>
+<td>~2023</td>
+<td>Free</td>
+<td>3-way vs fast-forward merge, the rebase workflow, and the "rebase pitfalls" chapter at 6:41.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Git for Professionals Tutorial</td>
+<td>freeCodeCamp (Tobias Günther)</td>
+<td>https://www.youtube.com/watch?v=Uszj_k0DGsg</td>
+<td>40:42</td>
+<td>2021 (older, foundational)</td>
+<td>Free</td>
+<td>The "undo anything" toolkit: branching strategies, conflicts, stash, reflog.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Advanced Git Tutorial – Interactive Rebase, Cherry-Picking, Reflog, Submodules</td>
+<td>freeCodeCamp (Tobias Günther)</td>
+<td>https://www.freecodecamp.org/news/advanced-git-interactive-rebase-cherry-picking-reflog-and-more/</td>
+<td>~35 min</td>
+<td>Nov 2021</td>
+<td>Free</td>
+<td>Squash an agent's 12 messy commits into 2. Skip the submodules section.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>13 Advanced (but useful) Git Techniques and Shortcuts</td>
+<td>Fireship</td>
+<td>https://www.youtube.com/watch?v=ecK3EnyGD8o</td>
+<td>8:07</td>
+<td>7 Sep 2021</td>
+<td>Free</td>
+<td>Aliases, amend, revert vs reset, stash, bisect, hooks.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Learn Git Branching</td>
+<td>learngitbranching.js.org</td>
+<td>https://learngitbranching.js.org</td>
+<td>~2 h</td>
+<td>Ongoing</td>
+<td>Free</td>
+<td>Practise rebase and cherry-pick on a visual graph. Do "Ramping Up" and "Moving Work Around".</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>Oh Shit, Git!?!</td>
+<td>ohshitgit.com</td>
+<td>https://ohshitgit.com</td>
+<td>15 min</td>
+<td>Ongoing</td>
+<td>Free</td>
+<td>The panic page. Bookmark it.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>GitHub Skills: Resolve merge conflicts</td>
+<td>GitHub</td>
+<td>https://github.com/skills (catalogue now at https://learn.github.com/skills)</td>
+<td>&lt;1 h</td>
+<td>Current</td>
+<td>Free</td>
+<td>Hands-on in your own repo, graded by Actions. Free in public repositories.</td>
+<td>✔ exists</td>
+</tr>
+</tbody>
+</table></div>
+<h4>Part B – GitHub as your agents' operating system (Week 11, ~4.5 h)</h4>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub for Beginners S3: Issues and Projects</td>
+<td>GitHub (Kedasha Kerr)</td>
+<td>https://github.blog/developer-skills/github/github-for-beginners-getting-started-with-github-issues-and-projects/ (video: https://youtu.be/c67GaAkf1BE)</td>
+<td>~15 min + 8-min read</td>
+<td>2 Mar 2026</td>
+<td>Free</td>
+<td><strong>Primary.</strong> Issue → board → PR with <code>Closes #n</code> auto-closing.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>GitHub for Beginners S3: GitHub Actions</td>
+<td>GitHub (Kedasha Kerr)</td>
+<td>https://github.blog/developer-skills/github/github-for-beginners-getting-started-with-github-actions/</td>
+<td>~15 min</td>
+<td>16 Mar 2026</td>
+<td>Free</td>
+<td>Your first workflow. Pairs with the Phase 5 CI work.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>GitHub for Beginners S3: GitHub security</td>
+<td>GitHub (Kedasha Kerr)</td>
+<td>https://github.blog/developer-skills/github/github-for-beginners-getting-started-with-github-security/</td>
+<td>~15 min</td>
+<td>30 Mar 2026</td>
+<td>Free</td>
+<td>Secret scanning, push protection, Dependabot: the leaked-key fix from Phase 5.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>GitHub for Beginners S2: Code review and refactoring with Copilot</td>
+<td>GitHub (Kedasha Kerr)</td>
+<td>https://github.blog/ai-and-ml/github-copilot/github-for-beginners-code-review-and-refactoring-with-github-copilot/</td>
+<td>~15 min</td>
+<td>9 Jun 2025</td>
+<td>Free</td>
+<td>How AI review fits into human PR review. Copilot flavour, but the principles transfer to Claude.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>GitHub Skills: Review pull requests</td>
+<td>GitHub</td>
+<td>https://github.com/skills</td>
+<td>&lt;30 min</td>
+<td>Current</td>
+<td>Free</td>
+<td>Comment, suggest changes, apply, approve, merge, hands-on.</td>
+<td>✔ exists</td>
+</tr>
+<tr>
+<td>GitHub Docs: Reviewing pull requests; Rulesets</td>
+<td>GitHub</td>
+<td>https://docs.github.com/en/pull-requests · https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets</td>
+<td>Reading</td>
+<td>Current</td>
+<td>Free</td>
+<td>Require a PR and passing checks before anything reaches <code>main</code>.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>GitHub CLI manual + "Top gh commands"</td>
+<td>GitHub; Adam Johnson</td>
+<td>https://cli.github.com/manual/ · https://adamj.eu/tech/2025/11/24/github-top-gh-cli-commands/</td>
+<td>Reading</td>
+<td>Current; 24 Nov 2025</td>
+<td>Free</td>
+<td><code>gh auth login</code>, <code>gh pr create/checkout/review</code>, <code>gh issue list</code>. No standout CLI video was found; the manual plus the exercise is the honest recommendation.</td>
+<td>◐ / ✔ listed</td>
+</tr>
+<tr>
+<td>Claude Code GitHub Actions</td>
+<td>Anthropic</td>
+<td>https://code.claude.com/docs/en/github-actions</td>
+<td>Reading</td>
+<td>Current</td>
+<td>Free (uses your subscription or API)</td>
+<td><code>/install-github-app</code>, <code>@claude</code>, review workflow, scheduled runs, cost caps.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Claude Code: Code Review</td>
+<td>Anthropic</td>
+<td>https://code.claude.com/docs/en/code-review</td>
+<td>Reading</td>
+<td>Current</td>
+<td>Free</td>
+<td>Automatic review on every PR with no workflow file.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>Claude Code + Git worktrees guide</td>
+<td>devtoollab</td>
+<td>https://devtoollab.com/blog/claude-code-git-worktrees-parallel-agents-guide</td>
+<td>Reading</td>
+<td>2026</td>
+<td>Free</td>
+<td><code>claude --worktree</code> (shipped v2.1.49, Feb 2026), <code>.worktreeinclude</code>, subagent isolation. A video titled "Claude Code Worktrees in 7 Minutes" also exists, creator unverified.</td>
+<td>✔ / ◐</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>How the Claude–GitHub pieces fit:</strong> <code>/install-github-app</code> from Claude Code installs the GitHub App, stores a secret and opens a pull request with the workflow files; you need the GitHub CLI installed and authenticated first. Mentioning <code>@claude</code> in an issue or PR comment has Claude analyse code, implement changes and push commits; a <code>prompt</code> input runs it automatically on any GitHub event, including a cron schedule. Boris Cherny, who created Claude Code, listed spinning up three to five worktrees each running its own session as his top tip in February 2026.</p>
+<p><strong>Module 1.4 half-day exercise:</strong></p>
+<ol>
+<li><strong>Conflicts and recovery.</strong> In your sandbox repo, create two branches that edit the same line. Merge one; rebase the other onto <code>main</code> and resolve the conflict in VS Code's merge editor. Squash the branch to a single commit with <code>git rebase -i</code>. Then "break" <code>main</code> with <code>git reset --hard HEAD~3</code> and recover it from <code>git reflog</code>.</li>
+<li><strong>Issues as an agent queue.</strong> Create three issues, a Kanban project and labels. Have Claude Code pick up issue #1 on a branch and open a PR whose description says <code>Closes #1</code>. Review it yourself: leave an inline comment, request a change, approve, squash-merge, and watch the issue close.</li>
+<li><strong>Lock the door.</strong> Add a ruleset requiring a PR, one approval and a passing check before merging to <code>main</code>. Turn on secret scanning and push protection, then try to push a fake API key and watch it get blocked.</li>
+<li><strong>Wire in Claude.</strong> Run <code>/install-github-app</code>, comment <code>@claude</code> on an issue, and read the review Claude leaves on your next PR. Notice what it catches and what it misses.</li>
+</ol>
+<p><strong>Phase 1 project:</strong> create a repo, clone it over SSH, write a README in VS Code, then commit, push, open a PR and merge it.</p>
+<p><strong>Ready to move on when…</strong> you can do that without notes; explain what happens between typing a URL and seeing the page (DNS → server → HTTP response); set and read an environment variable; resolve a conflict without panic; explain merge vs rebase in one sentence each; recover a "lost" commit from reflog; review and squash-merge an agent's PR with at least one requested change; and <code>main</code> cannot be pushed to directly.</p>
+<p><strong>Pitfalls:</strong> fighting Windows instead of using WSL; committing <code>.env</code> files (add <code>.gitignore</code> first); running commands you don't understand (ask Claude to "explain each flag" first); rebasing a branch someone else has pulled; treating green CI as approval (tests check what's there, not what's missing); <code>--force</code> instead of <code>--force-with-lease</code>; and installing GitHub Apps without reading the permission list. The Claude GitHub App asks for a single permission set covering all Claude features, including read-and-write on Actions, Contents, Issues, Pull requests and Workflows, and GitHub won't let you accept a subset. For tighter scope you can build a custom app with only Contents, Issues and Pull requests, though that covers only the Action, not Code Review.</p>
+<h2 id="phase-2-programming-foundations-fast">Phase 2 – Programming Foundations, Fast (Weeks 4–7, ~45 hours)</h2>
+<p><strong>Objectives:</strong> read and debug Python and TypeScript; use virtual environments and <code>uv</code>/<code>pip</code>; call APIs and handle JSON; understand async basics; use Node.js and npm/pnpm; know just enough HTML/CSS. The aim is to read code, not memorise it. <strong>Prerequisites:</strong> Phase 1.</p>
+<h3 id="module-2-1-python-from-zero">Module 2.1 – Python from zero (~20 h)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python Full Course for Beginners</td>
+<td>Programming with Mosh</td>
+<td>https://www.youtube.com/watch?v=K5KVEU3aaeQ</td>
+<td>~2 h</td>
+<td>labelled 2025</td>
+<td>Free</td>
+<td><strong>Primary fast track.</strong> Enough to read agent code.</td>
+<td>✔ exists</td>
+</tr>
+<tr>
+<td>Harvard CS50P – Introduction to Programming with Python</td>
+<td>David J. Malan via freeCodeCamp</td>
+<td>https://www.youtube.com/watch?v=nLRL_NcnK-4 (playlist: https://www.youtube.com/playlist?list=PLhQjrBD2T3817j24-GogXmWqO5Q5vYy0V; problem sets: https://pll.harvard.edu/course/cs50s-introduction-programming-python)</td>
+<td>~16 h</td>
+<td>~2022–23 (older, foundational)</td>
+<td>Free (paid edX cert optional)</td>
+<td><strong>For depth:</strong> lectures on functions, exceptions, libraries, file I/O and OOP, plus 3–4 problem sets with the AI explaining, not solving.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>uv docs</td>
+<td>Astral</td>
+<td>https://docs.astral.sh/uv/</td>
+<td>Reference</td>
+<td>Current</td>
+<td>Free</td>
+<td>The fast default for Python projects in 2026: <code>uv init</code>, <code>uv add</code>, <code>uv run</code>.</td>
+<td>◐</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Exercise:</strong> write a Python script that calls a public JSON API and writes the results to a CSV. Then make an <code>asyncio</code> version that fetches 5 cities at once.</p>
+<h3 id="module-2-2-javascript-typescript-node-js-npm-pnpm">Module 2.2 – JavaScript/TypeScript, Node.js, npm/pnpm (~18 h)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Beginner's TypeScript (18 exercises)</td>
+<td>Matt Pocock / Total TypeScript</td>
+<td>https://www.totaltypescript.com/tutorials/beginners-typescript</td>
+<td>~3–4 h</td>
+<td>Sep 2022 (older, foundational)</td>
+<td>Free</td>
+<td><strong>Primary.</strong> Types are the cheapest way to catch AI mistakes. Skip the paid Pro workshops. Pair it with https://nodejs.org/en/learn for modules, npm scripts and <code>.env</code>.</td>
+<td>✔</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="module-2-3-just-enough-html-css-and-reading-code">Module 2.3 – Just-enough HTML/CSS and reading code (~7 h)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MDN – HTML &amp; CSS basics</td>
+<td>Mozilla</td>
+<td>https://developer.mozilla.org/en-US/docs/Learn</td>
+<td>~4 h</td>
+<td>Current</td>
+<td>Free</td>
+<td>Box model, flexbox and semantic tags. Tailwind/shadcn handle the rest.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>Claude Code for Beginners (debugging and navigation sections)</td>
+<td>freeCodeCamp</td>
+<td>https://www.freecodecamp.org/news/claude-code-for-beginners/</td>
+<td>4 h 27 m (~1.5 h here)</td>
+<td>14 May 2026</td>
+<td>Free</td>
+<td>Using the agent to explain a codebase you've never seen.</td>
+<td>✔</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>How to learn with AI here:</strong> ask "explain this line by line", "what breaks if I remove X?" and "write a failing test that shows the bug". Have it quiz you. Don't ask it to "just fix it" until you can say what's wrong.</p>
+<p><strong>Phase 2 project:</strong> a Python CLI and a small TypeScript script that both call the same API, each committed with a README.</p>
+<p><strong>Ready to move on when…</strong> you can take a 100-line file you didn't write, explain what it does, find where it reads the API key, and fix a planted bug with the AI's help while giving the explanation yourself.</p>
+<p><strong>Pitfalls:</strong> tutorial hell (cap this phase at about 45 hours), memorising syntax, and skipping virtual environments.</p>
+<h2 id="phase-3-how-llms-work-practically">Phase 3 – How LLMs Work, Practically (Week 8, ~15 hours)</h2>
+<p><strong>Objectives:</strong> understand tokens, context windows, embeddings, temperature, system prompts, tool calling, structured outputs, hallucination, cost, the model landscape, and prompt and context engineering. <strong>Prerequisites:</strong> Phase 2.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deep Dive into LLMs like ChatGPT</td>
+<td>Andrej Karpathy</td>
+<td>https://www.youtube.com/watch?v=7xTGNNLPyMI</td>
+<td>3 h 31 m</td>
+<td>5 Feb 2025</td>
+<td>Free</td>
+<td><strong>Primary.</strong> Pre-training, tokens, fine-tuning (SFT) and RL, plus the best explanation of <em>why</em> models hallucinate. Watch at 1.25×.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Effective context engineering for AI agents</td>
+<td>Anthropic Applied AI team</td>
+<td>https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</td>
+<td>~30 min</td>
+<td>29 Sep 2025</td>
+<td>Free</td>
+<td>Moves past prompt engineering to curating everything that goes into the context window. Underpins CLAUDE.md, skills and subagents.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Building with the Claude API</td>
+<td>Claude Academy</td>
+<td>https://academy.claude.com (legacy: anthropic.skilljar.com/building-with-the-claude-api)</td>
+<td>several h</td>
+<td>2026</td>
+<td>Free</td>
+<td>Hands-on tool use, structured outputs and caching.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Prompting docs: Anthropic, OpenAI, Google</td>
+<td>Vendors</td>
+<td>https://docs.anthropic.com · https://platform.openai.com/docs · https://ai.google.dev</td>
+<td>Reading</td>
+<td>Current</td>
+<td>Free</td>
+<td><strong>For balance:</strong> structured outputs and tool calling work much the same across vendors.</td>
+<td>◐</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Cost intuition (from third-party trackers such as https://benchr.org/timeline, so verify):</strong> prices per million input/output tokens vary about 100×. GPT-6 Luna is about $0.10 / $0.50; Claude Sonnet 5.5 about $2 / $10; Claude Opus 5.5 about $4 / $20; GPT-6 Astra about $10 / $50. Send easy steps to cheap models and save frontier models for planning and review. That is the biggest cost lever in agent systems.</p>
+<p><strong>Exercise:</strong> send the same prompt to two vendors and ask for schema-constrained JSON. Measure tokens and cost, then overfill a small context on purpose and watch the quality drop.</p>
+<p><strong>Ready to move on when…</strong> you can explain what tokens are, what temperature does, why with tool calling "the model asks; your code executes", and why bloated context makes agents worse.</p>
+<p><strong>Pitfalls:</strong> treating models as databases of truth, ignoring cost, and chasing leaderboards.</p>
+<h2 id="phase-4-ai-assisted-coding-tools">Phase 4 – AI-Assisted Coding Tools (Weeks 2 and 9–11, ~30 hours)</h2>
+<p><strong>Speed hack:</strong> in week 2, alongside Phase 1, do Module 4.1's first video and deploy a tiny static site to Vercel. Early wins keep you going.</p>
+<p><strong>Objectives:</strong> become fluent in Claude Code (CLAUDE.md, slash commands, hooks, subagents, skills, plugins, MCP, headless/CI, the Agent SDK) and know the alternatives. <strong>Prerequisites:</strong> Phase 1.</p>
+<h3 id="module-4-1-claude-code-deep-dive">Module 4.1 – Claude Code deep dive (~20 h)</h3>
+<p>Claude Code runs in the terminal, in IDE extensions, as a desktop app and on the web. The free Claude plan does not include it.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Plan</th>
+<th>Price</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pro (the minimum)</td>
+<td>$20/month, or $17/month billed annually</td>
+<td>Rolling 5-hour windows plus weekly limits, shared with Claude chat</td>
+</tr>
+<tr>
+<td>Max 5x</td>
+<td>$100/month</td>
+<td>5× Pro</td>
+</tr>
+<tr>
+<td>Max 20x</td>
+<td>$200/month</td>
+<td>20× Pro</td>
+</tr>
+</tbody>
+</table></div>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code Full Course</td>
+<td>freeCodeCamp (Eric, ex-Amazon/Microsoft)</td>
+<td>https://www.freecodecamp.org/news/claude-code-full-course/</td>
+<td>~1.5 h</td>
+<td>5 Aug 2026</td>
+<td>Free</td>
+<td><strong>Watch this first.</strong> The newest full course: VS Code setup, <code>/goal</code>, Skills, MCP, GitHub, deployment.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Claude Code for Beginners [Full Course]</td>
+<td>freeCodeCamp</td>
+<td>https://www.freecodecamp.org/news/claude-code-for-beginners/</td>
+<td>4 h 27 m</td>
+<td>14 May 2026</td>
+<td>Free</td>
+<td>Good second pass: scaffolding, audits, debugging.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Claude Code Essentials</td>
+<td>freeCodeCamp (Andrew Brown, ExamPro)</td>
+<td>https://www.freecodecamp.org/news/claude-code-essentials/</td>
+<td>~12 h</td>
+<td>Mar 2026</td>
+<td>Free</td>
+<td><strong>The exhaustive reference:</strong> permissions, sandboxing, dev containers, GitHub Actions, Agent SDK, memory, MCP, Git worktrees. Watch selectively.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Claude Code 101</td>
+<td>Claude Academy</td>
+<td>https://academy.claude.com/courses/claude-code-101</td>
+<td>~1.5 h</td>
+<td>rebuilt 2026</td>
+<td>Free (exercises need Pro/API)</td>
+<td>Official baseline, with a badge.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Claude Code in Action</td>
+<td>Claude Academy</td>
+<td>https://academy.claude.com/courses/claude-code-in-action</td>
+<td>~1 h, 9 lessons + quiz</td>
+<td>2026</td>
+<td>Free</td>
+<td>Context, custom commands, MCP, GitHub, hooks, SDK.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Introduction to Agent Skills / Introduction to Subagents</td>
+<td>Claude Academy</td>
+<td>https://academy.claude.com/courses/introduction-to-agent-skills · https://academy.claude.com/courses/introduction-to-subagents</td>
+<td>~1 h each</td>
+<td>2026</td>
+<td>Free</td>
+<td>Reusable SKILL.md packages; context isolation.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Claude Code: A Highly Agentic Coding Assistant</td>
+<td>DeepLearning.AI × Anthropic</td>
+<td>https://www.deeplearning.ai/courses/claude-code-a-highly-agentic-coding-assistant</td>
+<td>~2 h</td>
+<td>Aug 2025</td>
+<td>Free</td>
+<td>Parallel sessions with worktrees, hooks, Playwright MCP, Figma to UI.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Agent Skills with Anthropic</td>
+<td>DeepLearning.AI</td>
+<td>https://www.deeplearning.ai/courses/agent-skills-with-anthropic</td>
+<td>10 lessons</td>
+<td>2025–26</td>
+<td>Free</td>
+<td>Skills across Claude.ai, Claude Code, the API and the Agent SDK.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Claude Code video roadmap (Tech With Tim; Nick Saraev 4 h course and 3 h advanced course)</td>
+<td>developereducators.com</td>
+<td>https://developereducators.com/roadmap/claude-code/</td>
+<td>20 videos</td>
+<td>2026</td>
+<td>Free</td>
+<td>A curated index of popular YouTube videos.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Claude Code docs</td>
+<td>Anthropic</td>
+<td>https://code.claude.com/docs</td>
+<td>Reference</td>
+<td>Continuously updated</td>
+<td>Free</td>
+<td><strong>The source of truth.</strong> Videos go out of date; the docs don't.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Claude Code for Professional Developers</td>
+<td>Code with Mosh</td>
+<td>codewithmosh.com</td>
+<td>~9 h</td>
+<td>2026</td>
+<td>Paid (~$249 ≈ £200)</td>
+<td>Only if you want one polished linear course. The free courses cover most of it.</td>
+<td>◐</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Concepts to master, in order:</strong></p>
+<ol>
+<li><strong>CLAUDE.md:</strong> short project memory covering architecture, commands and conventions.</li>
+<li><strong>Plan mode:</strong> explore → plan → code → commit.</li>
+<li><strong>Permissions and sandboxing:</strong> never use blanket "skip permissions" on a machine that holds production credentials.</li>
+<li><strong>Slash commands and Skills:</strong> stored in <code>.claude/skills/&lt;name&gt;/SKILL.md</code>.</li>
+<li><strong>Hooks:</strong> deterministic scripts that run at <code>PreToolUse</code>, <code>PostToolUse</code> or <code>Stop</code>, e.g. auto-format, block <code>rm -rf</code>, run tests. A hook always runs; a prompt is only a suggestion.</li>
+<li><strong>Subagents:</strong> separate contexts for research, review and testing, which can run in parallel.</li>
+<li><strong>MCP servers:</strong> connections to GitHub, Supabase, Playwright, Notion and so on.</li>
+<li><strong>Plugins:</strong> shareable bundles of skills, hooks, agents and MCP config.</li>
+<li><strong>Headless/CI:</strong> <code>claude -p</code> in scripts and GitHub Actions.</li>
+<li><strong>Claude Agent SDK:</strong> the same harness, as a library. Renamed from "Claude Code SDK" on 29 September 2025, alongside Claude Code 2.0. The packages are now <code>claude-agent-sdk</code> and <code>@anthropic-ai/claude-agent-sdk</code>, so older tutorials import the wrong ones. Docs: https://code.claude.com/docs/en/agent-sdk/overview and the migration guide at https://platform.claude.com/docs/en/agent-sdk/migration-guide.</li>
+</ol>
+<p><strong>Exercise:</strong> in an existing repo, set up a CLAUDE.md, a <code>/release-notes</code> skill, a lint-after-edit hook, a <code>security-reviewer</code> subagent and the Playwright MCP server. Then run a headless <code>claude -p</code> task from a shell script.</p>
+<h3 id="module-4-2-the-alternatives-honest-comparison">Module 4.2 – The alternatives: honest comparison (~10 h)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Type</th>
+<th>Entry price (Oct 2026)</th>
+<th>Strengths</th>
+<th>Weaknesses</th>
+<th>Use it when…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code</td>
+<td>Terminal/IDE/desktop agent</td>
+<td>Pro $20; Max $100/$200</td>
+<td>Mature extension model; strong on long tasks; Agent SDK reuse</td>
+<td>Claude models only; usage windows can cut you off mid-task; no free tier</td>
+<td>Your main agent</td>
+</tr>
+<tr>
+<td>OpenAI Codex</td>
+<td>Agent; open-source CLI (Apache-2.0)</td>
+<td>Free and Go ($8) tiers; Plus $20 is the first plan that lists CLI/IDE; Pro from $100</td>
+<td>Open-source; cloud tasks; GPT-6-class models</td>
+<td>Plan and credit rules change often</td>
+<td>Second-opinion reviewer</td>
+</tr>
+<tr>
+<td>Gemini CLI</td>
+<td>Open-source terminal agent</td>
+<td>Free quota; paid via API</td>
+<td>Generous free tier; 1M-token context</td>
+<td>Quotas have changed before</td>
+<td>Zero-cost experiments</td>
+</tr>
+<tr>
+<td>Cursor</td>
+<td>AI IDE (VS Code fork)</td>
+<td>Hobby free; Pro $20; Pro+ $60; Ultra $200</td>
+<td>Best editor UX; multi-model</td>
+<td>Credits run out faster than the dollar figure suggests</td>
+<td>If you prefer an IDE</td>
+</tr>
+<tr>
+<td>Windsurf</td>
+<td>AI IDE</td>
+<td>~$20</td>
+<td>Similar to Cursor</td>
+<td>Moved to daily/weekly quotas in March 2026, per a pricing tracker</td>
+<td>Cursor alternative</td>
+</tr>
+<tr>
+<td>GitHub Copilot</td>
+<td>IDE assistant + agent</td>
+<td>Pro ~$10</td>
+<td>Cheapest paid option; built into GitHub</td>
+<td>Less autonomous</td>
+<td>Tight budget, team settings</td>
+</tr>
+<tr>
+<td>Replit Agent</td>
+<td>Browser IDE + hosting</td>
+<td>Free + paid</td>
+<td>No setup; hosting included</td>
+<td>In July 2025 the agent deleted a production database during a declared code freeze (1,206 executives, 1,196 companies). Replit then added dev/prod separation</td>
+<td>Hosted prototypes</td>
+</tr>
+<tr>
+<td>Lovable / Bolt / v0</td>
+<td>Prompt-to-app builders</td>
+<td>Free tiers + ~$20+</td>
+<td>Fastest from idea to clickable UI</td>
+<td>CVE-2025-48757: a March 2025 scan of 1,645 apps from Lovable's showcase found about 10.3% with inadequate RLS</td>
+<td>Demos and mockups. Export to GitHub and harden with Claude Code</td>
+</tr>
+</tbody>
+</table></div>
+<p>Price comparison checked 28 Sep 2026: https://www.developersdigest.tech/blog/ai-coding-tools-pricing-2026.</p>
+<p><strong>Recommendation:</strong> pay for one $20 primary (Claude Pro), and use Gemini CLI (free) or a cheap Codex tier as the cross-checker. Upgrade to Max 5x only if you hit limits more than twice a week.</p>
+<p><strong>Ready to move on when…</strong> you can start from a fresh repo and, with only Claude Code plus your own review, ship a feature on a branch with tests, a hook-enforced lint and a PR, and explain every file that changed.</p>
+<p><strong>Pitfalls:</strong> clicking "accept all" on database or infrastructure commands, letting CLAUDE.md grow to 2,000 lines, installing dozens of random MCP servers (each is a supply-chain and prompt-injection risk), and tool FOMO.</p>
+<h2 id="phase-5-building-real-apps">Phase 5 – Building Real Apps (Weeks 12–17, ~60 hours)</h2>
+<p><strong>Objectives:</strong> build with Next.js/React and TypeScript; use Postgres via Supabase or Neon, plus auth; take payments with Stripe; deploy to Vercel, Railway, Fly.io or Cloudflare; learn Docker basics and manage secrets; add testing, CI/CD with GitHub Actions, and monitoring; apply vibe-coding security basics; finish with a SaaS that takes real money. <strong>Prerequisites:</strong> Phases 2 and 4.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SaaS App Full Course 2026 – Launch Your SaaS in Under 7 Days with Next JS, Supabase &amp; Payments</td>
+<td>JavaScript Mastery</td>
+<td>https://www.youtube.com/watch?v=XUkNR-JfHwo</td>
+<td>3 h 56 m</td>
+<td>uploaded 23 May 2025 (retitled 2026)</td>
+<td>Free</td>
+<td><strong>Primary end-to-end build.</strong> Payments use Clerk Billing, not Stripe, so add Stripe from its docs.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Next.js Learn</td>
+<td>Vercel</td>
+<td>https://nextjs.org/learn</td>
+<td>~8–10 h</td>
+<td>Continuously updated</td>
+<td>Free</td>
+<td>The current official App Router tutorial.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>Next.js 13 Crash Course</td>
+<td>Net Ninja</td>
+<td>https://www.youtube.com/watch?v=TJQbDPGzm0Y</td>
+<td>playlist</td>
+<td>~2023 (older; some APIs have changed)</td>
+<td>Free</td>
+<td>Clear teaching. Pair it with the docs.</td>
+<td>✔ exists</td>
+</tr>
+<tr>
+<td>Supabase Tutorial for Beginners</td>
+<td>Net Ninja</td>
+<td>https://www.youtube.com/channel/UCW5YeuERMmlnqo4oq8vwUpg</td>
+<td>playlist</td>
+<td>~2022 (older)</td>
+<td>Free</td>
+<td>The Supabase mental model. Neon (https://neon.com/docs) is the alternative if you don't want bundled auth.</td>
+<td>✔ exists (URL not confirmed)</td>
+</tr>
+<tr>
+<td>Supabase docs – RLS and Auth</td>
+<td>Supabase</td>
+<td>https://supabase.com/docs/guides/database/postgres/row-level-security</td>
+<td>Reference</td>
+<td>Current</td>
+<td>Free</td>
+<td><strong>Mandatory.</strong> The single most important security setting for vibe-coded apps.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>Stripe docs – Checkout, Billing, webhooks</td>
+<td>Stripe</td>
+<td>https://docs.stripe.com</td>
+<td>Reference</td>
+<td>Current</td>
+<td>Fees per transaction</td>
+<td>Use Checkout and the Customer Portal; never build your own payment UI.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>Vercel / Railway / Fly.io / Cloudflare docs</td>
+<td>Vendors</td>
+<td>https://vercel.com/docs · https://docs.railway.com · https://fly.io/docs · https://developers.cloudflare.com</td>
+<td>Reference</td>
+<td>Current</td>
+<td>Free tiers</td>
+<td>Vercel for Next.js; Railway/Fly for workers and agents; Cloudflare for DNS and edge.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>100+ Docker Concepts you Need to Know</td>
+<td>Fireship</td>
+<td>search the title on https://www.youtube.com/@Fireship</td>
+<td>~10 min</td>
+<td>~2024 (older, foundational)</td>
+<td>Free</td>
+<td>Enough to containerise an agent worker.</td>
+<td>✔ exists (URL not confirmed)</td>
+</tr>
+<tr>
+<td>Claude Code Essentials – dev containers &amp; GitHub Actions</td>
+<td>freeCodeCamp</td>
+<td>https://www.freecodecamp.org/news/claude-code-essentials/</td>
+<td>~2 h of 12</td>
+<td>Mar 2026</td>
+<td>Free</td>
+<td>Running the agent inside CI.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>GitHub for Beginners S3: GitHub Actions</td>
+<td>GitHub (Kedasha Kerr)</td>
+<td>https://github.blog/developer-skills/github/github-for-beginners-getting-started-with-github-actions/</td>
+<td>~15 min</td>
+<td>16 Mar 2026</td>
+<td>Free</td>
+<td>Your first workflow, before you add tests to it.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>GitHub Actions docs; OWASP Top 10 (+ LLM Top 10)</td>
+<td>GitHub; OWASP</td>
+<td>https://docs.github.com/actions · https://owasp.org</td>
+<td>Reference</td>
+<td>Current</td>
+<td>Free</td>
+<td>Run tests on every PR, and have Claude audit your app against OWASP.</td>
+<td>◐</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="security-for-vibe-coded-apps">Security for vibe-coded apps (non-negotiable, ~6 h)</h3>
+<ol>
+<li><strong>No RLS.</strong> In the Lovable case (CVE-2025-48757), Matt Palmer's statement (29 May 2025) reports that his 21 March 2025 scan found 303 endpoints across 170 of 1,645 projects (about 10.3%) with inadequate RLS settings. <strong>Fix:</strong> turn on RLS for every table, write policies based on <code>auth.uid()</code>, and test while logged out.</li>
+<li><strong>Leaked keys.</strong> The <code>service_role</code> key or API keys end up in front-end code or Git. <strong>Fix:</strong> keep them in server-only env vars, put <code>.env</code> in <code>.gitignore</code>, turn on GitHub push protection (see Module 1.4), and rotate anything that has leaked.</li>
+<li><strong>Agents with production access.</strong> This is what happened with Replit and SaaStr. <strong>Fix:</strong> separate dev and prod databases, give agents a read-only prod role, keep backups, and add a hook that blocks destructive SQL.</li>
+<li><strong>Injection.</strong> SQL injection and prompt injection through user content. <strong>Fix:</strong> use parameterised queries or an ORM, and treat everything the model reads as untrusted.</li>
+<li><strong>Unverified webhooks.</strong> <strong>Fix:</strong> verify Stripe signatures and make handlers idempotent (safe to run twice).</li>
+</ol>
+<p><strong>Monitoring:</strong> Sentry, platform logs and PostHog all have free tiers.</p>
+<p><strong>Capstone 1 (paid micro-SaaS):</strong> a Next.js + Supabase + Stripe app that solves a problem from your sales world, such as an account-research brief generator. It needs auth and RLS, a Stripe subscription (test mode, then live), CI on every PR with a ruleset protecting <code>main</code>, Sentry and a custom domain, and it launches to 10 people.</p>
+<p><strong>Ready to move on when…</strong> a stranger can sign up, pay, use the app and cancel; logged-out queries to every table return nothing; CI blocks a failing test; and you can draw the architecture from memory.</p>
+<p><strong>Pitfalls:</strong> building your own auth or payments, skipping test mode, and launching without backups.</p>
+<h2 id="phase-6-building-ai-agents">Phase 6 – Building AI Agents (Weeks 17–22, ~60 hours)</h2>
+<p><strong>Objectives:</strong> use the Claude and OpenAI APIs, including tool use; understand the agent loop and Anthropic's "Building effective agents" patterns; build and use MCP servers; compare agent frameworks; add RAG, memory and structured outputs; set up evals, observability, guardrails and cost control; run background agents, and know when computer-use or browser agents fit. <strong>Prerequisites:</strong> Phases 3–5.</p>
+<h3 id="module-6-1-apis-tool-use-the-agent-loop">Module 6.1 – APIs, tool use, the agent loop (~12 h)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agentic AI</td>
+<td>Andrew Ng / DeepLearning.AI</td>
+<td>https://www.deeplearning.ai/courses/agentic-ai</td>
+<td>9 h 55 m, 31 videos</td>
+<td>launched 7 Oct 2025, updated 31 Aug 2026</td>
+<td>Free to watch; certificate needs Pro</td>
+<td><strong>Primary, vendor-neutral.</strong> Reflection, tool use, planning, multi-agent systems, evals, error analysis.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Building effective agents</td>
+<td>Anthropic (Erik Schluntz &amp; Barry Zhang)</td>
+<td>https://www.anthropic.com/engineering/building-effective-agents</td>
+<td>~30 min</td>
+<td>Dec 2024 (older, foundational)</td>
+<td>Free</td>
+<td>The canonical patterns: chaining, routing, parallelisation, orchestrator-workers, evaluator-optimiser, then autonomous agents. Start simple.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>Claude Certified Developer Foundations prep course</td>
+<td>freeCodeCamp</td>
+<td>https://www.freecodecamp.org/news/unlock-the-power-of-ai-agents-with-the-new-claude-certified-developer-foundations-course/</td>
+<td>~8 h</td>
+<td>2026</td>
+<td>Free</td>
+<td>Agent architectures, MCP, JSON outputs, caching, prompt-injection defence, cost.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Building toward Computer Use with Anthropic</td>
+<td>DeepLearning.AI (Colt Steele)</td>
+<td>https://www.deeplearning.ai/courses</td>
+<td>1 h 35 m</td>
+<td>2025</td>
+<td>Free</td>
+<td>API basics up to computer use. Model names are older.</td>
+<td>✔ listed</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Exercise:</strong> write an agent loop by hand in about 80 lines of Python: messages → model → tool call → your code runs it → append the result → repeat. Add a max-steps limit and a cost counter. After this, every framework makes sense.</p>
+<h3 id="module-6-2-model-context-protocol">Module 6.2 – Model Context Protocol (~10 h)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MCP: Build Rich-Context AI Apps with Anthropic</td>
+<td>DeepLearning.AI (Elie Schoppik)</td>
+<td>https://www.deeplearning.ai/courses/mcp-build-rich-context-ai-apps-with-anthropic</td>
+<td>1 h 38 m, 11 videos</td>
+<td>May 2025</td>
+<td>Free</td>
+<td><strong>Primary:</strong> build both a server and a client.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>MCP Course (with Anthropic)</td>
+<td>Hugging Face</td>
+<td>https://huggingface.co/learn/mcp-course/en/unit0/introduction</td>
+<td>multi-unit</td>
+<td>2025 (now "legacy")</td>
+<td>Free + free certificate</td>
+<td>Theory → end-to-end app → deployed use case.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>The Context Course</td>
+<td>Hugging Face</td>
+<td>https://huggingface.co/context-course</td>
+<td>multi-unit</td>
+<td>2026</td>
+<td>Free</td>
+<td>Skills, plugins, MCP, subagents and hooks across Claude Code, Codex and OpenCode.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>modelcontextprotocol.io</td>
+<td>MCP project</td>
+<td>https://modelcontextprotocol.io</td>
+<td>Reference</td>
+<td>Current</td>
+<td>Free</td>
+<td>The spec and SDKs. Claude Academy's MCP intro and advanced courses are official, shorter alternatives.</td>
+<td>◐</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Exercise:</strong> build a read-only MCP server for your Phase 5 app and connect it to Claude Code and one other client.</p>
+<h3 id="module-6-3-frameworks-compared">Module 6.3 – Frameworks compared (~12 h)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Language</th>
+<th>Best for</th>
+<th>Watch-outs</th>
+<th>Learn from</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Agent SDK</td>
+<td>Py/TS</td>
+<td>Claude Code's harness inside your own app</td>
+<td>Claude-only; no longer uses Claude Code's system prompt by default</td>
+<td>https://code.claude.com/docs/en/agent-sdk/overview ✔</td>
+</tr>
+<tr>
+<td>OpenAI Agents SDK</td>
+<td>Py/TS</td>
+<td>Lightweight handoffs, guardrails, tracing</td>
+<td>Built around OpenAI</td>
+<td>https://openai.github.io/openai-agents-python/ ◐; James Briggs, "Agents SDK from OpenAI! Full Tutorial" https://www.youtube.com/watch?v=35nxORG1mtg (~22 min, ~Mar 2025) + playlist https://www.youtube.com/playlist?list=PLIUOU7oqGTLjsFQaIyhcC1u2Nu1MmBTbs ✔</td>
+</tr>
+<tr>
+<td>LangGraph</td>
+<td>Py/TS</td>
+<td>Durable state machines, human-in-the-loop</td>
+<td>Steeper learning curve</td>
+<td>LangChain Academy "Introduction to LangGraph" (free) https://academy.langchain.com/courses/intro-to-langgraph ✔ (Sep 2024; older, foundational)</td>
+</tr>
+<tr>
+<td>Pydantic AI</td>
+<td>Python</td>
+<td>Type-safe structured outputs</td>
+<td>Smaller ecosystem</td>
+<td>https://ai.pydantic.dev ◐</td>
+</tr>
+<tr>
+<td>CrewAI</td>
+<td>Python</td>
+<td>Quick role-based multi-agent prototypes</td>
+<td>Harder to control precisely</td>
+<td>https://docs.crewai.com ◐</td>
+</tr>
+<tr>
+<td>Google ADK</td>
+<td>Py/Java/TS</td>
+<td>Gemini/Vertex deployments</td>
+<td>Pulls you towards Google Cloud</td>
+<td>https://google.github.io/adk-docs ◐</td>
+</tr>
+<tr>
+<td>Mastra</td>
+<td>TypeScript</td>
+<td>TS-native agents for Next.js teams</td>
+<td>Younger project</td>
+<td>https://mastra.ai/docs ◐</td>
+</tr>
+<tr>
+<td>Vercel AI SDK</td>
+<td>TypeScript</td>
+<td>Streaming chat/tool UIs, multi-provider</td>
+<td>A plumbing layer, not an orchestrator</td>
+<td>https://ai-sdk.dev/docs ◐</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Recommendation:</strong> start with the plain API and your own hand-written loop. Then add the Claude Agent SDK (it matches your Claude Code skills) and the Vercel AI SDK (multi-provider, which hedges vendor risk). Add LangGraph only when you need durable, branching workflows with approvals.</p>
+<h3 id="module-6-4-rag-memory-evals-observability-guardrails-cost-background-and-browser-agents">Module 6.4 – RAG, memory, evals, observability, guardrails, cost, background and browser agents (~26 h)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Resource</th>
+<th>URL</th>
+<th>Notes</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evals</td>
+<td>Agentic AI (Ng), evals module</td>
+<td>https://www.deeplearning.ai/courses/agentic-ai</td>
+<td>Build an eval set <em>before</em> you tune prompts</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>Langfuse (open-source); alternatives LangSmith, Braintrust</td>
+<td>https://langfuse.com/docs · https://docs.smith.langchain.com · https://www.braintrust.dev/docs</td>
+<td>Traces, cost, prompt versions</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>RAG</td>
+<td>Supabase pgvector</td>
+<td>https://supabase.com/docs/guides/ai</td>
+<td>Use pgvector in the Postgres you already run before adding a separate vector DB</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>Memory/context</td>
+<td>Anthropic context engineering</td>
+<td>https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</td>
+<td>Compaction, note-taking, isolating context in subagents</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Guardrails</td>
+<td>freeCodeCamp CCDV-F course; OWASP LLM Top 10</td>
+<td>links above</td>
+<td>Least privilege, allow-listed tools, human approval for any write</td>
+<td>✔ / ◐</td>
+</tr>
+<tr>
+<td>Computer use &amp; browser agents</td>
+<td>DLAI Computer Use; Playwright MCP</td>
+<td>links above</td>
+<td>Slow and brittle. Use APIs where they exist</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Background agents</td>
+<td>Agent SDK hosting docs; Railway/Fly workers</td>
+<td>https://code.claude.com/docs/en/agent-sdk/overview</td>
+<td>Queue workers with checkpoints, timeouts and budgets</td>
+<td>✔ / ◐</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Cost controls:</strong> a budget cap per run, a max-steps limit, a cheap model for routing, prompt caching, cost logged per task, and alerts at 50%, 80% and 100% of the monthly budget.</p>
+<p><strong>Capstone 2 (production agent):</strong> a prospect-research agent that takes a company name, uses web search and your MCP server, and writes a structured brief to Supabase. It needs 30 eval cases, Langfuse tracing, a cost cap, and human approval before any email is sent.</p>
+<p><strong>Ready to move on when…</strong> the agent passes at least 90% of your evals, every run is traced with its cost, and you can show a blocked prompt-injection attempt.</p>
+<p><strong>Pitfalls:</strong> going multi-agent before a single agent works, skipping evals, and giving agents write access to email or the CRM on day one.</p>
+<h2 id="phase-7-automation-and-multi-agent-business-systems">Phase 7 – Automation and Multi-Agent Business Systems (Weeks 22–25, ~30 hours)</h2>
+<p><strong>Objectives:</strong> n8n, Make and Zapier; orchestration; connecting to email, CRM, Slack and Notion; scheduled agents; human-in-the-loop design; an "AI-run business" stack and its limits. <strong>Prerequisites:</strong> Phase 6.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Creator</th>
+<th>URL</th>
+<th>Duration</th>
+<th>Date</th>
+<th>Cost</th>
+<th>Why / skip</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>n8n Tutorial for Beginners – The Complete Course</td>
+<td>YouTube playlist (creator not confirmed)</td>
+<td>https://www.youtube.com/playlist?list=PLYLEmQupIzOEEvgtBduSgYLaug7LKqlSo</td>
+<td>10 videos</td>
+<td>2025</td>
+<td>Free</td>
+<td><strong>Primary structured intro.</strong></td>
+<td>✔ exists</td>
+</tr>
+<tr>
+<td>Master n8n in 2 Hours: Complete Beginner's Guide for 2026</td>
+<td>YouTube (Automatable)</td>
+<td>https://www.youtube.com/watch?v=AURnISajubk</td>
+<td>~2 h</td>
+<td>2026</td>
+<td>Free</td>
+<td>The fastest current alternative.</td>
+<td>✔ exists</td>
+</tr>
+<tr>
+<td>Ultimate n8n Course: Beginner to Pro in 17 Hours (2026)</td>
+<td>YouTube (creator not confirmed)</td>
+<td>https://www.youtube.com/watch?v=TZ43SRdTMs0</td>
+<td>~17 h</td>
+<td>2026</td>
+<td>Free</td>
+<td>The deep option: sub-workflows, agent tools, schema validation.</td>
+<td>✔ exists</td>
+</tr>
+<tr>
+<td>n8n docs</td>
+<td>n8n</td>
+<td>https://docs.n8n.io</td>
+<td>Reference</td>
+<td>Current</td>
+<td>Free to self-host</td>
+<td>Self-host it on Railway or Hetzner.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>Make / Zapier help</td>
+<td>Make, Zapier</td>
+<td>https://www.make.com/en/help · https://help.zapier.com</td>
+<td>Reference</td>
+<td>Current</td>
+<td>Free tiers</td>
+<td><strong>For balance:</strong> Zapier is quickest for colleagues, Make is cheaper for complex flows, n8n gives the most control.</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>Claude Code GitHub Actions – scheduled runs</td>
+<td>Anthropic</td>
+<td>https://code.claude.com/docs/en/github-actions</td>
+<td>Reading</td>
+<td>Current</td>
+<td>Free</td>
+<td>A <code>prompt</code> on a cron schedule, e.g. a daily report from commits and open issues, with <code>--max-turns</code> and tool allow-lists as the cost cap.</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>The Next $100B Market: Selling to AI Agents</td>
+<td>Greg Isenberg</td>
+<td>https://www.youtube.com/watch?v=MlptIfpoLlw</td>
+<td>~14 min</td>
+<td>2 Jun 2026</td>
+<td>Free</td>
+<td>Business models for agent-native companies. Related episodes: Allie K. Miller, "How to Build an AI-Native Company in 2026" (12 Aug 2026); Ryan Carson, "Most Valuable Skill of 2026: Managing AI Agents" (24 Jul 2026).</td>
+<td>✔</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="the-ai-run-business-reference-stack">The "AI-run business" reference stack</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Tooling</th>
+<th>Human control point</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inbox/triage</td>
+<td>n8n + Gmail/Outlook + a cheap classifier model</td>
+<td>You approve outbound replies</td>
+</tr>
+<tr>
+<td>CRM ops</td>
+<td>HubSpot/Attio/Pipedrive via API or MCP</td>
+<td>Agents draft; you bulk-approve</td>
+</tr>
+<tr>
+<td>Research &amp; content</td>
+<td>Agent SDK workers on a schedule</td>
+<td>Editorial queue in Notion/Slack</td>
+</tr>
+<tr>
+<td>Engineering</td>
+<td>GitHub Issues → Claude Code (<code>@claude</code> or headless in Actions) → PR</td>
+<td>You review and merge; rulesets block direct pushes to <code>main</code></td>
+</tr>
+<tr>
+<td>Finance/reporting</td>
+<td>Stripe + Supabase → weekly report agent</td>
+<td>Read-only access</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>Langfuse + Sentry + Slack alerts</td>
+<td>A kill switch for each workflow</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>On "a company that builds companies":</strong> a realistic 2026 design is a pipeline. Each stage is a well-specified workflow with evals, and each hands off to the next.</p>
+<ol>
+<li>An idea-research agent finds candidate ideas.</li>
+<li>A validation step scores each market.</li>
+<li>A landing page and waitlist go up.</li>
+<li>Agents draft outreach.</li>
+<li><strong>You</strong> make the go/no-go call.</li>
+<li>Claude Code builds the MVP from a spec template.</li>
+<li>A launch checklist runs.</li>
+</ol>
+<p>Agents can take on much of the <em>work</em> at each stage, but not the <em>judgement</em>. The Replit and Lovable incidents show what happens when the human checkpoints are removed.</p>
+<p><strong>Capstone 3 (multi-agent ops system):</strong> three agents (triage, research, reporting) orchestrated by n8n or LangGraph, with a shared Supabase state table, approvals posted to Slack, schedules, Langfuse traces and a monthly budget cap.</p>
+<p><strong>Ready to move on when…</strong> the system runs unattended for 7 days, every external action has gone through an approval, and a runbook exists.</p>
+<p><strong>Pitfalls:</strong> automating a process you've never done by hand, letting agents talk to customers unsupervised, and ignoring GDPR when sending personal data to model vendors.</p>
+<h2 id="phase-8-shipping-product-and-entrepreneurship">Phase 8 – Shipping, Product and Entrepreneurship (Weeks 25–26 and ongoing, ~50 hours with capstones)</h2>
+<p><strong>Objectives:</strong> idea validation, MVP scoping, analytics, landing pages, marketing automation, pricing, UK/EU legal basics, building in public. Your sales background is a big advantage here.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Resource</th>
+<th>URL</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI-native business models</td>
+<td>Greg Isenberg (Startup Ideas Podcast, 380+ episodes)</td>
+<td>https://www.youtube.com/@GregIsenberg</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Product analytics</td>
+<td>PostHog docs</td>
+<td>https://posthog.com/docs</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>UK GDPR</td>
+<td>ICO guidance</td>
+<td>https://ico.org.uk/for-organisations/</td>
+<td>◐</td>
+</tr>
+<tr>
+<td>EU AI Act</td>
+<td>European Commission</td>
+<td>https://digital-strategy.ec.europa.eu</td>
+<td>◐</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="uk-eu-compliance-essentials">UK/EU compliance essentials</h3>
+<p>The Digital Omnibus on AI (Regulation (EU) 2026/1744, published in the Official Journal on 24 July 2026) entered into force on 27 July 2026, according to the European Commission's notice "AI Omnibus enters into force". It changed the timetable:</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Obligation</th>
+<th>Applies from</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Annex III high-risk systems (employment, credit scoring, education, biometrics, critical infrastructure)</td>
+<td>2 December 2027 (moved from 2 August 2026)</td>
+</tr>
+<tr>
+<td>Annex I AI embedded in regulated products</td>
+<td>2 August 2028</td>
+</tr>
+<tr>
+<td>Article 50 transparency: disclose AI interactions, label AI-generated content</td>
+<td>2 August 2026 (already applies)</td>
+</tr>
+<tr>
+<td>Machine-readable marking for generative systems already on the market</td>
+<td>2 December 2026 (grace period ends)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>What this means for you:</strong> if EU users can talk to your agent, disclose that it's AI now, and avoid hiring or credit-scoring use cases for the time being.</p>
+<p><strong>UK:</strong> there is no UK equivalent of the AI Act. UK GDPR and ICO guidance apply: a lawful basis for processing, a privacy notice, a data processing agreement with every AI vendor, and data minimisation before anything is sent to a model. This is orientation, not legal advice. Get a solicitor to review before you process customer personal data at scale.</p>
+<p><strong>Capstone 4 (real launch):</strong> 20 customer conversations to validate the idea, charging from day one, a landing page with a waitlist, a public launch, and either 10 paying customers or a written decision to kill it. Capstone 3 runs operations behind it.</p>
+<h2 id="week-by-week-schedules">Week-by-Week Schedules</h2>
+<h3 id="part-time">Part-time (~12 h/week, 26 weeks, ~324 hours)</h3>
+<p>Weeks 3 and 11 carry the two halves of Module 1.4 (GitHub in depth). If week 3 overruns, push "how the web works" into week 4. If you already know the Phase 1–2 material, expect about 20 weeks.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Focus</th>
+<th>Deliverable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Phase 0 + terminal (Karpathy talk, NetworkChuck, WSL/Homebrew)</td>
+<td>Learning contract</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Quick win: fCC Claude Code Full Course + fCC Git crash course</td>
+<td>Static site on Vercel</td>
+</tr>
+<tr>
+<td>3</td>
+<td>SSH/VS Code + how the web works + <strong>Module 1.4 Part A</strong> (conflicts, rebase, reflog)</td>
+<td>PR workflow without notes; conflict resolved and commit recovered</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Python I (Mosh; CS50P lectures 0–3)</td>
+<td>API → CSV script</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Python II (CS50P 4–6; uv)</td>
+<td>Async fetcher</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TypeScript + Node (Total TypeScript)</td>
+<td>TS CLI tool</td>
+</tr>
+<tr>
+<td>7</td>
+<td>HTML/CSS + reading code</td>
+<td>Planted-bug fix</td>
+</tr>
+<tr>
+<td>8</td>
+<td>LLMs (Karpathy Deep Dive; context engineering)</td>
+<td>Two-vendor JSON test</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Claude Code core (101, in Action, docs)</td>
+<td>CLAUDE.md + plan-mode feature</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Hooks, skills, subagents, MCP</td>
+<td>Skill + hook + subagent + MCP</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Alternatives + headless/CI + <strong>Module 1.4 Part B</strong> (Issues/Projects, PR review, rulesets, <code>gh</code>, <code>/install-github-app</code>, worktrees)</td>
+<td>Same task in 2 agents; agent PR reviewed and squash-merged; <code>main</code> protected</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Next.js (nextjs.org/learn)</td>
+<td>Skeleton with auth</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Supabase + RLS</td>
+<td>RLS-tested schema</td>
+</tr>
+<tr>
+<td>14</td>
+<td>SaaS build (JS Mastery)</td>
+<td>Core feature</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Stripe + webhooks</td>
+<td>Test-mode subscriptions</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Deploy, CI, Sentry, security audit</td>
+<td><strong>Capstone 1 live</strong></td>
+</tr>
+<tr>
+<td>17</td>
+<td>Launch to 10 users; Ng Agentic AI modules 1–2</td>
+<td>First feedback</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Hand-built agent loop (Claude Academy API course)</td>
+<td>80-line agent</td>
+</tr>
+<tr>
+<td>19</td>
+<td>MCP (DLAI; Hugging Face)</td>
+<td>Your MCP server</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Frameworks (Agent SDK; OpenAI Agents SDK; LangGraph)</td>
+<td>Same agent in 2 frameworks</td>
+</tr>
+<tr>
+<td>21</td>
+<td>Evals, observability, RAG</td>
+<td>Eval set + traces</td>
+</tr>
+<tr>
+<td>22</td>
+<td><strong>Capstone 2</strong></td>
+<td>Production agent</td>
+</tr>
+<tr>
+<td>23</td>
+<td>n8n + integrations</td>
+<td>Inbox triage</td>
+</tr>
+<tr>
+<td>24</td>
+<td>Multi-agent + HITL</td>
+<td>Slack approval loop</td>
+</tr>
+<tr>
+<td>25</td>
+<td><strong>Capstone 3</strong> + compliance</td>
+<td>7-day unattended run</td>
+</tr>
+<tr>
+<td>26</td>
+<td>Validation + launch</td>
+<td><strong>Capstone 4 launched</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="accelerated-full-time">Accelerated full-time (6–8 h/day, ~35 h/week, ~9 weeks)</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Content (part-time weeks covered)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Phases 0–1 + Claude Code quick win + Git depth (1–3)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Python + TypeScript (4–7)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>LLMs + Claude Code deep dive (8–10)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Alternatives + GitHub Part B + Next.js/Supabase (11–13)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>SaaS, Stripe, deploy → <strong>Capstone 1</strong> (14–16)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Agent loop, MCP, frameworks (17–20)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Evals/observability → <strong>Capstone 2</strong> (21–22)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>n8n, multi-agent, HITL → <strong>Capstone 3</strong> (23–25)</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Launch sprint → <strong>Capstone 4</strong> (26)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Daily rhythm:</strong> 2 hours of video/docs, 4 hours of building, 1 hour writing up and committing. Don't compress below about 8 weeks. Below that, your understanding stops keeping up with the agent's output; in Karpathy's words, you can't outsource your understanding.</p>
+<h2 id="day-one-toolkit-and-monthly-costs">Day-One Toolkit and Monthly Costs (GBP, ex-VAT estimates)</h2>
+<p>Expect about £16/month during Phases 1–4 and £30–£80/month once you are shipping (Phases 5–8). Optional Max 5x adds about £64.</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Purpose</th>
+<th>Monthly cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Pro (includes Claude Code)</td>
+<td>Primary agent</td>
+<td>~£16 ($20)</td>
+</tr>
+<tr>
+<td>Gemini CLI free / ChatGPT Free or Go</td>
+<td>Second-opinion agent</td>
+<td>£0–£6.40</td>
+</tr>
+<tr>
+<td>GitHub (free), GitHub CLI, VS Code</td>
+<td>Code, Issues/Projects, Actions, secret scanning, editor</td>
+<td>£0</td>
+</tr>
+<tr>
+<td>Vercel Hobby, Supabase Free, Neon Free</td>
+<td>Hosting/DB</td>
+<td>£0 (Supabase Pro ~£20 once live)</td>
+</tr>
+<tr>
+<td>Stripe</td>
+<td>Payments</td>
+<td>Transaction fees only</td>
+</tr>
+<tr>
+<td>Anthropic/OpenAI API credits</td>
+<td>Agent building (Phase 6+) and <code>@claude</code> in GitHub if not using a subscription token</td>
+<td>£5–£30 with caps</td>
+</tr>
+<tr>
+<td>Railway or Hetzner VPS</td>
+<td>n8n and agent workers</td>
+<td>£4–£10</td>
+</tr>
+<tr>
+<td>Langfuse / Sentry / PostHog free tiers</td>
+<td>Observability</td>
+<td>£0</td>
+</tr>
+<tr>
+<td>Domain</td>
+<td>Launch</td>
+<td>~£1 (£10–£15/year)</td>
+</tr>
+</tbody>
+</table></div>
+<p>GitHub Actions minutes are free on public repositories and limited on private ones; Claude Code's GitHub Action consumes those minutes plus API tokens (or your subscription if you authenticate with an OAuth token).</p>
+<h2 id="staying-current">Staying Current</h2>
+<ul>
+<li><strong>YouTube</strong> (handles not individually checked): Karpathy, freeCodeCamp, Anthropic, OpenAI, Google for Developers, DeepLearning.AI, Sequoia Capital, GitHub (the <em>GitHub for Beginners</em> series), Fireship, The Modern Coder, Matt Pocock, Theo (t3.gg), IndyDevDan, Cole Medin, AI Jason, Nate Herk, Greg Isenberg, Riley Brown, Matthew Berman (news; skim), Dave Ebbelaar, Ray Fernando, Tech With Tim, Net Ninja, Traversy Media, Programming with Mosh, NetworkChuck.</li>
+<li><strong>Newsletters and podcasts:</strong> Simon Willison's blog, the Anthropic Engineering blog, the GitHub Blog (tag: github-for-beginners), Latent Space, Ben's Bites, The Rundown AI, The Startup Ideas Podcast, Sequoia's "Training Data".</li>
+<li><strong>Communities:</strong> the Anthropic/Claude Discord, the Hugging Face Discord (#mcp-course-questions), the n8n forum, r/ClaudeAI, r/LocalLLaMA.</li>
+<li><strong>Docs that outlast the videos:</strong> https://code.claude.com/docs, https://docs.github.com, https://modelcontextprotocol.io, https://supabase.com/docs, https://docs.stripe.com.</li>
+</ul>
+<h2 id="glossary">Glossary</h2>
+<ul>
+<li><strong>Agent / agent loop:</strong> an LLM that picks tools and repeats model → tool call → execution → observation until the goal is met.</li>
+<li><strong>Agentic engineering:</strong> Karpathy's 2026 term for professionally supervising coding agents.</li>
+<li><strong>CLAUDE.md:</strong> a project memory file loaded automatically.</li>
+<li><strong>Context engineering:</strong> choosing what goes into the model's working memory (its context window).</li>
+<li><strong>Embedding / vector DB:</strong> numbers that represent meaning, and the store used to search them (RAG).</li>
+<li><strong>Evals:</strong> test suites for agent quality.</li>
+<li><strong>Hallucination:</strong> output that is confident but false.</li>
+<li><strong>Hook:</strong> a deterministic script that runs at a lifecycle event.</li>
+<li><strong>Interactive rebase:</strong> rewriting a branch's commits (reorder, squash, edit) before sharing them.</li>
+<li><strong>MCP:</strong> Model Context Protocol, an open standard for tools and data (Anthropic, Nov 2024).</li>
+<li><strong>Plugin:</strong> a bundle of skills, hooks, subagents and MCP config.</li>
+<li><strong>Prompt injection:</strong> malicious instructions hidden in content the model reads.</li>
+<li><strong>Pull request (PR):</strong> a proposed change to a branch, with a diff, discussion, review and checks before merge.</li>
+<li><strong>Reflog:</strong> Git's log of where HEAD has pointed; the way back from almost any mistake.</li>
+<li><strong>RLS:</strong> Postgres Row-Level Security.</li>
+<li><strong>Ruleset / branch protection:</strong> GitHub rules that stop direct pushes and require reviews and checks on <code>main</code>.</li>
+<li><strong>Skill:</strong> a SKILL.md folder loaded on demand.</li>
+<li><strong>Subagent:</strong> a delegated agent with its own isolated context.</li>
+<li><strong>Token:</strong> a chunk of text, and the unit of billing.</li>
+<li><strong>Vibe coding:</strong> building by prompting, without reading the code (Karpathy, Feb 2025).</li>
+<li><strong>Worktree:</strong> a parallel Git checkout, used to run agents side by side.</li>
+</ul>
+<h2 id="skip-list">Skip List (Not Worth a Novice's Time in 2026)</h2>
+<ol>
+<li><strong>Training or fine-tuning your own models,</strong> including Karpathy's "Zero to Hero" series. Brilliant, but come back to it later.</li>
+<li><strong>LeetCode and CS-theory courses.</strong> You need to be able to read, test and design code.</li>
+<li><strong>Prompt-engineering courses from 2023 to early 2025</strong> built on "magic phrases". Context engineering and evals have replaced them.</li>
+<li><strong>Old "Claude Code SDK" tutorials.</strong> The SDK was renamed in September 2025.</li>
+<li><strong>Learning several IDEs or agents in depth.</strong> One primary plus one checker is enough.</li>
+<li><strong>Git submodules, GitFlow and complex branching models.</strong> Trunk-based with short-lived branches and PRs is all a one-person team with agents needs.</li>
+<li><strong>Kubernetes, microservices, AWS certifications, or building your own auth, payments or vector DBs.</strong></li>
+<li><strong>Multi-agent frameworks before a single agent passes its evals.</strong></li>
+<li><strong>Installing every MCP server or plugin.</strong> Each one adds attack surface.</li>
+<li><strong>Paid "AI agency" courses and Skool upsells</strong> that promise autonomous income.</li>
+<li><strong>Chasing every model release.</strong> Re-evaluate once a quarter.</li>
+</ol>
+<h2 id="caveats-and-verification-notes">Caveats and Verification Notes</h2>
+<ul>
+<li><strong>Verification limits.</strong> Resources marked ◐ are standard official URLs not opened individually. Several YouTube creators (the n8n courses, "Claude Code Worktrees in 7 Minutes") could not be confirmed, and durations taken from aggregators are approximate. The URL and date for "Building effective agents" come from prior knowledge. GitHub Skills has moved to learn.github.com and its new catalogue page did not render during research, so start from the github.com/skills repositories if the new site is awkward. No standout GitHub CLI video was found; the manual plus the exercise is the recommendation.</li>
+<li><strong>Model and pricing data</strong> come mostly from third-party trackers dated September–October 2026, and they partly conflict, especially on Google's current flagship. Confirm on vendor pages.</li>
+<li><strong>Incident figures.</strong> The Lovable numbers come from Matt Palmer's own "Statement on CVE-2025-48757" (29 May 2025): 170 of 1,645 apps, about 10.3%. The Replit details come from Jason Lemkin's account as reported by Tom's Hardware (July 2025). Statistics that trace back to vendor marketing have been left out deliberately.</li>
+<li><strong>This field moves fast.</strong> Expect much of the tool-specific video content to date within months. Fall back on the official docs and Claude Academy. The underlying concepts will outlast every tool named here: the agent loop, context, evals, least privilege, human checkpoints, and a protected <code>main</code> branch with reviewed pull requests.</li>
+</ul>
+<h3 id="sources-opened-during-research">Sources opened during research</h3>
+<ul>
+<li><a href="https://karpathy.bearblog.dev/sequoia-ascent-2026/" target="_blank" rel="noopener">Karpathy: Sequoia Ascent 2026 summary</a></li>
+<li><a href="https://code.claude.com/docs/en/github-actions" target="_blank" rel="noopener">Claude Code GitHub Actions docs</a></li>
+<li><a href="https://platform.claude.com/docs/en/agent-sdk/migration-guide" target="_blank" rel="noopener">Claude Agent SDK migration guide</a></li>
+<li><a href="https://github.blog/developer-skills/github/github-for-beginners-getting-started-with-github-issues-and-projects/" target="_blank" rel="noopener">GitHub for Beginners: Issues and Projects (2 Mar 2026)</a></li>
+<li><a href="https://github.blog/tag/github-for-beginners/" target="_blank" rel="noopener">GitHub for Beginners series index</a></li>
+<li><a href="https://github.blog/news-insights/product-news/introducing-github-skills/" target="_blank" rel="noopener">Introducing GitHub Skills</a></li>
+<li><a href="https://www.freecodecamp.org/news/advanced-git-interactive-rebase-cherry-picking-reflog-and-more/" target="_blank" rel="noopener">freeCodeCamp: Advanced Git (Tobias Günther)</a></li>
+<li><a href="https://www.freecodecamp.org/news/claude-code-full-course/" target="_blank" rel="noopener">freeCodeCamp: Claude Code Full Course</a></li>
+<li><a href="https://www.freecodecamp.org/news/claude-code-essentials/" target="_blank" rel="noopener">freeCodeCamp: Claude Code Essentials</a></li>
+<li><a href="https://www.deeplearning.ai/courses/agentic-ai" target="_blank" rel="noopener">DeepLearning.AI: Agentic AI</a></li>
+<li><a href="https://www.deeplearning.ai/courses/mcp-build-rich-context-ai-apps-with-anthropic" target="_blank" rel="noopener">DeepLearning.AI: MCP with Anthropic</a></li>
+<li><a href="https://huggingface.co/learn/mcp-course/en/unit0/introduction" target="_blank" rel="noopener">Hugging Face MCP Course</a></li>
+<li><a href="https://www.developersdigest.tech/blog/ai-coding-tools-pricing-2026" target="_blank" rel="noopener">AI coding tools pricing comparison 2026</a></li>
+<li><a href="https://devtoollab.com/blog/claude-code-git-worktrees-parallel-agents-guide" target="_blank" rel="noopener">Claude Code git worktrees guide (devtoollab)</a></li>
+<li><a href="https://vibeappscanner.com/lovable-security" target="_blank" rel="noopener">Vibe App Scanner: Lovable security / CVE-2025-48757</a></li>
+<li><a href="https://www.kpath.ai/learn/incidents/replit-production-database-deletion" target="_blank" rel="noopener">Replit production database deletion (kpath.ai incident note)</a></li>
+<li><a href="https://usercentrics.com/knowledge-hub/eu-ai-act-high-risk-delay-article-50-transparency-consent/" target="_blank" rel="noopener">EU AI Act Digital Omnibus deadlines (Usercentrics)</a></li>
+<li><a href="https://benchr.org/timeline" target="_blank" rel="noopener">AI model release timeline (benchr)</a></li>
+</ul>
+    </article>
+  </div>
+  <footer>Generated from the curriculum doc. Resources date quickly; the official docs linked in each phase are the fallback when a video is out of date.</footer>
+</div>
+<script src="assets/site.js"></script>
+<script>
+AA.nav("course"); AA.mountTracker();
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll("#toc a"));
+  var heads = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); }).filter(Boolean);
+  if (!("IntersectionObserver" in window) || !heads.length) return;
+  var current = null;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if (e.isIntersecting) current = e.target.id; });
+    if (current) links.forEach(function(a){ a.classList.toggle("on", a.getAttribute("href") === "#" + current); });
+  }, { rootMargin: "-10% 0px -80% 0px", threshold: 0 });
+  heads.forEach(function(h){ io.observe(h); });
+})();
+</script>
+</body>
+</html>

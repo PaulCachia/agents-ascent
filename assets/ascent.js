@@ -1,0 +1,181 @@
+/* The Agent's Ascent — dashboard logic. State lives in this browser (AA.store); export it for Claude at check-ins. */
+(function () {
+  "use strict";
+  const RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const PHASES = [
+    { id: "p0", land: "Base Camp", title: "Phase 0 · Orientation", weeks: "Week 1" },
+    { id: "p1", land: "Foothills", title: "Phase 1 · Computer foundations", weeks: "Weeks 1–3" },
+    { id: "p2", land: "Code Forest", title: "Phase 2 · Programming foundations", weeks: "Weeks 4–7" },
+    { id: "p3", land: "Model Ridge", title: "Phase 3 · How LLMs work", weeks: "Week 8" },
+    { id: "p4", land: "Claude Pass", title: "Phase 4 · AI coding tools", weeks: "Weeks 9–11" },
+    { id: "p5", land: "SaaS Cliffs", title: "Phase 5 · Building real apps", weeks: "Weeks 12–17" },
+    { id: "p6", land: "Agent Forge", title: "Phase 6 · Building AI agents", weeks: "Weeks 17–22" },
+    { id: "p7", land: "Orchestration", title: "Phase 7 · Automation & multi-agent", weeks: "Weeks 22–25" },
+    { id: "p8", land: "Launch Pad", title: "Phase 8 · Shipping & launch", weeks: "Weeks 25–26" }
+  ];
+  const MODULES = [
+    { key: "m00", phase: "p0", name: "Orientation: vibe coding vs agentic engineering", wk: "Week 1", week: 1, anchor: "phase-0-orientation" },
+    { key: "m01", phase: "p1", name: "1.1 Terminal, file system, package managers", wk: "Week 1", week: 1, anchor: "phase-1-computer-foundations" },
+    { key: "m02", phase: "p1", name: "1.2 VS Code, Git & GitHub basics, SSH", wk: "Week 2", week: 2, anchor: "phase-1-computer-foundations" },
+    { key: "m03", phase: "p1", name: "1.3 How the web works", wk: "Week 3", week: 3, anchor: "phase-1-computer-foundations" },
+    { key: "m04", phase: "p1", name: "1.4A Git depth: conflicts, rebase, reflog", wk: "Week 3", week: 3, anchor: "phase-1-computer-foundations" },
+    { key: "m05", phase: "p2", name: "2.1 Python from zero", wk: "Weeks 4–5", week: 5, anchor: "phase-2-programming-foundations-fast" },
+    { key: "m06", phase: "p2", name: "2.2 TypeScript & Node", wk: "Week 6", week: 6, anchor: "phase-2-programming-foundations-fast" },
+    { key: "m07", phase: "p2", name: "2.3 HTML/CSS & reading code", wk: "Week 7", week: 7, anchor: "phase-2-programming-foundations-fast" },
+    { key: "m08", phase: "p3", name: "3 How LLMs work, practically", wk: "Week 8", week: 8, anchor: "phase-3-how-llms-work-practically" },
+    { key: "m09", phase: "p4", name: "4.1 Claude Code deep dive", wk: "Weeks 9–10", week: 10, anchor: "phase-4-ai-assisted-coding-tools" },
+    { key: "m10", phase: "p4", name: "4.2 Alternatives & headless/CI", wk: "Week 11", week: 11, anchor: "phase-4-ai-assisted-coding-tools" },
+    { key: "m11", phase: "p4", name: "1.4B GitHub as the agents' operating system", wk: "Week 11", week: 11, anchor: "phase-1-computer-foundations" },
+    { key: "m12", phase: "p5", name: "5 Next.js, Supabase, Stripe, deploy", wk: "Weeks 12–15", week: 15, anchor: "phase-5-building-real-apps" },
+    { key: "m13", phase: "p5", name: "5 Security for vibe-coded apps", wk: "Week 16", week: 16, anchor: "phase-5-building-real-apps" },
+    { key: "m14", phase: "p5", name: "Capstone 1: paid micro-SaaS live", wk: "Week 16", week: 16, cap: true, anchor: "phase-5-building-real-apps" },
+    { key: "m15", phase: "p6", name: "6.1 APIs, tool use, the agent loop", wk: "Weeks 17–18", week: 18, anchor: "phase-6-building-ai-agents" },
+    { key: "m16", phase: "p6", name: "6.2 Model Context Protocol", wk: "Week 19", week: 19, anchor: "phase-6-building-ai-agents" },
+    { key: "m17", phase: "p6", name: "6.3 Frameworks compared", wk: "Week 20", week: 20, anchor: "phase-6-building-ai-agents" },
+    { key: "m18", phase: "p6", name: "6.4 Evals, observability, RAG, guardrails", wk: "Week 21", week: 21, anchor: "phase-6-building-ai-agents" },
+    { key: "m19", phase: "p6", name: "Capstone 2: production agent", wk: "Week 22", week: 22, cap: true, anchor: "phase-6-building-ai-agents" },
+    { key: "m20", phase: "p7", name: "7 n8n, integrations, multi-agent, HITL", wk: "Weeks 23–24", week: 24, anchor: "phase-7-automation-and-multi-agent-business-systems" },
+    { key: "m21", phase: "p7", name: "Capstone 3: multi-agent ops system", wk: "Week 25", week: 25, cap: true, anchor: "phase-7-automation-and-multi-agent-business-systems" },
+    { key: "m22", phase: "p8", name: "8 Shipping, product, compliance", wk: "Weeks 25–26", week: 25, anchor: "phase-8-shipping-product-and-entrepreneurship" },
+    { key: "m23", phase: "p8", name: "Capstone 4: real launch", wk: "Week 26", week: 26, cap: true, anchor: "phase-8-shipping-product-and-entrepreneurship" }
+  ];
+  const STATUS = { todo: "Not started", doing: "In progress", done: "Checkpoint passed", skip: "Skipped (already knew it)" };
+  const LEVELS = ["Novice", "Shell Scripter", "Git Wrangler", "Code Reader", "Prompt Engineer", "Agent Pilot", "Shipper", "Agent Builder", "Orchestrator", "Agentic Engineer"];
+  const XP_PER_LEVEL = 320;
+  const BADGES = [
+    { id: "first", name: "First Steps", sub: "Orientation done", test: s => ok(s, "m00") },
+    { id: "shell", name: "Shell Shocked", sub: "Terminal tamed", test: s => ok(s, "m01") },
+    { id: "git", name: "Git Wrangler", sub: "Rebase without fear", test: s => ok(s, "m04") },
+    { id: "poly", name: "Polyglot", sub: "Python + TypeScript", test: s => ok(s, "m05") && ok(s, "m06") },
+    { id: "model", name: "Model Whisperer", sub: "Knows what a token costs", test: s => ok(s, "m08") },
+    { id: "hook", name: "Hook, Line & Subagent", sub: "Claude Code deep dive", test: s => ok(s, "m09") },
+    { id: "gate", name: "Gatekeeper", sub: "main is protected", test: s => ok(s, "m11") },
+    { id: "ship", name: "Shipped", sub: "Capstone 1 live", test: s => ok(s, "m14") },
+    { id: "agent", name: "Agent Builder", sub: "Capstone 2 passes evals", test: s => ok(s, "m19") },
+    { id: "orch", name: "Orchestrator", sub: "7 days unattended", test: s => ok(s, "m21") },
+    { id: "founder", name: "Founder", sub: "Capstone 4 launched", test: s => ok(s, "m23") },
+    { id: "scholar", name: "Scholar", sub: "Quiz average ≥ 85 (3+ quizzes)", test: s => { const q = quizStats(s); return q.n >= 3 && q.avg >= 85; } },
+    { id: "pace", name: "Pacesetter", sub: "Ahead of the plan", test: s => pace(s).state === "ahead" },
+    { id: "hours", name: "Forty Hours", sub: "40 h tracked on the clock", test: () => AA.sessions().reduce((a, x) => a + (Number(x.mins) || 0), 0) >= 2400 }
+  ];
+
+  const state = { modules: AA.modules(), checkins: AA.checkins() };
+  let lastPos = null, firstRender = true;
+  const $ = id => document.getElementById(id);
+  const esc = AA.esc;
+  function ok(s, k) { const m = s.modules[k]; return !!m && (m.status === "done" || m.status === "skip"); }
+  function modOf(k) { return state.modules[k] || { status: "todo", quiz: null, date: null, notes: "" }; }
+  function xpOf() { let x = 0; MODULES.forEach(m => { if (modOf(m.key).status === "done") x += m.cap ? 300 : 100; }); return x; }
+  function quizStats(s) { let n = 0, t = 0; MODULES.forEach(m => { const q = modOf(m.key).quiz; if (typeof q === "number" && !isNaN(q)) { n++; t += q; } }); return { n, avg: n ? Math.round(t / n) : 0 }; }
+  function pace(s) { const w = Math.min(AA.currentWeek(), AA.TOTAL_WEEKS); const planned = MODULES.filter(m => m.week < w).length; const done = MODULES.filter(m => ok(s, m.key)).length; const diff = done - planned; return { planned, done, state: diff > 0 ? "ahead" : diff < 0 ? "behind" : "on", diff }; }
+  function position() { for (let i = 0; i < MODULES.length; i++) { if (!ok(state, MODULES[i].key)) return i; } return MODULES.length - 1; }
+
+  /* Scene */
+  const trail = $("trail"), trailDone = $("trailDone"), campsG = $("camps"), climberG = $("climber"), padG = $("pad");
+  const L = trail.getTotalLength();
+  trailDone.setAttribute("stroke-dasharray", String(L)); trailDone.setAttribute("stroke-dashoffset", String(L));
+  const N = MODULES.length;
+  const campPts = MODULES.map((m, i) => { const t = (i / (N - 1)) * (L - 30) + 15; const p = trail.getPointAtLength(t); return { x: p.x, y: p.y, len: t }; });
+  (function () { let s = ""; for (let i = 0; i < 60; i++) { const x = Math.random() * 1000, y = Math.random() * 300, r = Math.random() * 1.4 + .3; s += '<circle class="star" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + r.toFixed(2) + '"/>'; } $("stars").innerHTML = s; })();
+  (function () { const e = trail.getPointAtLength(L); const x = e.x, y = e.y; padG.innerHTML =
+    '<rect class="pad" x="' + (x - 26) + '" y="' + (y + 6) + '" width="52" height="7" rx="3"/>' +
+    '<g id="rocket"><g transform="translate(' + (x + 6) + ',' + (y + 6) + ')">' +
+    '<polygon class="flame" points="-5,0 5,0 0,16"/>' +
+    '<rect class="rocket-body" x="-6" y="-34" width="12" height="34" rx="4"/>' +
+    '<polygon class="rocket-nose" points="-6,-34 6,-34 0,-48"/>' +
+    '<polygon class="rocket-fin" points="-6,-10 -12,2 -6,2"/><polygon class="rocket-fin" points="6,-10 12,2 6,2"/>' +
+    '<circle class="rocket-win" cx="0" cy="-22" r="3"/></g></g>'; })();
+  campsG.innerHTML = MODULES.map((m, i) => { const p = campPts[i]; const r = m.cap ? 12 : 9; return '<g class="camp todo' + (m.cap ? " cap" : "") + '" data-i="' + i + '" tabindex="0" role="button" aria-label="' + esc(m.name) + '">' +
+    '<circle class="pulse" cx="' + p.x + '" cy="' + p.y + '" r="11"/>' +
+    (m.cap ? '<line class="pole" x1="' + p.x + '" y1="' + (p.y - r) + '" x2="' + p.x + '" y2="' + (p.y - r - 22) + '"/><polygon class="flag" points="' + p.x + ',' + (p.y - r - 22) + ' ' + (p.x + 16) + ',' + (p.y - r - 17) + ' ' + p.x + ',' + (p.y - r - 12) + '"/>' : "") +
+    '<circle class="ring" cx="' + p.x + '" cy="' + p.y + '" r="' + r + '"/>' +
+    '<text x="' + p.x + '" y="' + (p.y + 0.5) + '">' + (m.cap ? "★" : i + 1) + '</text></g>'; }).join("");
+  campsG.querySelectorAll(".camp").forEach(c => { const go = () => { const i = +c.dataset.i; const row = document.querySelector('.mod[data-key="' + MODULES[i].key + '"]'); if (row) { row.scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "center" }); document.querySelectorAll(".mod.hi").forEach(x => x.classList.remove("hi")); row.classList.add("hi"); setTimeout(() => row.classList.remove("hi"), 2000); } }; c.addEventListener("click", go); c.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); });
+  climberG.innerHTML = '<g id="bot"><ellipse class="bot-shadow" cx="0" cy="2" rx="9" ry="3"/>' +
+    '<rect class="leg l" x="-6" y="-8" width="4" height="9" rx="2"/><rect class="leg r" x="2" y="-8" width="4" height="9" rx="2"/>' +
+    '<rect class="bot-pack" x="-13" y="-22" width="6" height="11" rx="3"/>' +
+    '<rect class="bot-body" x="-8" y="-24" width="16" height="17" rx="6"/>' +
+    '<g class="bot-head"><circle class="bot-body" cx="0" cy="-31" r="8"/><circle class="bot-eye" cx="-3" cy="-32" r="1.7"/><circle class="bot-eye" cx="3" cy="-32" r="1.7"/>' +
+    '<line class="bot-ant" x1="0" y1="-39" x2="0" y2="-45"/><circle class="bot-tip" cx="0" cy="-46" r="2.2"/></g></g>';
+  function placeClimber(len) { const p = trail.getPointAtLength(Math.max(0, Math.min(L, len))); climberG.setAttribute("transform", "translate(" + p.x.toFixed(1) + "," + p.y.toFixed(1) + ")"); }
+  let walkAnim = null;
+  function walkTo(fromI, toI) { const a = campPts[fromI].len, b = campPts[toI].len; if (RM || fromI === toI) { placeClimber(b); return; }
+    if (walkAnim) cancelAnimationFrame(walkAnim); const dur = Math.min(2600, 600 + Math.abs(toI - fromI) * 700); const t0 = performance.now(); climberG.classList.add("walking");
+    const step = now => { const k = Math.min(1, (now - t0) / dur); const e = k < .5 ? 2 * k * k : -1 + (4 - 2 * k) * k; placeClimber(a + (b - a) * e); if (k < 1) { walkAnim = requestAnimationFrame(step); } else { climberG.classList.remove("walking"); walkAnim = null; } };
+    walkAnim = requestAnimationFrame(step); }
+  const cv = $("confetti"), ctx = cv.getContext("2d"); let parts = [], confAnim = null;
+  function confetti(n, x, y) { if (RM) return; const r = cv.getBoundingClientRect(); cv.width = r.width; cv.height = r.height; const sx = r.width / 1000, sy = r.height / 560; const cs = getComputedStyle(document.documentElement); const cols = [cs.getPropertyValue("--accent"), cs.getPropertyValue("--done"), "#ffffff", "#f27d7d"];
+    for (let i = 0; i < n; i++) parts.push({ x: x * sx, y: y * sy, vx: (Math.random() - .5) * 7, vy: -Math.random() * 7 - 3, g: .18, s: Math.random() * 5 + 3, c: cols[i % cols.length].trim(), a: Math.random() * 6.28, w: (Math.random() - .5) * .3, life: 90 + Math.random() * 40 });
+    if (!confAnim) tick(); }
+  function tick() { ctx.clearRect(0, 0, cv.width, cv.height); parts = parts.filter(p => p.life > 0); parts.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += p.g; p.a += p.w; p.life--; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.globalAlpha = Math.min(1, p.life / 30); ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * .6); ctx.restore(); });
+    if (parts.length) { confAnim = requestAnimationFrame(tick); } else { confAnim = null; ctx.clearRect(0, 0, cv.width, cv.height); } }
+  let toastT = null; function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2800); }
+
+  /* Module list */
+  (function () { const list = $("modList"); let html = ""; PHASES.forEach(ph => { html += '<div class="phase"><div class="phase-h"><h3>' + esc(ph.land) + ' <small>· ' + esc(ph.title) + '</small></h3><small>' + esc(ph.weeks) + '</small></div>';
+    MODULES.forEach((m, i) => { if (m.phase !== ph.id) return; html += '<div class="mod todo" data-key="' + m.key + '"><div class="n">' + (m.cap ? "★" : String(i + 1).padStart(2, "0")) + '</div><div class="name">' + esc(m.name) + (m.cap ? '<span class="cap-tag">CAPSTONE · 300 XP</span>' : "") + '<small>' + esc(m.wk) + ' · <a href="course.html#' + m.anchor + '">open in course</a></small></div>' +
+      '<select id="st-' + m.key + '" aria-label="Status for ' + esc(m.name) + '">' + Object.keys(STATUS).map(k => '<option value="' + k + '">' + STATUS[k] + '</option>').join("") + '</select>' +
+      '<div class="extra"><input class="q" id="q-' + m.key + '" type="number" min="0" max="100" placeholder="Quiz %" aria-label="Quiz score"><input class="d" id="d-' + m.key + '" type="date" aria-label="Checkpoint date"><input class="note" id="n-' + m.key + '" type="text" placeholder="Note (e.g. redo rebase exercise)" aria-label="Note"></div></div>'; }); html += '</div>'; }); list.innerHTML = html;
+    MODULES.forEach(m => { $("st-" + m.key).addEventListener("change", e => { const v = e.target.value; const patch = { status: v }; if (v === "done" && !modOf(m.key).date) patch.date = AA.todayISO(); saveModule(m.key, patch, true); });
+      $("q-" + m.key).addEventListener("change", e => { const v = e.target.value === "" ? null : Math.max(0, Math.min(100, Number(e.target.value))); saveModule(m.key, { quiz: v }); });
+      $("d-" + m.key).addEventListener("change", e => saveModule(m.key, { date: e.target.value || null }));
+      let t = null; $("n-" + m.key).addEventListener("input", e => { clearTimeout(t); const v = e.target.value; t = setTimeout(() => saveModule(m.key, { notes: v }), 500); }); });
+    $("ciDate").value = AA.todayISO(); })();
+
+  /* Render */
+  function render() {
+    const pos = position(); const xp = xpOf(); const lvl = Math.min(LEVELS.length, Math.floor(xp / XP_PER_LEVEL) + 1);
+    $("lvl").textContent = lvl; $("lvlTitle").textContent = LEVELS[lvl - 1];
+    const into = lvl >= LEVELS.length ? XP_PER_LEVEL : xp % XP_PER_LEVEL; $("xpFill").style.width = (lvl >= LEVELS.length ? 100 : (into / XP_PER_LEVEL) * 100) + "%"; $("xpText").textContent = xp + " XP" + (lvl >= LEVELS.length ? " · max level" : " · " + (XP_PER_LEVEL - into) + " to level " + (lvl + 1));
+    const done = MODULES.filter(m => modOf(m.key).status === "done").length, skip = MODULES.filter(m => modOf(m.key).status === "skip").length;
+    $("campsDone").innerHTML = done + '<span style="font-size:14px;color:var(--muted)"> / 24</span>'; $("campsSkip").textContent = skip ? skip + " skipped" : "";
+    const tracked = AA.sessions().reduce((a, s) => a + (Number(s.mins) || 0), 0) / 60; const logged = state.checkins.reduce((a, c) => a + (Number(c.hours) || 0), 0); const hrs = tracked + logged;
+    $("hours").textContent = (Math.round(hrs * 10) / 10).toString(); $("hoursSub").textContent = (Math.round(tracked * 10) / 10) + " h on the clock · " + (Math.round(logged * 10) / 10) + " h from check-ins";
+    const w = AA.currentWeek(); $("week").textContent = w > AA.TOTAL_WEEKS ? "Week " + AA.TOTAL_WEEKS + "+" : "Week " + w + " of " + AA.TOTAL_WEEKS;
+    const pc = pace(state); const pill = $("pace"); pill.className = "pill " + (pc.state === "ahead" ? "ahead" : pc.state === "behind" ? "behind" : "ok"); pill.textContent = pc.state === "on" ? "on plan" : pc.state === "ahead" ? pc.diff + " camp" + (pc.diff > 1 ? "s" : "") + " ahead" : Math.abs(pc.diff) + " camp" + (Math.abs(pc.diff) > 1 ? "s" : "") + " behind";
+    const q = quizStats(state); $("quizAvg").textContent = q.n ? q.avg + "%" : "–"; $("quizN").textContent = q.n ? q.n + " quiz" + (q.n > 1 ? "zes" : "") + " recorded" : "no quizzes yet";
+    $("lands").innerHTML = PHASES.map(ph => { const ms = MODULES.filter(m => m.phase === ph.id); const d = ms.filter(m => ok(state, m.key)).length; return '<div class="land" title="' + esc(ph.title) + '"><b>' + esc(ph.land) + '</b><div class="bar"><i style="width:' + (ms.length ? d / ms.length * 100 : 0) + '%"></i></div></div>'; }).join("");
+    MODULES.forEach((m, i) => { const st = modOf(m.key); const c = campsG.querySelector('.camp[data-i="' + i + '"]'); c.classList.remove("todo", "doing", "done", "skip"); c.classList.add(st.status || "todo");
+      const row = document.querySelector('.mod[data-key="' + m.key + '"]'); row.classList.remove("todo", "doing", "done", "skip"); row.classList.add(st.status || "todo");
+      const sel = $("st-" + m.key); if (document.activeElement !== sel) sel.value = st.status || "todo";
+      const qi = $("q-" + m.key); if (document.activeElement !== qi) qi.value = (typeof st.quiz === "number") ? st.quiz : "";
+      const di = $("d-" + m.key); if (document.activeElement !== di) di.value = st.date || "";
+      const ni = $("n-" + m.key); if (document.activeElement !== ni) ni.value = st.notes || ""; });
+    trailDone.setAttribute("stroke-dashoffset", String(Math.max(0, L - campPts[pos].len)));
+    $("caption").textContent = (pos === MODULES.length - 1 && ok(state, "m23")) ? "Summit: launched" : PHASES.find(p => p.id === MODULES[pos].phase).land + " · camp " + (pos + 1) + ": " + MODULES[pos].name;
+    if (lastPos === null || firstRender) { placeClimber(campPts[pos].len); } else if (pos !== lastPos) { walkTo(lastPos, pos); }
+    lastPos = pos; firstRender = false;
+    const earned = BADGES.filter(b => b.test(state)); $("badgeCount").textContent = earned.length + " of " + BADGES.length;
+    $("badges").innerHTML = BADGES.map(b => '<div class="badge' + (b.test(state) ? " on" : "") + '"><div class="ic">' + esc(b.name.slice(0, 1)) + '</div><div><b>' + esc(b.name) + '</b><small>' + esc(b.sub) + '</small></div></div>').join("");
+    const cl = $("ciList"); if (!state.checkins.length) { cl.innerHTML = '<div class="empty">No check-ins yet. Log the first one above; Claude reads these before each quiz.</div>'; }
+    else { cl.innerHTML = state.checkins.map(c => '<div class="ci-item" data-id="' + esc(c.id) + '"><div><div class="d">' + esc(AA.fmtDate(c.date)) + (c.hours ? ' · ' + esc(c.hours) + ' h' : "") + (c.quiz ? ' · quiz ' + esc(c.quiz) : "") + '</div><div>' + esc(c.what) + '</div>' + (c.next ? '<div class="meta">Next: ' + esc(c.next) + '</div>' : "") + '</div><button class="ghost" data-del="' + esc(c.id) + '" aria-label="Delete check-in">×</button></div>').join("");
+      cl.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => { state.checkins = state.checkins.filter(x => x.id !== b.dataset.del); AA.setCheckins(state.checkins); render(); })); }
+    const ss = AA.sessions(); const sl = $("sessList"); if (!ss.length) { sl.innerHTML = '<div class="empty">No sessions yet. Press ▶ in the corner when you sit down to study; press ■ when you stop.</div>'; }
+    else { sl.innerHTML = ss.slice(0, 40).map(s => { const d = new Date(s.start); const hh = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); return '<div class="sess-item"><div><div class="d">' + esc(AA.fmtDate(s.date)) + ' · ' + hh + '</div><div>' + (s.note ? esc(s.note) : '<span class="muted">Study session</span>') + '</div></div><div class="m">' + esc(AA.fmtMins(s.mins)) + '</div><button class="ghost" data-sdel="' + esc(s.id) + '" aria-label="Delete session">×</button></div>'; }).join("") + (ss.length > 40 ? '<div class="muted" style="font-size:12px">' + (ss.length - 40) + ' older sessions not shown (still counted).</div>' : "");
+      sl.querySelectorAll("[data-sdel]").forEach(b => b.addEventListener("click", () => AA.deleteSession(b.dataset.sdel))); }
+    const r = $("rocket"); if (ok(state, "m23")) { if (!r.classList.contains("launch")) r.classList.add("launch"); } else r.classList.remove("launch");
+  }
+
+  function saveModule(key, patch, celebrate) { const cur = modOf(key); const next = Object.assign({}, cur, patch); if (JSON.stringify(cur) === JSON.stringify(next)) return;
+    const was = cur.status, now = next.status; state.modules[key] = next; AA.setModules(state.modules); render();
+    if (celebrate && now === "done" && was !== "done") { const i = MODULES.findIndex(m => m.key === key); const m = MODULES[i]; const p = campPts[i];
+      if (key === "m23") { toast("Summit reached. Launch!"); confetti(260, p.x, p.y); setTimeout(() => confetti(200, 500, 120), 900); }
+      else if (m.cap) { toast("Capstone passed: " + m.name.split(":")[0] + " · +300 XP"); confetti(160, p.x, p.y); }
+      else { toast("Checkpoint passed · +100 XP"); confetti(70, p.x, p.y); } } }
+
+  $("ciForm").addEventListener("submit", e => { e.preventDefault(); const rec = { id: AA.uid(), date: $("ciDate").value || AA.todayISO(), what: $("ciWhat").value.trim(), hours: Number($("ciHours").value) || 0, quiz: $("ciQuiz").value.trim(), next: $("ciNext").value.trim(), created: Date.now() }; if (!rec.what) return;
+    state.checkins.unshift(rec); state.checkins.sort((a, b) => (b.created || 0) - (a.created || 0)); AA.setCheckins(state.checkins);
+    $("ciWhat").value = ""; $("ciHours").value = ""; $("ciQuiz").value = ""; $("ciNext").value = ""; $("ciDate").value = AA.todayISO(); toast("Check-in logged"); render(); });
+
+  /* Export / import */
+  $("btnCopy").addEventListener("click", async () => { const j = AA.exportJSON(); const okc = await AA.copyText(j); const ta = $("ioText"); ta.value = j; if (okc) AA.toast("Progress copied. Paste it to Claude in the Project chat."); else { ta.hidden = false; ta.select(); AA.toast("Copy blocked by the browser; the text is selected below."); } });
+  $("btnShow").addEventListener("click", () => { const ta = $("ioText"); ta.hidden = !ta.hidden; if (!ta.hidden) { ta.value = AA.exportJSON(); ta.focus(); } });
+  $("btnImport").addEventListener("click", () => { const ta = $("ioText"); ta.hidden = false; const txt = ta.value.trim(); if (!txt) { ta.placeholder = "Paste an export here, then press Import again."; ta.focus(); return; } const r = AA.importJSON(txt, "merge"); if (!r.ok) { AA.toast(r.error); return; } state.modules = AA.modules(); state.checkins = AA.checkins(); render(); AA.toast("Progress imported and merged."); });
+  $("btnReset").addEventListener("click", () => { const btn = $("btnReset"); if (btn.dataset.armed !== "1") { btn.dataset.armed = "1"; btn.textContent = "Really reset? Click again"; setTimeout(() => { btn.dataset.armed = "0"; btn.textContent = "Reset all progress"; }, 4000); return; } AA.setModules({}); AA.setCheckins([]); AA.store.set("sessions", []); AA.store.set("tracker", null); state.modules = {}; state.checkins = []; btn.dataset.armed = "0"; btn.textContent = "Reset all progress"; render(); AA.toast("Progress reset."); });
+
+  window.addEventListener("aa:sessions", render);
+  window.addEventListener("aa:progress", () => { state.modules = AA.modules(); state.checkins = AA.checkins(); render(); });
+  window.addEventListener("storage", () => { state.modules = AA.modules(); state.checkins = AA.checkins(); render(); });
+  window.addEventListener("resize", () => { if (parts.length) { const r = cv.getBoundingClientRect(); cv.width = r.width; cv.height = r.height; } });
+  render();
+})();

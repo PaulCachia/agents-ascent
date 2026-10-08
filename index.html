@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Agent's Ascent</title>
+<meta name="description" content="Paul Cachia's 26-week fast-track from novice to agentic AI developer: the course, a game-style progress map and a study clock.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 20 9 7l4 6 2-3 7 10Z' fill='%23f0a04b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Nunito+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('aa.v1.theme'));if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Novice → agentic AI developer · 26 weeks · 12 h/week</div>
+      <h1>The Agent's Ascent</h1>
+      <p class="lead">A video-first, build-first route from zero to shipping a paid product and running a supervised multi-agent business system. The course is the map; the Ascent page is the game; the clock in the corner keeps you honest.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:18px">
+        <a class="primary" href="ascent.html" style="text-decoration:none;display:inline-block;font-weight:700;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:10px 16px">Open the Ascent</a>
+        <a class="ghost" href="course.html" style="text-decoration:none;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:10px 16px;color:var(--fg)">Read the course</a>
+        <button class="ghost" type="button" id="heroStart" style="font-size:14px;padding:10px 16px;border-radius:10px">▶ Start a study session</button>
+      </div>
+    </div>
+    <div class="art" aria-hidden="true">
+      <svg viewBox="0 0 600 340">
+        <defs><linearGradient id="skyh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="sky-a"/><stop offset="1" class="sky-b"/></linearGradient></defs>
+        <rect width="600" height="340" fill="url(#skyh)"/>
+        <g id="hstars"></g>
+        <polygon class="mtn3" points="0,340 0,210 70,180 150,220 240,140 330,180 420,110 500,160 560,80 600,110 600,340"/>
+        <polygon class="mtn2" points="0,340 0,260 90,240 170,290 260,220 350,250 440,170 520,210 600,150 600,340"/>
+        <polygon class="mtn1" points="0,340 0,300 80,280 160,320 250,260 340,290 430,210 500,240 560,120 600,160 600,340"/>
+        <polygon class="snow" points="548,142 560,120 572,145 562,148 552,148"/>
+        <path d="M 30 325 C 110 325 130 290 200 288 S 290 310 300 270 S 250 240 330 236 S 430 260 420 210 S 360 180 440 172 S 540 190 520 140 S 540 120 555 135" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 10"/>
+        <g transform="translate(300,270)"><ellipse class="bot-shadow" cx="0" cy="2" rx="9" ry="3"/><rect class="leg" x="-6" y="-8" width="4" height="9" rx="2"/><rect class="leg" x="2" y="-8" width="4" height="9" rx="2"/><rect class="bot-pack" x="-13" y="-22" width="6" height="11" rx="3"/><rect class="bot-body" x="-8" y="-24" width="16" height="17" rx="6"/><circle class="bot-body" cx="0" cy="-31" r="8"/><circle class="bot-eye" cx="-3" cy="-32" r="1.7"/><circle class="bot-eye" cx="3" cy="-32" r="1.7"/><line class="bot-ant" x1="0" y1="-39" x2="0" y2="-45"/><circle class="bot-tip" cx="0" cy="-46" r="2.2"/></g>
+        <g transform="translate(555,135)"><line x1="0" y1="0" x2="0" y2="-26" stroke="var(--snow)" stroke-width="1.5"/><polygon points="0,-26 16,-21 0,-16" fill="var(--accent)"/></g>
+      </svg>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="thisweek">
+      <div class="wk" id="twNum">Week 1</div>
+      <div><div class="eyebrow">This week's plan</div><div id="twText" style="margin-top:4px">Phase 0 + terminal.</div><div class="muted" style="font-size:13px;margin-top:6px">Started 8 Oct 2026. Weekly AI news brief lands every Monday morning in the Project.</div></div>
+    </div>
+  </section>
+
+  <section class="tiles">
+    <a class="tile" href="course.html"><span class="eyebrow">The map</span><span class="big">The course</span><p>Nine phases, 24 modules, four capstones. Every module has videos, an exercise, a "ready to move on when…" checkpoint and the pitfalls to avoid.</p></a>
+    <a class="tile" href="ascent.html"><span class="eyebrow">The game</span><span class="big">The Ascent</span><p>A climber moves up the mountain as you pass checkpoints. XP, ten levels, fourteen badges, a rocket at the summit. Check-ins and quiz scores live here too.</p></a>
+    <a class="tile" href="ascent.html#sessList"><span class="eyebrow">The clock</span><span class="big">Study sessions</span><p>Press ▶ on any page when you sit down and ■ when you stop. Hours count towards your plan and show up as "on the clock" in the Ascent.</p></a>
+  </section>
+
+  <section class="card">
+    <h2>How the loop works</h2>
+    <div class="steps">
+      <div class="step"><b>1 · Build the week's modules</b><span>Follow the course tab, pausing each video to make the agent do the step and explain it. Put the time on the clock.</span></div>
+      <div class="step"><b>2 · Pass the checkpoint</b><span>Mark the camp "Checkpoint passed" in the Ascent when you can do the module's "ready to move on" test from memory.</span></div>
+      <div class="step"><b>3 · Report to the professor</b><span>Copy your progress from the Ascent, paste it into the Project chat, get quizzed, get the score logged, get the next week's plan.</span></div>
+    </div>
+  </section>
+
+  <footer>Built in week 1 of the course as the first deployed project. Hosted on GitHub Pages. Progress is stored in your browser; a real database comes in Phase 5.</footer>
+</div>
+<script src="assets/site.js"></script>
+<script>
+AA.nav("home"); AA.mountTracker();
+(function(){
+  var w = AA.currentWeek(); var n = Math.min(w, AA.TOTAL_WEEKS);
+  document.getElementById("twNum").textContent = w > AA.TOTAL_WEEKS ? "Week 26+" : "Week " + w;
+  document.getElementById("twText").textContent = w > AA.TOTAL_WEEKS ? "Course complete. Keep shipping; re-run the plan for the next product." : AA.PLAN[n - 1];
+  var s = ""; for (var i = 0; i < 40; i++) { s += '<circle class="star" cx="' + (Math.random() * 600).toFixed(1) + '" cy="' + (Math.random() * 180).toFixed(1) + '" r="' + (Math.random() * 1.3 + .3).toFixed(2) + '"/>'; }
+  document.getElementById("hstars").innerHTML = s;
+  var b = document.getElementById("heroStart");
+  function paintBtn(){ b.textContent = AA.tracker() ? "■ Stop the session" : "▶ Start a study session"; }
+  b.addEventListener("click", function(){ if (AA.tracker()) { var r = AA.stopSession(); AA.toast("Session saved: " + AA.fmtMins(r.mins)); } else { AA.startSession(""); AA.toast("Session started"); } paintBtn(); });
+  window.addEventListener("aa:sessions", paintBtn); paintBtn();
+})();
+</script>
+</body>
+</html>

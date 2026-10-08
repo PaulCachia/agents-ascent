@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Agent's Ascent — Course</title>
+<meta name="description" content="The full 26-week curriculum: nine phases, 24 modules, four capstones, with video resources, exercises and checkpoints.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 20 9 7l4 6 2-3 7 10Z' fill='%23f0a04b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Nunito+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('aa.v1.theme'));if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+</head>
+<body>
+<div class="wrap" style="padding-top:20px">
+  <header>
+    <div class="eyebrow">The map · October 2026 edition</div>
+    <h1>Novice to Agentic AI Developer</h1>
+    <p class="muted" style="margin:6px 0 0;max-width:62ch">The full fast-track curriculum. ✔ marks a resource that was opened and checked during research; ◐ marks an official page not opened individually. Track your progress on the <a href="ascent.html">Ascent</a>.</p>
+  </header>
+  <div class="course">
+    <aside class="toc" id="toc" aria-label="Sections">
+{{TOC}}
+    </aside>
+    <article class="prose" id="content">
+{{CONTENT}}
+    </article>
+  </div>
+  <footer>Generated from the curriculum doc. Resources date quickly; the official docs linked in each phase are the fallback when a video is out of date.</footer>
+</div>
+<script src="assets/site.js"></script>
+<script>
+AA.nav("course"); AA.mountTracker();
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll("#toc a"));
+  var heads = links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); }).filter(Boolean);
+  if (!("IntersectionObserver" in window) || !heads.length) return;
+  var current = null;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if (e.isIntersecting) current = e.target.id; });
+    if (current) links.forEach(function(a){ a.classList.toggle("on", a.getAttribute("href") === "#" + current); });
+  }, { rootMargin: "-10% 0px -80% 0px", threshold: 0 });
+  heads.forEach(function(h){ io.observe(h); });
+})();
+</script>
+</body>
+</html>
