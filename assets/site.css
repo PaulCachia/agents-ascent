@@ -199,6 +199,12 @@ tr:last-child td{border-bottom:0}
 .mod .extra input{font:inherit;font-size:12px;background:var(--surface2);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:4px 8px;min-width:0}
 .mod .extra input.q{width:80px} .mod .extra input.d{width:140px} .mod .extra input.note{flex:1 1 160px}
 .mod.todo .extra{display:none}
+.mod .dur{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.chip{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.02em;color:var(--muted);background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:2px 8px;line-height:1.5}
+button.chip{cursor:pointer;color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+button.chip:hover,button.chip[aria-expanded="true"]{background:color-mix(in srgb,var(--accent) 14%,var(--surface2))}
+.chip.dim{opacity:.7}
+.mod .vids{font-weight:400;font-size:12px;color:var(--muted);margin-top:6px;padding:6px 8px;border-left:2px solid var(--accent);line-height:1.45}
 .mod .saved{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--done);opacity:0;transition:opacity .3s;vertical-align:middle}
 .mod .saved.show{opacity:1} .mod .saved.warn{color:var(--warn)}
 .authbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 0;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:13px;color:var(--muted)}
