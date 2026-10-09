@@ -173,7 +173,7 @@
 
   /* Other climbers on the same mountain (public profiles), drawn beside the trail with their names. */
   function paintOthers() {
-    const g = $("others"); const c = AA.cloud || {}; const list = c.climbers || []; const me = c.user ? c.user.id : c.viewId;
+    const g = $("others"); const c = AA.cloud || {}; const list = c.climbers || []; const me = AA.isViewing() ? c.viewId : (c.user ? c.user.id : null);
     g.innerHTML = list.filter(u => u.id !== me).map((u, j) => { let i = 0; for (; i < MODULES.length; i++) { if (!u.done[MODULES[i].key]) break; } if (i >= MODULES.length) i = MODULES.length - 1;
       const p = campPts[i]; const dx = 14 + j * 12; return '<g class="other-climber"><circle cx="' + (p.x + dx) + '" cy="' + (p.y - 6) + '" r="5"/><text x="' + (p.x + dx) + '" y="' + (p.y - 15) + '">' + esc(u.name || "climber") + '</text></g>'; }).join("");
   }
@@ -238,10 +238,12 @@
 
   /* Signed-out climber selector. */
   function paintClimbers() {
-    const sel = $("viewSel"), wrap = $("viewWrap"); const c = AA.cloud || {}; const list = c.climbers || [];
-    if (mode() !== "view" || !list.length) { wrap.hidden = true; return; }
-    wrap.hidden = false; sel.innerHTML = list.map(u => '<option value="' + esc(u.id) + '">' + esc(u.name || "Unnamed climber") + '</option>').join("");
-    if (list.some(u => u.id === c.viewId)) sel.value = c.viewId;
+    const sel = $("viewSel"), wrap = $("viewWrap"); const c = AA.cloud || {}; const m = mode(); const me = c.user ? c.user.id : null;
+    const list = (c.climbers || []).filter(u => u.id !== me);
+    if (!list.length || (m !== "view" && m !== "edit")) { wrap.hidden = true; return; }
+    wrap.hidden = false;
+    sel.innerHTML = (me ? '<option value="me">My climb</option>' : "") + list.map(u => '<option value="' + esc(u.id) + '">' + esc(u.name || "Unnamed climber") + '</option>').join("");
+    sel.value = AA.isViewing() && list.some(u => u.id === c.viewId) ? c.viewId : (me ? "me" : (list.some(u => u.id === c.viewId) ? c.viewId : sel.value));
   }
   $("viewSel").addEventListener("change", () => AA.cloud.viewAs($("viewSel").value));
   window.addEventListener("aa:expedition", () => { paintClimbers(); paintOthers(); });
@@ -273,21 +275,24 @@
   $("btnReset").addEventListener("click", () => { const btn = $("btnReset"); if (btn.dataset.armed !== "1") { btn.dataset.armed = "1"; btn.textContent = "Really reset? Click again"; setTimeout(() => { btn.dataset.armed = "0"; btn.textContent = "Reset all progress"; }, 4000); return; } AA.setModules({}); AA.setCheckins([]); AA.store.set("sessions", []); AA.store.set("tracker", null); AA.setPlan(null); state.modules = {}; state.checkins = []; btn.dataset.armed = "0"; btn.textContent = "Reset all progress"; render(); AA.toast("Progress reset."); });
 
   /* Mode: local (no cloud configured) · pending (checking sign-in) · view (signed out: read-only copy) · edit (signed in) · offline (library failed). */
-  function mode() { const c = AA.cloud || {}; if (!c.configured) return "local"; if (!c.ready) return "pending"; if (!c.enabled) return "offline"; return c.user ? "edit" : "view"; }
+  function mode() { const c = AA.cloud || {}; if (!c.configured) return "local"; if (!c.ready) return "pending"; if (!c.enabled) return "offline"; return (c.user && !AA.isViewing()) ? "edit" : "view"; }
   function applyMode() {
     const m = mode(); const bar = $("authBar"), txt = $("authText"), btn = $("authBtn");
     const ro = m === "view"; document.body.classList.toggle("ro", ro);
     document.querySelectorAll("#modList select, #modList input, #ciForm input, #ciBtn, #meForm input").forEach(el => { el.disabled = ro; });
-    paintClimbers();
+    paintClimbers(); paintHeader();
     if (bar) {
-      bar.className = "authbar" + (m === "view" ? " view" : m === "offline" ? " warn" : ""); bar.hidden = m === "local" || m === "edit"; btn.hidden = m !== "view";
+      const c = AA.cloud || {}; const others = (c.climbers || []).filter(u => !c.user || u.id !== c.user.id);
+      bar.className = "authbar" + (m === "view" ? " view" : m === "offline" ? " warn" : ""); bar.hidden = m === "local" || (m === "edit" && !others.length); btn.hidden = m !== "view";
+      btn.textContent = (c.user && m === "view") ? "Back to my climb" : "Sign in to edit here"; btn.toggleAttribute("data-opens-sync", !(c.user && m === "view"));
       if (m === "pending") txt.textContent = "Checking your sign-in…";
-      else if (m === "view") { const nm = AA.profile().name; txt.innerHTML = "<b>Read-only.</b> Viewing " + (nm ? esc(nm) + "'s" : "a climber's") + " climb from the shared database. Sign in to edit your own."; }
+      else if (m === "view") { const nm = AA.profile().name; txt.innerHTML = "<b>Read-only.</b> Viewing " + (nm ? esc(nm) + "'s" : "a climber's") + " climb from the shared database." + (c.user ? "" : " Sign in to edit your own."); }
+      else if (m === "edit") txt.textContent = "Your climb. Look at another climber:";
       else if (m === "offline") txt.textContent = "The sync library didn't load, so changes stay on this device until it does. Reload to try again.";
     }
     paintProf();
   }
-  $("authBtn").addEventListener("click", () => { if (AA.cloud && AA.cloud.openPanel) AA.cloud.openPanel(); });
+  $("authBtn").addEventListener("click", () => { const c = AA.cloud || {}; if (c.user && AA.isViewing()) { c.viewAs("me"); return; } if (c.openPanel) c.openPanel(); });
   function paintProf() {
     const st = $("profState"), tx = $("profText"); if (!st || !tx) return;
     const c = AA.cloud || {}; const m = mode();

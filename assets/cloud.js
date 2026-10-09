@@ -27,14 +27,15 @@
     mountUI();
     sb.auth.onAuthStateChange((ev, session) => {
       user = session ? session.user : null; AA.cloud.user = user; AA.cloud.ready = true; AA.cloud.viewOnly = !user;
-      if (user) AA.clearView();
+      AA.clearView(); AA.cloud.viewId = null;
       paint(); window.dispatchEvent(new CustomEvent("aa:auth"));
       if (user) pull(); else pullPublic();
       expedition();
     });
     window.addEventListener("aa:store", e => { if (!user || pulling) return; const k = e.detail && e.detail.key; if (KIND[k]) schedulePush(k); });
     AA.cloud.signIn = signIn; AA.cloud.signOut = () => sb.auth.signOut(); AA.cloud.pull = () => (user ? pull() : pullPublic());
-    AA.cloud.viewAs = id => { AA.store.set("viewId", id); return pullPublic(); };
+    /* View a climber's rows read-only (works signed in or out). "me" or your own id returns to your working copy. */
+    AA.cloud.viewAs = id => { const u = AA.cloud.user; if (u && (!id || id === "me" || id === u.id)) { AA.clearView(); AA.cloud.viewId = null; window.dispatchEvent(new CustomEvent("aa:auth")); window.dispatchEvent(new CustomEvent("aa:progress")); window.dispatchEvent(new CustomEvent("aa:sessions")); return Promise.resolve(); } if (!AA.cloud.user) AA.store.set("viewId", id); return viewClimber(id); };
     AA.cloud.refreshExpedition = expedition;
     AA.cloud.openPanel = () => { if (!ui) return; const p = ui.querySelector("#syncPanel"); p.hidden = false; paint(); const em = p.querySelector("#syncEmail"); if (em) em.focus(); };
   }
@@ -81,13 +82,15 @@
     status("Link sent. Open it on this device (it brings you back here, signed in). It works once and expires in an hour.");
   }
 
+  /* Rows always come from this browser's OWN working copy (AA.own), never from a viewed climber's overlay. */
   function rowsFor(kind) {
     if (!user) return [];
-    if (kind === "modules") { const m = AA.modules(); return Object.keys(m).map(k => ({ user_id: user.id, kind: "module", key: k, data: m[k] })); }
-    if (kind === "checkins") return AA.checkins().filter(c => c && c.id).map(c => ({ user_id: user.id, kind: "checkin", key: String(c.id), data: c }));
-    if (kind === "sessions") return AA.sessions().filter(x => x && x.id).map(x => ({ user_id: user.id, kind: "session", key: String(x.id), data: x }));
-    if (kind === "profile") { const p = AA.profile(); return Object.keys(p).length ? [{ user_id: user.id, kind: "profile", key: "me", data: p }] : []; }
-    if (kind === "plan") { const p = AA.plan(); return p ? [{ user_id: user.id, kind: "plan", key: "current", data: p }] : []; }
+    const o = AA.own;
+    if (kind === "modules") { const m = o.modules(); return Object.keys(m).map(k => ({ user_id: user.id, kind: "module", key: k, data: m[k] })); }
+    if (kind === "checkins") return o.checkins().filter(c => c && c.id).map(c => ({ user_id: user.id, kind: "checkin", key: String(c.id), data: c }));
+    if (kind === "sessions") return o.sessions().filter(x => x && x.id).map(x => ({ user_id: user.id, kind: "session", key: String(x.id), data: x }));
+    if (kind === "profile") { const p = o.profile(); return Object.keys(p).length ? [{ user_id: user.id, kind: "profile", key: "me", data: p }] : []; }
+    if (kind === "plan") { const p = o.plan(); return p ? [{ user_id: user.id, kind: "plan", key: "current", data: p }] : []; }
     return [];
   }
 
@@ -109,15 +112,15 @@
 
   /* Merge cloud rows into the signed-in working copy: cloud wins per module/profile/plan; check-ins and sessions union by id. */
   function mergeOwn(data) {
-    const cloud = group(data);
+    const cloud = group(data); const o = AA.own;
     pulling = true;
     try {
-      AA.setModules(Object.assign({}, AA.modules(), cloud.module));
-      const ci = {}; AA.checkins().forEach(c => { if (c && c.id) ci[c.id] = c; }); Object.assign(ci, cloud.checkin);
+      AA.setModules(Object.assign({}, o.modules(), cloud.module));
+      const ci = {}; o.checkins().forEach(c => { if (c && c.id) ci[c.id] = c; }); Object.assign(ci, cloud.checkin);
       AA.setCheckins(Object.values(ci).sort((a, b) => (b.created || 0) - (a.created || 0)));
-      const ss = {}; AA.sessions().forEach(x => { if (x && x.id) ss[x.id] = x; }); Object.assign(ss, cloud.session);
+      const ss = {}; o.sessions().forEach(x => { if (x && x.id) ss[x.id] = x; }); Object.assign(ss, cloud.session);
       AA.store.set("sessions", Object.values(ss).sort((a, b) => (b.start || 0) - (a.start || 0)));
-      if (cloud.profile.me) AA.setProfile(Object.assign({}, AA.profile(), cloud.profile.me));
+      if (cloud.profile.me) AA.setProfile(Object.assign({}, o.profile(), cloud.profile.me));
       if (cloud.plan.current) AA.setPlan(cloud.plan.current);
     } finally { pulling = false; }
     window.dispatchEvent(new CustomEvent("aa:progress")); window.dispatchEvent(new CustomEvent("aa:sessions"));
@@ -136,16 +139,16 @@
   }
 
   /* Signed-out read: one climber's rows (the last one viewed on this device, else the default climber) into the view overlay. */
-  async function pullPublic() {
-    if (user) return;
-    const id = AA.store.get("viewId", null) || cfg.ownerId || null; AA.cloud.viewId = id;
+  function pullPublic() { if (user) return Promise.resolve(); return viewClimber(AA.store.get("viewId", null) || cfg.ownerId || null); }
+  async function viewClimber(id) {
+    AA.cloud.viewId = id;
     let q = sb.from("progress").select("kind,key,data"); if (id) q = q.eq("user_id", id);
     const { data, error } = await q;
     if (error) { status("Couldn't read the database: " + error.message, true); return; }
     const c = group(data);
     AA.setView({ modules: c.module, checkins: Object.values(c.checkin).sort((a, b) => (b.created || 0) - (a.created || 0)), sessions: Object.values(c.session).sort((a, b) => (b.start || 0) - (a.start || 0)), profile: c.profile.me || {}, plan: c.plan.current || null });
-    window.dispatchEvent(new CustomEvent("aa:progress")); window.dispatchEvent(new CustomEvent("aa:sessions"));
-    status("Showing " + ((c.profile.me && c.profile.me.name) || "a climber") + "'s synced copy (read-only until you sign in).");
+    window.dispatchEvent(new CustomEvent("aa:auth")); window.dispatchEvent(new CustomEvent("aa:progress")); window.dispatchEvent(new CustomEvent("aa:sessions"));
+    status("Showing " + ((c.profile.me && c.profile.me.name) || "a climber") + "'s synced copy (read-only).");
   }
 
   /* Everyone on the mountain: public profiles plus how many camps each has passed. */

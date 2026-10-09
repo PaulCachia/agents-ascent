@@ -15,8 +15,15 @@ window.AA = (function () {
   function setView(d) { d = d || {}; store.set("view.modules", d.modules || {}); store.set("view.checkins", d.checkins || []); store.set("view.sessions", d.sessions || []); store.set("view.profile", d.profile || {}); store.set("view.plan", d.plan || null); viewing = true; }
   function clearView() { viewing = false; }
   function isViewing() { return viewing; }
-  function own(k, d) { return store.get(k, d); }
   function vk(k) { return viewing ? "view." + k : k; }
+  /* This browser's own working copy, never the view overlay: what sync pushes, merges and backs up. */
+  const own = {
+    modules() { const m = store.get("modules", {}); return m && typeof m === "object" ? m : {}; },
+    checkins() { const c = store.get("checkins", []); return Array.isArray(c) ? c : []; },
+    sessions() { const s = store.get("sessions", []); return Array.isArray(s) ? s : []; },
+    profile() { const p = store.get("profile", {}); return p && typeof p === "object" ? p : {}; },
+    plan() { const p = store.get("plan", null); return p && typeof p === "object" && p.modules ? p : null; }
+  };
   const PLAN = [
     "Phase 0 + terminal: Karpathy talk, NetworkChuck, WSL/Homebrew. Deliverable: learning contract.",
     "Quick win: fCC Claude Code Full Course + fCC Git crash course. Deliverable: this site deployed from your own repo.",
@@ -84,10 +91,10 @@ window.AA = (function () {
     const t = tracker(); if (!t) return null;
     const end = Date.now(); const mins = Math.max(1, Math.round((end - t.start) / 60000));
     const rec = { id: uid(), start: t.start, end: end, mins: mins, date: todayISO(), note: (note != null ? note : t.note) || "" };
-    const all = sessions(); all.unshift(rec); store.set("sessions", all); store.set("tracker", null); emit(); return rec;
+    const all = own.sessions(); all.unshift(rec); store.set("sessions", all); store.set("tracker", null); emit(); return rec;
   }
-  function deleteSession(id) { store.set("sessions", sessions().filter(s => s.id !== id)); emit(); }
-  function minsOn(pred) { return sessions().filter(pred).reduce((a, s) => a + (Number(s.mins) || 0), 0); }
+  function deleteSession(id) { store.set("sessions", own.sessions().filter(s => s.id !== id)); emit(); }
+  function minsOn(pred) { return own.sessions().filter(pred).reduce((a, s) => a + (Number(s.mins) || 0), 0); }
   function minsToday() { const t = todayISO(); return minsOn(s => s.date === t); }
   function minsThisWeek() { const now = new Date(); const day = (now.getDay() + 6) % 7; const mon = new Date(now); mon.setHours(0, 0, 0, 0); mon.setDate(now.getDate() - day); const m0 = mon.getTime(); return minsOn(s => s.start >= m0); }
   function fmtMins(m) { const h = Math.floor(m / 60), r = m % 60; return h ? h + " h " + (r ? r + " min" : "") : r + " min"; }
@@ -145,22 +152,22 @@ window.AA = (function () {
   function setCheckins(c) { store.set("checkins", c); }
 
   function exportJSON() {
-    const ss = sessions();
-    return JSON.stringify({ app: "agents-ascent", version: 1, exportedAt: new Date().toISOString(), week: currentWeek(), profile: profile(), plan: plan(), modules: modules(), checkins: checkins(), sessions: ss, totals: { trackedMinutes: ss.reduce((a, s) => a + (Number(s.mins) || 0), 0), sessionCount: ss.length } }, null, 2);
+    const ss = own.sessions();
+    return JSON.stringify({ app: "agents-ascent", version: 1, exportedAt: new Date().toISOString(), week: currentWeek(), profile: own.profile(), plan: own.plan(), modules: own.modules(), checkins: own.checkins(), sessions: ss, totals: { trackedMinutes: ss.reduce((a, s) => a + (Number(s.mins) || 0), 0), sessionCount: ss.length } }, null, 2);
   }
   function importJSON(text, mode) {
     let j; try { j = JSON.parse(text); } catch (e) { return { ok: false, error: "That isn't valid JSON." }; }
     if (!j || typeof j !== "object" || j.app !== "agents-ascent") return { ok: false, error: "This doesn't look like an Agent's Ascent export." };
     if (mode === "replace") { setModules(j.modules || {}); setCheckins(j.checkins || []); store.set("sessions", j.sessions || []); }
     else {
-      const m = Object.assign({}, modules(), j.modules || {}); setModules(m);
-      const byId = {}; checkins().concat(j.checkins || []).forEach(c => { byId[c.id || JSON.stringify(c)] = c; }); setCheckins(Object.values(byId).sort((a, b) => (b.created || 0) - (a.created || 0)));
-      const sid = {}; sessions().concat(j.sessions || []).forEach(s => { sid[s.id || s.start] = s; }); store.set("sessions", Object.values(sid).sort((a, b) => (b.start || 0) - (a.start || 0)));
+      const m = Object.assign({}, own.modules(), j.modules || {}); setModules(m);
+      const byId = {}; own.checkins().concat(j.checkins || []).forEach(c => { byId[c.id || JSON.stringify(c)] = c; }); setCheckins(Object.values(byId).sort((a, b) => (b.created || 0) - (a.created || 0)));
+      const sid = {}; own.sessions().concat(j.sessions || []).forEach(s => { sid[s.id || s.start] = s; }); store.set("sessions", Object.values(sid).sort((a, b) => (b.start || 0) - (a.start || 0)));
     }
     emit(); window.dispatchEvent(new CustomEvent("aa:progress")); return { ok: true };
   }
   async function copyText(text) { try { await navigator.clipboard.writeText(text); return true; } catch (e) { return false; } }
 
-  return { store, DEFAULT_START, TOTAL_WEEKS, PLAN, todayISO, currentWeek, startISO, startDate, weekPlan, profile, setProfile, plan, setPlan, setView, clearView, isViewing, fmtDate, uid, esc, applyTheme, toggleTheme, nav, sessions, tracker, startSession, stopSession, deleteSession, minsToday, minsThisWeek, fmtMins, hms, toast, canEdit, requireSignIn, mountTracker, modules, setModules, checkins, setCheckins, exportJSON, importJSON, copyText };
+  return { store, own, DEFAULT_START, TOTAL_WEEKS, PLAN, todayISO, currentWeek, startISO, startDate, weekPlan, profile, setProfile, plan, setPlan, setView, clearView, isViewing, fmtDate, uid, esc, applyTheme, toggleTheme, nav, sessions, tracker, startSession, stopSession, deleteSession, minsToday, minsThisWeek, fmtMins, hms, toast, canEdit, requireSignIn, mountTracker, modules, setModules, checkins, setCheckins, exportJSON, importJSON, copyText };
 })();
 AA.applyTheme();
