@@ -28,7 +28,19 @@
         <label>Name<input type="text" id="meName" maxlength="40" placeholder="e.g. Paul"></label>
         <label>Start date (week 1)<input type="date" id="meStart"></label>
         <label class="full">End goal — what you want to be able to build<input type="text" id="meGoal" maxlength="200" placeholder="e.g. ship a paid product and run a supervised multi-agent business system"></label>
-        <label class="full">My professor (link to your Claude Project)<input type="url" id="meProf" placeholder="https://claude.ai/project/…"></label>
+        <label class="full" for="meProf"><span style="display:flex;align-items:center;gap:6px">My professor — the link that opens your AI tutor <button class="info" type="button" id="profInfo" aria-expanded="false" aria-controls="profHelp" title="How to connect the different options">i</button></span><input type="url" id="meProf" placeholder="https://claude.ai/project/… or a custom GPT, Gem or other assistant"></label>
+        <div class="full prof-help" id="profHelp" hidden>
+          <p style="margin:0 0 8px"><b>Any AI can be your professor</b> if it can hold standing instructions and open a web address (that's how it reads your rows). Pick one: the button copies the professor brief to your clipboard and opens the right page in a new tab. Build it there, then paste its link above.</p>
+          <div class="prov-row">
+            <button class="ghost prov" type="button" data-prov="claude">Set up with Claude</button>
+            <button class="ghost prov" type="button" data-prov="chatgpt">Set up with ChatGPT</button>
+            <button class="ghost prov" type="button" data-prov="gemini">Set up with Gemini</button>
+            <button class="ghost prov" type="button" data-prov="other">Another AI</button>
+          </div>
+          <ol class="prov-steps" id="provSteps" hidden></ol>
+          <p class="muted" id="provNote" style="margin:8px 0 0;font-size:12px">None of these services accept a pre-filled set-up link, so the last step, pasting the link back here, is yours. The brief itself is on the <a href="professor.html">Your professor</a> page.</p>
+          <textarea id="briefFallback" hidden spellcheck="false" style="width:100%;min-height:120px;margin-top:8px"></textarea>
+        </div>
         <label class="full" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="mePublic" checked style="width:auto"> Show my climb on the shared mountain (other climbers can view it)</label>
       </form>
       <p class="muted" style="margin:8px 0 0;font-size:12px">The start date sets your week numbers; the goal is what your professor steers towards at every checkpoint. No professor yet? <a href="professor.html">Set one up</a>.</p>

@@ -56,5 +56,24 @@
     AA.setProfile(Object.assign({}, AA.own.profile(), { photo: out })); closeCropper(); paint(); AA.toast("Photo saved: your climber has a new head"); });
   $("mePhotoClear").addEventListener("click", () => { if (!AA.requireSignIn("remove the photo")) return; const p = AA.own.profile(); delete p.photo; AA.setProfile(p); paint(); });
 
+  /* "How to connect": one click copies the professor brief and opens the provider's page; the steps show what to do there. */
+  const PROV = {
+    claude: { url: "https://claude.ai/projects", name: "Claude", steps: ["Open Claude → Projects → New project (any name, e.g. Agent's Ascent — professor).", "In the project's instructions (custom instructions), paste the brief that is now on your clipboard.", "If web search is a setting on your plan, turn it on for the project so the professor can read your rows.", "Copy the project's web address from the browser bar and paste it into My professor above."] },
+    chatgpt: { url: "https://chatgpt.com/gpts/editor", name: "ChatGPT", steps: ["In the GPT builder, open the Configure tab and give it a name.", "Paste the brief (on your clipboard) into Instructions.", "Under Capabilities, turn on web browsing so it can open the database links.", "Create it for yourself only, open it, copy its link from the browser bar and paste it into My professor above."] },
+    gemini: { url: "https://gemini.google.com/gems/view", name: "Gemini", steps: ["In the Gem manager, click New Gem and give it a name.", "Paste the brief (on your clipboard) into the Gem's instructions and save.", "Open the Gem and ask it to read your profile; if it cannot open links on your account, paste your rows into the chat when you talk to it.", "Copy the Gem's address from the browser bar and paste it into My professor above."] },
+    other: { url: "", name: "another AI", steps: ["Use any assistant that can keep standing instructions (a project, custom bot, system prompt or similar) and open a web address.", "Paste the brief (on your clipboard) as its standing instructions.", "Check it can open the database link in the brief; if not, you will paste your rows in by hand.", "Paste the link that opens that assistant into My professor above."] }
+  };
+  let brief = "";
+  fetch("professor/PROFESSOR.md").then(r => r.ok ? r.text() : "").then(t => { brief = t || ""; }).catch(() => {});
+  $("profInfo").addEventListener("click", () => { const h = $("profHelp"); h.hidden = !h.hidden; $("profInfo").setAttribute("aria-expanded", String(!h.hidden)); });
+  document.querySelectorAll(".prov").forEach(b => b.addEventListener("click", async () => {
+    const pv = PROV[b.dataset.prov]; document.querySelectorAll(".prov").forEach(x => x.classList.toggle("on", x === b));
+    if (pv.url) window.open(pv.url, "_blank", "noopener");
+    let copied = false; if (brief) copied = await AA.copyText(brief);
+    const ta = $("briefFallback"); if (!copied && brief) { ta.value = brief; ta.hidden = false; ta.focus(); ta.select(); } else ta.hidden = true;
+    const steps = $("provSteps"); steps.hidden = false; steps.innerHTML = pv.steps.map(x => "<li>" + x + "</li>").join("");
+    AA.toast(copied ? "Brief copied; " + pv.name + (pv.url ? " opened in a new tab" : "") : (brief ? "Copy was blocked; the brief is selected below" : "Couldn't load the brief; open the Your professor page"));
+  }));
+
   window.addEventListener("aa:auth", paint); window.addEventListener("aa:progress", paint); paint();
 })();
