@@ -119,13 +119,14 @@
   (function () { const list = $("modList"); let html = ""; PHASES.forEach(ph => { const pm = MODULES.filter(m => m.phase === ph.id); const ph_h = pm.reduce((a, m) => a + (m.hours || 0), 0), ph_v = pm.reduce((a, m) => a + (m.video || 0), 0);
     html += '<div class="phase"><div class="phase-h"><h3>' + esc(ph.land) + ' <small>· ' + esc(ph.title) + '</small></h3><small>' + esc(ph.weeks) + ' · ~' + ph_h + ' h' + (ph_v ? ' · ▶ ' + fmtDur(ph_v) : '') + '</small></div>';
     MODULES.forEach((m, i) => { if (m.phase !== ph.id) return; html += '<div class="mod todo" data-key="' + m.key + '"><div class="n">' + (m.cap ? "★" : String(i + 1).padStart(2, "0")) + '</div><div class="name">' + (m.core ? '<span class="spine" title="Essential spine: can be lightened, never dropped">●</span>' : "") + esc(m.name) + (m.cap ? '<span class="cap-tag">CAPSTONE · 300 XP</span>' : "") + '<small>' + esc(m.wk) + ' · <a href="course.html#' + m.anchor + '">open in course</a></small>' +
-      '<div class="dur"><span class="chip" title="Hours the course budgets for this module, videos and exercises included">⏱ ' + (m.hours == null ? "in 6.4" : "~" + m.hours + " h") + '</span>' + (m.video ? '<button class="chip vbtn" type="button" data-v="' + m.key + '" aria-expanded="false" title="Tap for the videos">▶ ' + fmtDur(m.video) + ' video</button>' : '<span class="chip dim">▶ no set videos</span>') + '<span class="chip depth" id="dp-' + m.key + '" hidden></span></div>' +
+      '<div class="dur"><span class="chip" title="Hours the course budgets for this module, videos and exercises included">⏱ ' + (m.hours == null ? "in 6.4" : "~" + m.hours + " h") + '</span>' + (m.video ? '<button class="chip vbtn" type="button" data-v="' + m.key + '" aria-expanded="false" title="Tap for the videos">▶ ' + fmtDur(m.video) + ' video</button>' : '<span class="chip dim">▶ no set videos</span>') + '<span class="chip depth" id="dp-' + m.key + '" hidden></span>' +
+      '<span class="chip score" id="qs-' + m.key + '" hidden></span><button class="chip qbtn" type="button" data-q="' + m.key + '" data-set="practice" title="Unlimited; explanations shown; never posted">Practice</button><button class="chip qbtn test" type="button" data-q="' + m.key + '" data-set="test" title="8 questions, 90 s each, marked on the server; 70% passes the camp">Take the test</button></div>' +
       '<div class="vids" id="v-' + m.key + '" hidden>' + esc(m.vids) + '</div><div class="plannote" id="pn-' + m.key + '" hidden></div></div>' +
       '<select id="st-' + m.key + '" aria-label="Status for ' + esc(m.name) + '">' + Object.keys(STATUS).map(k => '<option value="' + k + '">' + STATUS[k] + '</option>').join("") + '</select>' +
-      '<div class="extra"><input class="q" id="q-' + m.key + '" type="number" min="0" max="100" placeholder="Quiz %" aria-label="Quiz score"><input class="d" id="d-' + m.key + '" type="date" aria-label="Checkpoint date"><input class="note" id="n-' + m.key + '" type="text" placeholder="Note (e.g. redo rebase exercise)" aria-label="Note"></div></div>'; }); html += '</div>'; }); list.innerHTML = html;
+      '<div class="extra"><input class="d" id="d-' + m.key + '" type="date" aria-label="Checkpoint date"><input class="note" id="n-' + m.key + '" type="text" placeholder="Note (e.g. redo rebase exercise)" aria-label="Note"></div></div>'; }); html += '</div>'; }); list.innerHTML = html;
     list.querySelectorAll(".vbtn").forEach(b => b.addEventListener("click", () => { const v = $("v-" + b.dataset.v); v.hidden = !v.hidden; b.setAttribute("aria-expanded", String(!v.hidden)); }));
-    MODULES.forEach(m => { $("st-" + m.key).addEventListener("change", e => { const v = e.target.value; const patch = { status: v }; if (v === "done" && !modOf(m.key).date) patch.date = AA.todayISO(); saveModule(m.key, patch, true); });
-      $("q-" + m.key).addEventListener("change", e => { const v = e.target.value === "" ? null : Math.max(0, Math.min(100, Number(e.target.value))); saveModule(m.key, { quiz: v }); });
+    list.querySelectorAll(".qbtn").forEach(b => b.addEventListener("click", () => openQuiz(b.dataset.q, b.dataset.set)));
+    MODULES.forEach(m => { $("st-" + m.key).addEventListener("change", e => { const v = e.target.value; if ((v === "done" || v === "skip") && !testPassed(modOf(m.key))) { e.target.value = modOf(m.key).status || "todo"; toast("Pass this camp's test to mark it passed"); return; } const patch = { status: v }; if (v === "done" && !modOf(m.key).date) patch.date = AA.todayISO(); saveModule(m.key, patch, true); });
       $("d-" + m.key).addEventListener("change", e => saveModule(m.key, { date: e.target.value || null }));
       let t = null; $("n-" + m.key).addEventListener("input", e => { clearTimeout(t); const v = e.target.value; t = setTimeout(() => saveModule(m.key, { notes: v }), 500); }); });
     $("ciDate").value = AA.todayISO(); })();
@@ -146,7 +147,10 @@
     MODULES.forEach((m, i) => { const st = modOf(m.key); const c = campsG.querySelector('.camp[data-i="' + i + '"]'); c.classList.remove("todo", "doing", "done", "skip"); c.classList.add(st.status || "todo");
       const row = document.querySelector('.mod[data-key="' + m.key + '"]'); row.classList.remove("todo", "doing", "done", "skip"); row.classList.add(st.status || "todo");
       const sel = $("st-" + m.key); if (document.activeElement !== sel) sel.value = st.status || "todo";
-      const qi = $("q-" + m.key); if (document.activeElement !== qi) qi.value = (typeof st.quiz === "number") ? st.quiz : "";
+      const passed = testPassed(st); sel.querySelector('option[value="done"]').disabled = !passed; sel.querySelector('option[value="skip"]').disabled = !passed;
+      const chip = $("qs-" + m.key); if (st.quizAttempt) { chip.hidden = false; chip.className = "chip score" + (st.quiz >= 70 ? "" : " fail"); chip.textContent = "TEST " + st.quiz + "% · attempt " + st.quizAttempt; }
+      else if (typeof st.quiz === "number") { chip.hidden = false; chip.className = "chip score prof"; chip.textContent = "PROF " + st.quiz + "%"; chip.title = "Recorded by the professor before on-site tests existed; the camp still needs the test"; } else chip.hidden = true;
+      const tb = row.querySelector('.qbtn.test'); tb.disabled = passed; tb.textContent = passed ? "Passed" : "Take the test";
       const di = $("d-" + m.key); if (document.activeElement !== di) di.value = st.date || "";
       const ni = $("n-" + m.key); if (document.activeElement !== ni) ni.value = st.notes || ""; });
     trailDone.setAttribute("stroke-dashoffset", String(Math.max(0, L - campPts[pos].len)));
@@ -273,6 +277,79 @@
   $("btnShow").addEventListener("click", () => { const ta = $("ioText"); ta.hidden = !ta.hidden; if (!ta.hidden) { ta.value = AA.exportJSON(); ta.focus(); } });
   $("btnImport").addEventListener("click", () => { const ta = $("ioText"); ta.hidden = false; const txt = ta.value.trim(); if (!txt) { ta.placeholder = "Paste an export here, then press Import again."; ta.focus(); return; } const r = AA.importJSON(txt, "merge"); if (!r.ok) { AA.toast(r.error); return; } state.modules = AA.modules(); state.checkins = AA.checkins(); render(); AA.toast("Progress imported and merged."); });
   $("btnReset").addEventListener("click", () => { const btn = $("btnReset"); if (btn.dataset.armed !== "1") { btn.dataset.armed = "1"; btn.textContent = "Really reset? Click again"; setTimeout(() => { btn.dataset.armed = "0"; btn.textContent = "Reset all progress"; }, 4000); return; } AA.setModules({}); AA.setCheckins([]); AA.store.set("sessions", []); AA.store.set("tracker", null); AA.setPlan(null); state.modules = {}; state.checkins = []; btn.dataset.armed = "0"; btn.textContent = "Reset all progress"; render(); AA.toast("Progress reset."); });
+
+  function testPassed(st) { return !!(st && st.quizAttempt && typeof st.quiz === "number" && st.quiz >= 70); }
+
+  /* ───────── Quiz runner: server-issued session, shuffled options, total clock, server-side marking ───────── */
+  const QZ = { session: null, qs: [], i: 0, answers: [], order: [], total: 0, deadline: 0, timer: null, set: "", module: "", attempt: 1, busy: false, done: false };
+  const qzEl = $("qz"), qzBody = $("qzBody"), qzNext = $("qzNext"), qzPrev = $("qzPrev"), qzFoot = $("qzFoot");
+  function md(t) { let h = esc(t); h = h.replace(/```(\w*)\n([\s\S]*?)```/g, (m, l, c) => "<pre>" + c.replace(/\n$/, "") + "</pre>"); h = h.replace(/`([^`]+)`/g, "<code>$1</code>"); return h.replace(/\n\n/g, "<br>"); }
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function qzShow() { qzEl.hidden = false; document.body.style.overflow = "hidden"; }
+  function qzHide() { qzEl.hidden = true; document.body.style.overflow = ""; clearInterval(QZ.timer); QZ.timer = null; }
+  function qzMsg(title, text, extra) { $("qzTitle").textContent = title; $("qzTimer").hidden = true; $("qzProg").textContent = ""; $("qzTime").textContent = ""; qzBody.innerHTML = '<p style="margin:0">' + text + '</p>' + (extra || ""); qzPrev.hidden = true; qzNext.textContent = "Close"; qzNext.onclick = qzHide; qzNext.disabled = false; qzShow(); }
+  function fmtWhen(iso) { const d = new Date(iso); return d.toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); }
+  function openQuiz(module, qset) {
+    if (!AA.requireSignIn(qset === "test" ? "take the test" : "take a practice quiz")) return;
+    if (!AA.cloud || !AA.cloud.rpc) { AA.toast("Quizzes need the cloud connection"); return; }
+    const m = MODULES.find(x => x.key === module); QZ.module = module; QZ.set = qset; QZ.done = false;
+    $("qzKind").textContent = (qset === "test" ? "Test" : "Practice") + " · " + m.name;
+    qzMsg(qset === "test" ? "Starting the test…" : "Starting practice…", "Fetching your questions.");
+    qzNext.disabled = true;
+    AA.cloud.rpc("start_quiz", { p_module: module, p_qset: qset }).then(({ data, error }) => {
+      if (error) { qzMsg("Couldn't start", esc(error.message || "Unknown error")); return; }
+      if (data.error) {
+        const e = data.error;
+        if (e === "passed") qzMsg("Already passed", "You've passed this camp's test; its score is on the mountain. Practice stays open if you want to keep sharp.");
+        else if (e === "cooloff") qzMsg("Not yet", "A retake opens 24 hours after a fail: <b>" + fmtWhen(data.next_at) + "</b>. Practice is open until then, and it shows explanations.");
+        else if (e === "professor") qzMsg("Talk to your professor first", "Two attempts without a pass. The brief asks your professor to re-teach before a third; it opens <b>" + fmtWhen(data.next_at) + "</b>. Practice stays open.");
+        else if (e === "no_questions") qzMsg("No questions yet", "The bank covers Phases 0–2 so far; the rest is being written ahead of you.");
+        else if (e === "sign_in") qzMsg("Sign in", "Sign in (top right) to take quizzes.");
+        else qzMsg("Couldn't start", esc(e));
+        return;
+      }
+      QZ.session = data.session; QZ.qs = data.questions || []; QZ.i = 0; QZ.attempt = data.attempt || 1;
+      QZ.answers = QZ.qs.map(() => null); QZ.order = QZ.qs.map(q => shuffle(q.options.map((_, k) => k)));
+      QZ.total = data.resumed ? Number(data.remaining) : QZ.qs.length * (data.seconds_per_question || 90); QZ.deadline = Date.now() + QZ.total * 1000;
+      $("qzTitle").textContent = (qset === "test" ? "Test · attempt " + QZ.attempt : "Practice") + (data.resumed ? " (resumed)" : "");
+      $("qzTimer").hidden = false; qzPrev.hidden = false; qzNext.disabled = false;
+      clearInterval(QZ.timer); QZ.timer = setInterval(qzTick, 250); qzTick(); renderQ();
+    }).catch(err => qzMsg("Couldn't start", esc(err.message || String(err))));
+  }
+  function qzTick() { const left = Math.max(0, (QZ.deadline - Date.now()) / 1000); $("qzBar").style.width = (QZ.total ? left / QZ.total * 100 : 0) + "%"; $("qzTimer").classList.toggle("low", left < 60); $("qzTime").textContent = Math.floor(left / 60) + ":" + String(Math.floor(left % 60)).padStart(2, "0") + " left"; if (left <= 0 && !QZ.done) submitQuiz(); }
+  function renderQ() {
+    const q = QZ.qs[QZ.i]; const ord = QZ.order[QZ.i]; const n = QZ.qs.length;
+    $("qzProg").textContent = "Question " + (QZ.i + 1) + " of " + n;
+    qzBody.innerHTML = '<div class="qz-q">' + md(q.prompt) + '</div><div class="qz-opts">' + ord.map((oi, k) => '<button class="qz-opt' + (QZ.answers[QZ.i] === oi ? " sel" : "") + '" type="button" data-oi="' + oi + '"><b>' + "ABCD"[k] + '</b><span>' + md(q.options[oi]) + '</span></button>').join("") + '</div>';
+    qzBody.querySelectorAll(".qz-opt").forEach(b => b.addEventListener("click", () => { QZ.answers[QZ.i] = Number(b.dataset.oi); qzBody.querySelectorAll(".qz-opt").forEach(x => x.classList.toggle("sel", x === b)); }));
+    qzPrev.hidden = false; qzPrev.textContent = "Back"; qzPrev.disabled = QZ.i === 0; qzPrev.onclick = () => { QZ.i--; renderQ(); };
+    const last = QZ.i === n - 1; qzNext.textContent = last ? "Submit" : "Next"; qzNext.onclick = () => { if (last) submitQuiz(); else { QZ.i++; renderQ(); } };
+  }
+  async function submitQuiz() {
+    if (QZ.busy || QZ.done) return; QZ.busy = true; QZ.done = true; clearInterval(QZ.timer); QZ.timer = null;
+    const unanswered = QZ.answers.filter(a => a === null).length;
+    qzBody.innerHTML = '<p style="margin:0">Marking' + (unanswered ? " (" + unanswered + " unanswered)" : "") + "…</p>"; qzNext.disabled = true; qzPrev.hidden = true;
+    try {
+      const { data, error } = await AA.cloud.rpc("grade_quiz", { p_session: QZ.session, p_answers: QZ.answers });
+      if (error || !data || data.error) { qzMsg("Couldn't mark it", esc((error && error.message) || (data && data.error) || "Unknown error")); return; }
+      showResult(data);
+      if (data.set === "test" && AA.cloud.pull) { await AA.cloud.pull(); render(); if (data.passed) { const i = MODULES.findIndex(x => x.key === data.module); const p = campPts[i]; toast("Checkpoint passed by test · +" + (MODULES[i].cap ? 300 : 100) + " XP"); confetti(90, p.x, p.y); } }
+    } catch (err) { qzMsg("Couldn't mark it", esc(err.message || String(err))); }
+    finally { QZ.busy = false; }
+  }
+  function showResult(r) {
+    const test = r.set === "test"; $("qzTimer").hidden = true; $("qzProg").textContent = (test ? "Test" : "Practice") + " · " + r.correct + " of " + r.n + " correct"; $("qzTime").textContent = Math.round(r.seconds / 60) + " min";
+    $("qzTitle").textContent = test ? (r.passed ? "Passed" : "Not yet") : "Practice result";
+    let h = '<div class="qz-score">' + r.score + '%' + (test ? ' <small>' + (r.passed ? "posted to your camp · attempt " + r.attempt : "70% needed · attempt " + r.attempt + " · retake in 24 h") + '</small>' : ' <small>not posted; practice as often as you like</small>') + '</div>';
+    if (r.missed && r.missed.length) h += '<div><div class="eyebrow" style="margin-bottom:6px">Missed</div><div class="qz-missed">' + r.missed.map(t => '<span class="chip">' + esc(t) + '</span>').join("") + '</div></div>';
+    if (!test && Array.isArray(r.review) && r.review.length) {
+      h += '<div class="qz-rv">' + r.review.map((it, k) => { const q = QZ.qs.find(x => x.id === it.id) || { prompt: "", options: [] }; const okk = it.given === it.correct;
+        return '<div class="it ' + (okk ? "ok" : "bad") + '"><div><b>' + (k + 1) + '.</b> ' + md(q.prompt) + '</div><div style="margin-top:4px">' + (okk ? "✓ " : "✗ Your answer: " + (it.given == null ? "<i>none</i>" : md(q.options[it.given] || "")) + "<br>✓ ") + md(q.options[it.correct] || "") + '</div><div class="ex">' + esc(it.explanation || "") + '</div></div>'; }).join("") + '</div>';
+    } else if (test && !r.passed) h += '<p class="muted" style="margin:0;font-size:13px">Use the practice quiz to see explanations, then come back for the retake.</p>';
+    qzBody.innerHTML = h; qzNext.disabled = false; qzNext.textContent = "Close"; qzNext.onclick = qzHide; qzPrev.hidden = !(!test); qzPrev.disabled = false; qzPrev.textContent = "Another practice"; qzPrev.onclick = () => { qzHide(); openQuiz(QZ.module, "practice"); };
+  }
+  $("qzClose").addEventListener("click", () => { if (QZ.set === "test" && QZ.session && !QZ.done) AA.toast("The test clock keeps running on the server; come back before it ends or it counts as an attempt."); qzHide(); });
+  window.addEventListener("keydown", e => { if (e.key === "Escape" && !qzEl.hidden) $("qzClose").click(); });
 
   /* Mode: local (no cloud configured) · pending (checking sign-in) · view (signed out: read-only copy) · edit (signed in) · offline (library failed). */
   function mode() { const c = AA.cloud || {}; if (!c.configured) return "local"; if (!c.ready) return "pending"; if (!c.enabled) return "offline"; return (c.user && !AA.isViewing()) ? "edit" : "view"; }

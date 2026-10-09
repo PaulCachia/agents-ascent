@@ -67,7 +67,7 @@
   <div class="cols">
     <section class="card" id="modCard">
       <div class="card-h"><h2>Camp log</h2><span class="eyebrow">budget · video length · status · quiz · note</span></div>
-      <p class="muted" style="margin:0 0 10px;font-size:12px">⏱ is the hours the course budgets for the module, exercises included; ▶ is the core video path's running time (tap it for the list). ● marks the essential spine: a professor can re-teach or lighten those camps but never drop them.</p>
+      <p class="muted" style="margin:0 0 10px;font-size:12px">⏱ is the hours the course budgets for the module; ▶ is the core video path's running time (tap it for the list). ● marks the essential spine. <b>Practice</b> is unlimited and never posted. <b>Take the test</b> is 8 random questions, 90 seconds each, marked on the server: 70% passes the camp and posts the score; a retake opens 24 h after a fail.</p>
       <div class="planbar" id="planBar" hidden><div><b id="planTitle"></b><div class="muted" id="planSummary" style="font-size:13px"></div></div><button class="ghost" type="button" id="planMore" aria-expanded="false">Details</button><div class="muted" id="planDetail" style="font-size:13px;grid-column:1/-1" hidden></div></div>
       <div id="modList"></div>
     </section>
@@ -131,6 +131,15 @@
 <script src="assets/config.js"></script>
 <script src="assets/cloud.js"></script>
 <script>AA.nav("ascent");AA.mountTracker();</script>
+<div class="qz" id="qz" hidden role="dialog" aria-modal="true" aria-labelledby="qzTitle">
+  <div class="qz-box">
+    <div class="qz-h"><div style="min-width:0"><div class="eyebrow" id="qzKind">quiz</div><h2 id="qzTitle" style="margin:2px 0 0;font-size:18px"></h2></div><button class="ghost" type="button" id="qzClose" aria-label="Close">✕</button></div>
+    <div class="qz-timer" id="qzTimer"><i id="qzBar"></i></div>
+    <div class="qz-meta"><span id="qzProg"></span><span id="qzTime"></span></div>
+    <div id="qzBody" class="qz-body"></div>
+    <div class="qz-f" id="qzFoot"><button class="ghost" type="button" id="qzPrev">Back</button><button class="primary" type="button" id="qzNext">Next</button></div>
+  </div>
+</div>
 <script src="assets/ascent.js"></script>
 </body>
 </html>

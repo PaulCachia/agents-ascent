@@ -73,3 +73,15 @@ curl "https://<project>.supabase.co/rest/v1/progress?select=kind,key,data,update
 ## Deploying
 
 Hosted on GitHub Pages from the `main` branch (root). Any push to `main` redeploys within a minute or two.
+
+### Tests and practice quizzes
+
+`supabase/quiz.sql` adds four tables and two functions. Questions and the answer key are unreadable through the
+API; `start_quiz(module, set)` issues a session of 8 random questions and `grade_quiz(session, answers)` marks it
+on the server and, for the test set, writes the score to the climber's module row and grants "Checkpoint
+passed" at 70%. Rules live in the functions: practice is unlimited and never posted; the test posts its latest
+score with the attempt number; a retake opens 24 h after a fail, 72 h after two; an abandoned test counts as an
+attempt once its clock runs out; passing closes the test. The question bank (currently Phases 0–2, 12 test +
+12 practice per module) is not in this repository because it carries the answer key; the course owner keeps it
+and loads it through the SQL editor. `quiz_attempts` is public to read so professors can see attempts and the
+topics missed.

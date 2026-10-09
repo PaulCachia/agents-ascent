@@ -37,6 +37,7 @@
     /* View a climber's rows read-only (works signed in or out). "me" or your own id returns to your working copy. */
     AA.cloud.viewAs = id => { const u = AA.cloud.user; if (u && (!id || id === "me" || id === u.id)) { AA.clearView(); AA.cloud.viewId = null; window.dispatchEvent(new CustomEvent("aa:auth")); window.dispatchEvent(new CustomEvent("aa:progress")); window.dispatchEvent(new CustomEvent("aa:sessions")); return Promise.resolve(); } if (!AA.cloud.user) AA.store.set("viewId", id); return viewClimber(id); };
     AA.cloud.refreshExpedition = expedition;
+    AA.cloud.rpc = (fn, args) => sb.rpc(fn, args || {});
     AA.cloud.openPanel = () => { if (!ui) return; const p = ui.querySelector("#syncPanel"); p.hidden = false; paint(); const em = p.querySelector("#syncEmail"); if (em) em.focus(); };
   }
 
