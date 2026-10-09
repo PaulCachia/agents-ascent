@@ -138,6 +138,15 @@
 <script src="assets/config.js"></script>
 <script src="assets/cloud.js"></script>
 <script>AA.nav("ascent");AA.mountTracker();</script>
+<div class="qz" id="crop" hidden role="dialog" aria-modal="true" aria-labelledby="cropTitle">
+  <div class="qz-box" style="width:min(420px,100%)">
+    <div class="qz-h"><div><div class="eyebrow">Climber photo</div><h2 id="cropTitle" style="margin:2px 0 0;font-size:18px">Frame your face</h2></div><button class="ghost" type="button" id="cropCancel" aria-label="Cancel">✕</button></div>
+    <p class="muted" style="margin:0;font-size:13px">Drag to move, slide to zoom. What's inside the circle becomes your climber's head.</p>
+    <div class="crop-stage" id="cropStage"><img id="cropImg" alt="" draggable="false"><div class="crop-mask" aria-hidden="true"></div></div>
+    <label class="crop-zoom">Zoom<input type="range" id="cropZoom" min="100" max="400" value="100" step="1"></label>
+    <div class="qz-f"><button class="ghost" type="button" id="cropCancel2">Cancel</button><button class="primary" type="button" id="cropOk">Use this photo</button></div>
+  </div>
+</div>
 <div class="qz" id="qz" hidden role="dialog" aria-modal="true" aria-labelledby="qzTitle">
   <div class="qz-box">
     <div class="qz-h"><div style="min-width:0"><div class="eyebrow" id="qzKind">quiz</div><h2 id="qzTitle" style="margin:2px 0 0;font-size:18px"></h2></div><button class="ghost" type="button" id="qzClose" aria-label="Close">✕</button></div>
