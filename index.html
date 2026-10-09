@@ -43,7 +43,7 @@
   <section class="card">
     <div class="thisweek">
       <div class="wk" id="twNum">Week 1</div>
-      <div><div class="eyebrow">This week's plan</div><div id="twText" style="margin-top:4px">Phase 0 + terminal.</div><div class="muted" style="font-size:13px;margin-top:6px">Started 8 Oct 2026. Weekly AI news brief lands every Monday morning in the Project.</div></div>
+      <div><div class="eyebrow" id="twWho">This week's plan</div><div id="twText" style="margin-top:4px">Phase 0 + terminal.</div><div class="muted" style="font-size:13px;margin-top:6px" id="twSub">Week numbers count from your start date (set it in your Climber profile on the Ascent page).</div></div>
     </div>
   </section>
 
@@ -51,6 +51,7 @@
     <a class="tile" href="course.html"><span class="eyebrow">The map</span><span class="big">The course</span><p>Nine phases, 24 modules, four capstones. Every module has videos, an exercise, a "ready to move on when…" checkpoint and the pitfalls to avoid.</p></a>
     <a class="tile" href="ascent.html"><span class="eyebrow">The game</span><span class="big">The Ascent</span><p>A climber moves up the mountain as you pass checkpoints. XP, ten levels, fourteen badges, a rocket at the summit. Check-ins and quiz scores live here too.</p></a>
     <a class="tile" href="ascent.html#sessList"><span class="eyebrow">The clock</span><span class="big">Study sessions</span><p>Press ▶ on any page when you sit down and ■ when you stop. Hours count towards your plan and show up as "on the clock" in the Ascent.</p></a>
+    <a class="tile" href="professor.html"><span class="eyebrow">The guide</span><span class="big">Your professor</span><p>Every climber gets their own: a Claude Project that reads your camps, quizzes you, and re-plans the climb with you at each checkpoint. Set-up takes five minutes.</p></a>
   </section>
 
   <section class="card">
@@ -58,11 +59,12 @@
     <div class="steps">
       <div class="step"><b>1 · Build the week's modules</b><span>Follow the course tab, pausing each video to make the agent do the step and explain it. Put the time on the clock.</span></div>
       <div class="step"><b>2 · Pass the checkpoint</b><span>Mark the camp "Checkpoint passed" in the Ascent when you can do the module's "ready to move on" test from memory.</span></div>
-      <div class="step"><b>3 · Report to the professor</b><span>Come back to the Project chat and say what you built and what confused you. Claude reads your camps, hours and check-ins straight from your database, quizzes you, tells you the score to record on the module row, and sets next week's plan.</span></div>
+      <div class="step"><b>3 · Report to the professor</b><span>Open your professor's chat (the button on the Ascent page) and say what you built and what confused you. It reads your camps, hours and check-ins straight from the database, quizzes you, and tells you the score to record on the module row.</span></div>
+      <div class="step"><b>4 · Re-plan at checkpoints</b><span>At the end of each phase you and your professor review the climb against your end goal: expand what grips you, lighten what drags, never drop the essential spine. The professor hands you a plan; you apply it on the Ascent page.</span></div>
     </div>
   </section>
 
-  <footer>Built in week 1 of the course as the first deployed project. Hosted on GitHub Pages; progress lives in your own Supabase database; any device can view it, and signing in (top right) lets that device edit it. Rebuilding both by hand is part of Phases 4 and 5.</footer>
+  <footer>Built in week 1 of the course as the first deployed project. Hosted on GitHub Pages; every climber's progress lives in one Supabase database under Row-Level Security: anyone can view a public climb, only its owner can edit it. Rebuilding both by hand is part of Phases 4 and 5.</footer>
 </div>
 <script src="assets/site.js"></script>
 <script src="assets/config.js"></script>
@@ -70,9 +72,14 @@
 <script>
 AA.nav("home"); AA.mountTracker();
 (function(){
-  var w = AA.currentWeek(); var n = Math.min(w, AA.TOTAL_WEEKS);
-  document.getElementById("twNum").textContent = w > AA.TOTAL_WEEKS ? "Week 26+" : "Week " + w;
-  document.getElementById("twText").textContent = w > AA.TOTAL_WEEKS ? "Course complete. Keep shipping; re-run the plan for the next product." : AA.PLAN[n - 1];
+  function paintWeek() {
+    var w = AA.currentWeek(); var n = Math.min(w, AA.TOTAL_WEEKS); var p = AA.profile();
+    document.getElementById("twNum").textContent = w > AA.TOTAL_WEEKS ? "Week 26+" : "Week " + w;
+    document.getElementById("twWho").textContent = (p.name ? p.name + "'s" : "This") + " week" + (AA.isViewing() ? " (viewing)" : "");
+    document.getElementById("twText").textContent = w > AA.TOTAL_WEEKS ? "Course complete. Keep shipping; re-run the plan for the next product." : AA.weekPlan(n);
+    document.getElementById("twSub").textContent = "Started " + AA.fmtDate(AA.startISO()) + (AA.plan() ? " · plan v" + AA.plan().version : "") + ". Week numbers count from the start date in your Climber profile.";
+  }
+  paintWeek(); window.addEventListener("aa:progress", paintWeek); window.addEventListener("aa:auth", paintWeek);
   var s = ""; for (var i = 0; i < 40; i++) { s += '<circle class="star" cx="' + (Math.random() * 600).toFixed(1) + '" cy="' + (Math.random() * 180).toFixed(1) + '" r="' + (Math.random() * 1.3 + .3).toFixed(2) + '"/>'; }
   document.getElementById("hstars").innerHTML = s;
   var b = document.getElementById("heroStart");

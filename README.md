@@ -44,9 +44,24 @@ sign-in, so progress follows you between devices and Claude can read it.
 4. Put the project URL and anon key into `assets/config.js`. Both are public values; security is the RLS.
 5. Open the site, click **Sign in** in the nav, enter your email, open the magic link **on that same device**
    (if it opens inside a mail app's viewer, choose "Open in browser"). Sign-in is per browser.
-6. After the first sign-in, copy your `user_id` from the `progress` table into `ownerId` in `assets/config.js`.
-   Signed-out visitors (your phone, say) then see a read-only copy of your progress through the public-read
-   policy; editing and the study clock need sign-in. Module rows flash "Saved to your database" as pushes land.
+6. `ownerId` in `assets/config.js` is the climber shown to signed-out visitors by default (any climber can be
+   chosen from the selector). Editing and the study clock need sign-in. Module rows flash "Saved to your
+   database" as pushes land.
+
+### Several climbers, one mountain
+
+Every climber signs in with their own email and gets their own rows under RLS. A `profile` row (name, start
+date, end goal, professor link, public flag) sets their week numbers and puts them on the shared mountain; a
+`plan` row holds the professor's current plan. Signed out, the site shows one climber's climb read-only in a
+separate overlay (`AA.setView`) that is never merged into the signed-in working copy.
+
+Each climber has their own professor: a Claude Project carrying `professor/PROFESSOR.md` (served as
+`professor.html` with set-up steps and a copy button; rebuild with `python3 build/build_professor.py`). The
+professor reads the database through the public key, quizzes the student, and at each phase checkpoint hands
+over a plan as JSON (or a `ascent.html#plan=<url-encoded json>` link). The site validates it — camps on the
+essential spine (`core: true` in `assets/ascent.js`) can be lightened but never skipped — and the student
+applies it. The plan sets a depth per module (core / expanded / lightened / skip), notes, extra resources and
+optional week-by-week text.
 
 Claude reads it with one call:
 

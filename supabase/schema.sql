@@ -5,14 +5,14 @@
 
 create table if not exists public.progress (
   user_id    uuid        not null default auth.uid() references auth.users (id) on delete cascade,
-  kind       text        not null check (kind in ('module', 'checkin', 'session')),
+  kind       text        not null check (kind in ('module', 'checkin', 'session', 'profile', 'plan')),
   key        text        not null,
   data       jsonb       not null,
   updated_at timestamptz not null default now(),
   primary key (user_id, kind, key)
 );
 
-comment on table public.progress is 'Agent''s Ascent course progress. kind=module → key is the module id (m00..m23); kind=checkin/session → key is the record id.';
+comment on table public.progress is 'Agent''s Ascent course progress. kind=module → key is the module id (m00..m23); kind=checkin/session → key is the record id; kind=profile → key me (name, start, goal, professor, public); kind=plan → key current (the professor''s plan the climber applied).';
 
 -- Keep updated_at honest.
 create or replace function public.set_updated_at()
@@ -59,3 +59,7 @@ from public.progress
 group by kind;
 
 grant select on public.progress_overview to anon, authenticated;
+
+-- Migration for databases created before profiles and plans existed (run once):
+-- alter table public.progress drop constraint if exists progress_kind_check;
+-- alter table public.progress add constraint progress_kind_check check (kind in ('module','checkin','session','profile','plan'));

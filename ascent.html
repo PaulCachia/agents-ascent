@@ -15,13 +15,21 @@
 <div class="wrap" style="padding-top:20px">
   <header style="display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px">
     <div>
-      <div class="eyebrow">Paul's 26-week expedition · started 8 Oct 2026</div>
+      <div class="eyebrow" id="hdrEyebrow">A 26-week expedition</div>
       <h1>The Agent's Ascent</h1>
       <p class="muted" style="margin:4px 0 0;max-width:60ch">Each camp is a module from the <a href="course.html">course</a>. Pass its checkpoint and the climber moves on. Four capstones are the flags; the summit is a real launch. Press ▶ in the corner to put study time on the clock.</p>
     </div>
   </header>
 
-  <div class="authbar" id="authBar" hidden><span id="authText"></span><button class="primary" type="button" id="authBtn" data-opens-sync hidden>Sign in to edit here</button></div>
+  <div class="authbar" id="authBar" hidden><span id="authText"></span><span class="viewsel" id="viewWrap" hidden><label for="viewSel" class="muted" style="font-size:12px">Climber</label><select id="viewSel" aria-label="Choose whose climb to view"></select></span><button class="primary" type="button" id="authBtn" data-opens-sync hidden>Sign in to edit here</button></div>
+
+  <section class="card offer" id="planOffer" hidden>
+    <div class="card-h"><h2>Your professor proposes a new plan</h2><span class="eyebrow" id="offerMeta"></span></div>
+    <p id="offerText" style="margin:0 0 8px"></p>
+    <div class="muted" id="offerChanges" style="font-size:13px;margin-bottom:10px"></div>
+    <div class="muted" id="offerErr" style="font-size:13px;color:var(--warn);margin-bottom:10px" hidden></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" id="offerApply">Apply this plan</button><button class="ghost" type="button" id="offerSkip">Not now</button></div>
+  </section>
 
   <div class="scene" id="sceneWrap">
     <svg id="scene" viewBox="0 0 1000 560" role="img" aria-label="A mountain trail with 24 camps leading to a launch pad on the summit">
@@ -38,6 +46,7 @@
       <path id="trailDone" class="trail-done" d="M 50 535 C 150 535 190 470 290 465 S 440 500 470 430 S 360 370 520 360 S 700 400 680 310 S 560 255 700 240 S 870 270 850 180 S 900 130 935 170"/>
       <g id="pad"></g>
       <g id="camps"></g>
+      <g id="others"></g>
       <g id="climber"></g>
     </svg>
     <canvas id="confetti"></canvas>
@@ -58,10 +67,22 @@
   <div class="cols">
     <section class="card" id="modCard">
       <div class="card-h"><h2>Camp log</h2><span class="eyebrow">budget · video length · status · quiz · note</span></div>
-      <p class="muted" style="margin:0 0 10px;font-size:12px">⏱ is the hours the course budgets for the module, exercises included; ▶ is the core video path's running time (tap it for the list). Figures come from the course's resource tables and are approximate.</p>
+      <p class="muted" style="margin:0 0 10px;font-size:12px">⏱ is the hours the course budgets for the module, exercises included; ▶ is the core video path's running time (tap it for the list). ● marks the essential spine: a professor can re-teach or lighten those camps but never drop them.</p>
+      <div class="planbar" id="planBar" hidden><div><b id="planTitle"></b><div class="muted" id="planSummary" style="font-size:13px"></div></div><button class="ghost" type="button" id="planMore" aria-expanded="false">Details</button><div class="muted" id="planDetail" style="font-size:13px;grid-column:1/-1" hidden></div></div>
       <div id="modList"></div>
     </section>
     <div style="display:grid;gap:20px;min-width:0">
+      <section class="card" id="meCard">
+        <div class="card-h"><h2>Climber profile</h2><span class="eyebrow" id="meState">your name on the mountain</span></div>
+        <form class="ci" id="meForm" autocomplete="off">
+          <label>Name<input type="text" id="meName" maxlength="40" placeholder="e.g. Paul"></label>
+          <label>Start date (week 1)<input type="date" id="meStart"></label>
+          <label class="full">End goal — what you want to be able to build<input type="text" id="meGoal" maxlength="200" placeholder="e.g. ship a paid product and run a supervised multi-agent business system"></label>
+          <label class="full">My professor (link to your Claude Project)<input type="url" id="meProf" placeholder="https://claude.ai/project/…"></label>
+          <label class="full" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="mePublic" checked style="width:auto"> Show my climb on the shared mountain (other climbers can view it)</label>
+        </form>
+        <p class="muted" id="meNote" style="margin:8px 0 0;font-size:12px">Saves as you type. The start date sets your week numbers; the goal is what your professor steers towards at every checkpoint.</p>
+      </section>
       <section class="card">
         <div class="card-h"><h2>Check-ins</h2><span class="eyebrow">what you did · quiz · next focus</span></div>
         <form class="ci" id="ciForm">
@@ -83,8 +104,14 @@
         <div class="badges" id="badges"></div>
       </section>
       <section class="card" id="profCard">
-        <div class="card-h"><h2>Professor link</h2><span class="eyebrow" id="profState">checking…</span></div>
-        <p class="muted" style="margin:0;font-size:13px" id="profText">Checking your sign-in…</p>
+        <div class="card-h"><h2>Professor</h2><span class="eyebrow" id="profState">checking…</span></div>
+        <p class="muted" style="margin:0 0 10px;font-size:13px" id="profText">Checking your sign-in…</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><a class="primary" id="profGo" href="#" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;font-weight:700;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:8px 14px;font-size:14px">Talk to my professor</a><a class="ghost" href="professor.html" style="text-decoration:none;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:8px 14px;color:var(--fg);font-size:14px">Set up a professor</a></div>
+        <details id="planPaste">
+          <summary class="muted" style="font-size:12px;cursor:pointer">Apply a plan from your professor (paste)</summary>
+          <textarea id="planText" spellcheck="false" placeholder='{"version": 2, "checkpoint": "After Phase 1", "summary": "…", "modules": {"m05": {"depth": "expanded"}}}' style="margin-top:8px;width:100%;min-height:90px"></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px"><button class="ghost" type="button" id="planApplyBtn">Check and apply</button></div>
+        </details>
         <details id="backup">
           <summary class="muted" style="font-size:12px;cursor:pointer">Manual backup (only needed if you can't sign in)</summary>
           <div class="io" style="margin-top:8px">

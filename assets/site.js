@@ -6,8 +6,17 @@ window.AA = (function () {
     get(k, d) { try { const v = localStorage.getItem(KEY + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) { return false; } try { window.dispatchEvent(new CustomEvent("aa:store", { detail: { key: k } })); } catch (e) {} return true; }
   };
-  const START = new Date(2026, 9, 8); // 8 Oct 2026, week 1
+  const DEFAULT_START = "2026-10-08"; // the expedition's first day when a climber has no start date yet
   const TOTAL_WEEKS = 26;
+
+  /* A read-only "view" overlay: another climber's data, kept apart from this browser's own working copy so it can
+     never be merged or pushed into the signed-in account. While viewing, the getters below read the overlay. */
+  let viewing = false;
+  function setView(d) { d = d || {}; store.set("view.modules", d.modules || {}); store.set("view.checkins", d.checkins || []); store.set("view.sessions", d.sessions || []); store.set("view.profile", d.profile || {}); store.set("view.plan", d.plan || null); viewing = true; }
+  function clearView() { viewing = false; }
+  function isViewing() { return viewing; }
+  function own(k, d) { return store.get(k, d); }
+  function vk(k) { return viewing ? "view." + k : k; }
   const PLAN = [
     "Phase 0 + terminal: Karpathy talk, NetworkChuck, WSL/Homebrew. Deliverable: learning contract.",
     "Quick win: fCC Claude Code Full Course + fCC Git crash course. Deliverable: this site deployed from your own repo.",
@@ -37,7 +46,16 @@ window.AA = (function () {
     "Validation + launch. Deliverable: Capstone 4 launched."
   ];
   function todayISO() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
-  function currentWeek() { const d = Math.floor((Date.now() - START.getTime()) / 864e5); return Math.max(1, Math.floor(d / 7) + 1); }
+  /* Profile: name, start date (ISO), goal, professor link, public flag. One row per climber. */
+  function profile() { const p = store.get(vk("profile"), {}); return p && typeof p === "object" ? p : {}; }
+  function setProfile(p) { store.set("profile", p); }
+  function startISO() { const p = profile(); return /^\d{4}-\d{2}-\d{2}$/.test(p.start || "") ? p.start : DEFAULT_START; }
+  function startDate() { const q = startISO().split("-"); return new Date(+q[0], +q[1] - 1, +q[2]); }
+  function currentWeek() { const d = Math.floor((Date.now() - startDate().getTime()) / 864e5); return Math.max(1, Math.floor(d / 7) + 1); }
+  /* The professor's plan (see professor.html): depth per module, optional week text, notes. null = the default course. */
+  function plan() { const p = store.get(vk("plan"), null); return p && typeof p === "object" && p.modules ? p : null; }
+  function setPlan(p) { store.set("plan", p); }
+  function weekPlan(n) { const p = plan(); const w = p && Array.isArray(p.weeks) && p.weeks[n - 1]; return w || PLAN[n - 1] || ""; }
   function fmtDate(iso) { if (!iso) return ""; const p = iso.split("-"); if (p.length < 3) return iso; const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+p[1] - 1]; return (+p[2]) + " " + m + " " + p[0]; }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
   const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -58,7 +76,7 @@ window.AA = (function () {
   }
 
   /* Sessions / tracker */
-  function sessions() { const s = store.get("sessions", []); return Array.isArray(s) ? s : []; }
+  function sessions() { const s = store.get(vk("sessions"), []); return Array.isArray(s) ? s : []; }
   function tracker() { const t = store.get("tracker", null); return t && t.running && t.start ? t : null; }
   function emit() { window.dispatchEvent(new CustomEvent("aa:sessions")); }
   function startSession(note) { if (tracker()) return false; store.set("tracker", { running: true, start: Date.now(), note: note || "" }); emit(); return true; }
@@ -76,7 +94,7 @@ window.AA = (function () {
   function hms(ms) { const s = Math.floor(ms / 1000); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60; return (h ? String(h).padStart(2, "0") + ":" : "") + String(m).padStart(2, "0") + ":" + String(x).padStart(2, "0"); }
 
   /* Editing is allowed locally, or when signed in; signed out with cloud sync configured, the site is read-only. */
-  function canEdit() { const c = window.AA && window.AA.cloud; if (!c || !c.configured || !c.enabled) return true; return !!c.user; }
+  function canEdit() { if (viewing) return false; const c = window.AA && window.AA.cloud; if (!c || !c.configured || !c.enabled) return true; return !!c.user; }
   function requireSignIn(what) {
     if (canEdit()) return true;
     const c = window.AA.cloud;
@@ -121,14 +139,14 @@ window.AA = (function () {
   }
 
   /* Progress data (modules + check-ins) shared with ascent.js */
-  function modules() { const m = store.get("modules", {}); return m && typeof m === "object" ? m : {}; }
+  function modules() { const m = store.get(vk("modules"), {}); return m && typeof m === "object" ? m : {}; }
   function setModules(m) { store.set("modules", m); }
-  function checkins() { const c = store.get("checkins", []); return Array.isArray(c) ? c : []; }
+  function checkins() { const c = store.get(vk("checkins"), []); return Array.isArray(c) ? c : []; }
   function setCheckins(c) { store.set("checkins", c); }
 
   function exportJSON() {
     const ss = sessions();
-    return JSON.stringify({ app: "agents-ascent", version: 1, exportedAt: new Date().toISOString(), week: currentWeek(), modules: modules(), checkins: checkins(), sessions: ss, totals: { trackedMinutes: ss.reduce((a, s) => a + (Number(s.mins) || 0), 0), sessionCount: ss.length } }, null, 2);
+    return JSON.stringify({ app: "agents-ascent", version: 1, exportedAt: new Date().toISOString(), week: currentWeek(), profile: profile(), plan: plan(), modules: modules(), checkins: checkins(), sessions: ss, totals: { trackedMinutes: ss.reduce((a, s) => a + (Number(s.mins) || 0), 0), sessionCount: ss.length } }, null, 2);
   }
   function importJSON(text, mode) {
     let j; try { j = JSON.parse(text); } catch (e) { return { ok: false, error: "That isn't valid JSON." }; }
@@ -143,6 +161,6 @@ window.AA = (function () {
   }
   async function copyText(text) { try { await navigator.clipboard.writeText(text); return true; } catch (e) { return false; } }
 
-  return { store, START, TOTAL_WEEKS, PLAN, todayISO, currentWeek, fmtDate, uid, esc, applyTheme, toggleTheme, nav, sessions, tracker, startSession, stopSession, deleteSession, minsToday, minsThisWeek, fmtMins, hms, toast, canEdit, requireSignIn, mountTracker, modules, setModules, checkins, setCheckins, exportJSON, importJSON, copyText };
+  return { store, DEFAULT_START, TOTAL_WEEKS, PLAN, todayISO, currentWeek, startISO, startDate, weekPlan, profile, setProfile, plan, setPlan, setView, clearView, isViewing, fmtDate, uid, esc, applyTheme, toggleTheme, nav, sessions, tracker, startSession, stopSession, deleteSession, minsToday, minsThisWeek, fmtMins, hms, toast, canEdit, requireSignIn, mountTracker, modules, setModules, checkins, setCheckins, exportJSON, importJSON, copyText };
 })();
 AA.applyTheme();

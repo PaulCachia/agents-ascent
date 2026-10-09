@@ -76,7 +76,8 @@ tr:last-child td{border-bottom:0}
 .hero .art{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--sky2)}
 .hero .art svg{display:block;width:100%;height:auto}
 @media (max-width:760px){.hero{grid-template-columns:1fr}}
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:980px){.tiles{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:760px){.tiles{grid-template-columns:1fr}}
 .tile{display:grid;gap:8px;text-decoration:none;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
 .tile:hover{border-color:var(--accent)}
@@ -210,6 +211,16 @@ button.chip:hover,button.chip[aria-expanded="true"]{background:color-mix(in srgb
 .authbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 0;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:13px;color:var(--muted)}
 .authbar.view{border-color:var(--accent);color:var(--fg)} .authbar.warn{border-color:var(--warn);color:var(--fg)}
 .authbar button{font-size:13px;padding:7px 12px;border-radius:8px}
+.authbar .viewsel{display:inline-flex;align-items:center;gap:6px}
+.authbar select{font:inherit;font-size:13px;background:var(--surface2);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.card.offer{border-color:var(--accent);margin-top:14px}
+.planbar{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;padding:10px 12px;border:1px solid var(--accent);border-radius:12px;background:color-mix(in srgb,var(--accent) 8%,var(--surface));margin-bottom:12px;font-size:14px}
+.chip.depth{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)} .chip.depth.light{background:var(--skip);border-color:var(--skip);color:#fff} .chip.depth.skip{background:transparent;color:var(--skip);text-decoration:line-through}
+.mod .plannote{font-weight:400;font-size:12px;color:var(--fg);margin-top:6px;padding:6px 8px;border-left:2px solid var(--done);line-height:1.45}
+.mod .plannote a{color:var(--accent)}
+.mod .spine{color:var(--accent);font-size:10px;vertical-align:middle;margin-right:4px}
+.other-climber circle{fill:var(--surface);stroke:var(--done);stroke-width:2}
+.other-climber text{font-family:var(--mono);font-size:10px;fill:var(--fg);text-anchor:middle;paint-order:stroke;stroke:var(--bg);stroke-width:3px;stroke-linejoin:round}
 body.ro #modList select:disabled,body.ro #modList input:disabled,body.ro form.ci input:disabled{opacity:.7;cursor:not-allowed}
 body.ro [data-del],body.ro [data-sdel],body.ro #btnImport,body.ro #btnReset{display:none}
 form.ci{display:grid;grid-template-columns:1fr 1fr;gap:8px}

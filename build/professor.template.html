@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Agent's Ascent — Your professor</title>
+<meta name="description" content="Set up your own professor for The Agent's Ascent: a Claude Project that reads your progress, quizzes you and re-plans the climb with you at each checkpoint.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 20 9 7l4 6 2-3 7 10Z' fill='%23f0a04b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Nunito+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('aa.v1.theme'));if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+<style>
+  .setup{display:grid;gap:12px;counter-reset:s}
+  .setup .s{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .setup .s::before{counter-increment:s;content:counter(s);font-family:var(--display);font-weight:800;font-size:20px;color:var(--accent);line-height:1}
+  .setup .s b{display:block;margin-bottom:4px}
+  .setup .s p{margin:0;color:var(--muted);font-size:14px}
+  .briefbox{position:relative;margin-top:14px}
+  .briefbox .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .brief{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .brief h2{font-size:20px;margin:22px 0 8px} .brief h2:first-child{margin-top:0}
+  .briefbox,.brief{min-width:0;max-width:100%}
+  .brief pre{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--mono);font-size:12px;line-height:1.5}
+  .brief p,.brief li{overflow-wrap:anywhere}
+  .brief code{font-family:var(--mono);font-size:12.5px}
+  .brief .tbl{margin:10px 0;max-width:calc(100vw - 32px)}
+  .brief table{border-collapse:collapse;width:100%;font-size:13px} .brief th,.brief td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  .brief ul,.brief ol{padding-left:22px} .brief li{margin:4px 0}
+  textarea.raw{width:100%;min-height:160px;font-family:var(--mono);font-size:12px;background:var(--surface2);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:10px}
+</style>
+</head>
+<body>
+<div class="wrap" style="padding-top:20px">
+  <header>
+    <div class="eyebrow">One professor per climber</div>
+    <h1>Your professor</h1>
+    <p class="lead" style="max-width:70ch">Every climber on the Ascent gets their own professor: a Claude Project that carries the brief below, reads your camps, hours and quiz scores straight from the shared database, tests you, and re-plans the rest of the climb with you at each checkpoint. Setting one up takes about five minutes.</p>
+  </header>
+
+  <section class="card">
+    <h2>Set-up</h2>
+    <div class="setup">
+      <div class="s"><div><b>Start your climb</b><p>On the <a href="ascent.html">Ascent page</a>, tap <b>Sign in</b>, enter your email and open the magic link on the same device. Then fill in your <b>Climber profile</b>: name, start date (your week 1), and the end goal you want the professor to steer towards.</p></div></div>
+      <div class="s"><div><b>Create a Claude Project</b><p>In Claude, make a new Project called something like <i>Agent's Ascent — professor</i>. Projects live under your own Claude account; any plan that includes Projects works. Turn on web search for the Project if it is a setting on your plan, so the professor can read the database and the course.</p></div></div>
+      <div class="s"><div><b>Paste the brief as the Project's instructions</b><p>Copy the brief below (the button copies the whole thing) into the Project's instructions. It tells the professor how to find you, how to read your progress, how to quiz you, and how checkpoints and plans work.</p></div></div>
+      <div class="s"><div><b>Link the professor to your profile</b><p>Copy the Project's web address into <b>My professor</b> in your Climber profile. The <b>Talk to my professor</b> button on the Ascent page then opens it.</p></div></div>
+      <div class="s"><div><b>First conversation</b><p>Open the professor, give your name, and say where you are. It reads your rows, sets this week's work, and tells you how check-ins and quizzes will run. From then on you come back weekly, and at the end of each phase for a checkpoint.</p></div></div>
+    </div>
+  </section>
+
+  <section class="card briefbox">
+    <div class="card-h"><h2>The brief</h2><span class="eyebrow">paste into the Project's instructions</span></div>
+    <div class="tools"><button class="primary" type="button" id="copyBrief">Copy the brief</button><button class="ghost" type="button" id="showRaw">Show as plain text</button><a class="ghost" href="professor/PROFESSOR.md" style="text-decoration:none;display:inline-block;border:1px solid var(--line);border-radius:8px;padding:4px 10px;color:var(--muted);font-size:12px">Open the Markdown file</a><span class="muted" id="copyMsg" style="font-size:12px"></span></div>
+    <textarea class="raw" id="rawBrief" hidden spellcheck="false" aria-label="The professor brief as plain text"><!--BRIEF_RAW--></textarea>
+    <div class="brief" id="brief">
+<!--BRIEF_HTML-->
+    </div>
+  </section>
+
+  <footer>The brief is a public file in the course repository, so a professor can be updated for everyone at once: edit <code>professor/PROFESSOR.md</code>, rebuild, and re-paste. The database key in it is the public read-only key; nothing in the brief can write.</footer>
+</div>
+<script src="assets/site.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/cloud.js"></script>
+<script>
+AA.nav("professor"); AA.mountTracker();
+(function () {
+  var ta = document.getElementById("rawBrief"), msg = document.getElementById("copyMsg");
+  document.getElementById("copyBrief").addEventListener("click", async function () { var ok = await AA.copyText(ta.value); if (ok) { msg.textContent = "Copied. Paste it into your Project's instructions."; } else { ta.hidden = false; ta.select(); msg.textContent = "Copy was blocked; the text is selected below."; } });
+  document.getElementById("showRaw").addEventListener("click", function () { ta.hidden = !ta.hidden; if (!ta.hidden) ta.focus(); });
+})();
+</script>
+</body>
+</html>
