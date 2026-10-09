@@ -76,11 +76,18 @@ window.AA = (function () {
     const el = document.createElement("div"); el.className = "nav";
     el.innerHTML = '<div class="nav-in"><a class="brand" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20 9 7l4 6 2-3 7 10Z" fill="var(--accent)"/><path d="M9 7l2 3-2 1-2-1Z" fill="var(--snow)"/></svg><span>The Agent\'s Ascent</span></a>' +
       '<nav><a href="index.html" data-p="home">Home</a><a href="course.html" data-p="course">Course</a><a href="ascent.html" data-p="ascent">Ascent</a></nav>' +
-      '<button class="theme" type="button" id="themeBtn" aria-label="Toggle light and dark theme" title="Theme">◐</button></div>';
+      '<button class="theme" type="button" id="themeBtn" aria-label="Toggle light and dark theme" title="Theme">◐</button>' +
+      '<a class="avatar" id="navAvatar" href="profile.html" aria-label="My profile" title="My profile"></a></div>';
     document.body.prepend(el);
     const a = el.querySelector('nav a[data-p="' + active + '"]'); if (a) a.classList.add("on");
     el.querySelector("#themeBtn").addEventListener("click", toggleTheme);
+    if (active === "profile") el.querySelector("#navAvatar").classList.add("on");
+    paintAvatar(); ["aa:auth", "aa:progress", "storage"].forEach(ev => window.addEventListener(ev, paintAvatar));
+    window.addEventListener("aa:store", e => { if (e.detail && e.detail.key === "profile") paintAvatar(); });
   }
+  /* The top-bar button for My profile is the climber's own picture (never a viewed climber's). */
+  function paintAvatar() { const el = document.getElementById("navAvatar"); if (!el) return; const p = own.profile(); const has = !!(p.photo && /^data:image\//.test(p.photo));
+    el.innerHTML = has ? '<img src="' + p.photo + '" alt="">' : '<svg viewBox="-12 -48 24 24" aria-hidden="true"><circle class="bot-body" cx="0" cy="-36" r="9"/><circle class="bot-eye" cx="-3.5" cy="-37" r="1.8"/><circle class="bot-eye" cx="3.5" cy="-37" r="1.8"/></svg>'; el.classList.toggle("has", has); }
 
   /* Sessions / tracker */
   function sessions() { const s = store.get(vk("sessions"), []); return Array.isArray(s) ? s : []; }

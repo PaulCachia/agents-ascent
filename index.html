@@ -43,7 +43,7 @@
   <section class="card">
     <div class="thisweek">
       <div class="wk" id="twNum">Week 1</div>
-      <div><div class="eyebrow" id="twWho">This week's plan</div><div id="twText" style="margin-top:4px">Phase 0 + terminal.</div><div class="muted" style="font-size:13px;margin-top:6px" id="twSub">Week numbers count from your start date (set it in your Climber profile on the Ascent page).</div></div>
+      <div><div class="eyebrow" id="twWho">This week's plan</div><div id="twText" style="margin-top:4px">Phase 0 + terminal.</div><div class="muted" style="font-size:13px;margin-top:6px" id="twSub">Week numbers count from your start date (set it on My profile: your picture, top right).</div></div>
     </div>
   </section>
 
@@ -77,7 +77,7 @@ AA.nav("home"); AA.mountTracker();
     document.getElementById("twNum").textContent = w > AA.TOTAL_WEEKS ? "Week 26+" : "Week " + w;
     document.getElementById("twWho").textContent = (p.name ? p.name + "'s" : "This") + " week" + (AA.isViewing() ? " (viewing)" : "");
     document.getElementById("twText").textContent = w > AA.TOTAL_WEEKS ? "Course complete. Keep shipping; re-run the plan for the next product." : AA.weekPlan(n);
-    document.getElementById("twSub").textContent = "Started " + AA.fmtDate(AA.startISO()) + (AA.plan() ? " · plan v" + AA.plan().version : "") + ". Week numbers count from the start date in your Climber profile.";
+    document.getElementById("twSub").textContent = "Started " + AA.fmtDate(AA.startISO()) + (AA.plan() ? " · plan v" + AA.plan().version : "") + ". Week numbers count from the start date on My profile.";
   }
   paintWeek(); window.addEventListener("aa:progress", paintWeek); window.addEventListener("aa:auth", paintWeek);
   var s = ""; for (var i = 0; i < 40; i++) { s += '<circle class="star" cx="' + (Math.random() * 600).toFixed(1) + '" cy="' + (Math.random() * 180).toFixed(1) + '" r="' + (Math.random() * 1.3 + .3).toFixed(2) + '"/>'; }

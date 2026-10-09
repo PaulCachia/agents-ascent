@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Agent's Ascent — My profile</title>
+<meta name="description" content="Your climber profile: name, start date, end goal, professor link and the photo your climber wears.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 20 9 7l4 6 2-3 7 10Z' fill='%23f0a04b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Nunito+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('aa.v1.theme'));if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+</head>
+<body>
+<div class="wrap" style="padding-top:20px">
+  <header>
+    <div class="eyebrow" id="meState">your name on the mountain</div>
+    <h1>My profile</h1>
+    <p class="muted" style="margin:4px 0 0;max-width:62ch">What other climbers see, what your professor steers towards, and the face your climber wears. Everything here saves as you type.</p>
+  </header>
+
+  <div class="authbar" id="authBar" hidden><span id="authText"></span><button class="primary" type="button" id="authBtn" data-opens-sync hidden>Sign in</button></div>
+
+  <div class="cols" style="margin-top:16px">
+    <section class="card" id="meCard">
+      <div class="card-h"><h2>Climber</h2><span class="eyebrow">name · start · goal · professor</span></div>
+      <form class="ci" id="meForm" autocomplete="off">
+        <label>Name<input type="text" id="meName" maxlength="40" placeholder="e.g. Paul"></label>
+        <label>Start date (week 1)<input type="date" id="meStart"></label>
+        <label class="full">End goal — what you want to be able to build<input type="text" id="meGoal" maxlength="200" placeholder="e.g. ship a paid product and run a supervised multi-agent business system"></label>
+        <label class="full">My professor (link to your Claude Project)<input type="url" id="meProf" placeholder="https://claude.ai/project/…"></label>
+        <label class="full" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="mePublic" checked style="width:auto"> Show my climb on the shared mountain (other climbers can view it)</label>
+      </form>
+      <p class="muted" style="margin:8px 0 0;font-size:12px">The start date sets your week numbers; the goal is what your professor steers towards at every checkpoint. No professor yet? <a href="professor.html">Set one up</a>.</p>
+    </section>
+
+    <section class="card" id="photoCard">
+      <div class="card-h"><h2>My profile picture</h2><span class="eyebrow">your climber's head</span></div>
+      <div class="photo-hero">
+        <div class="photo-prev big" id="mePhotoPrev" aria-hidden="true"></div>
+        <div style="min-width:0;display:grid;gap:8px;justify-items:start">
+          <label class="photo-btn" for="mePhoto">Choose a photo</label>
+          <input type="file" id="mePhoto" accept="image/*" hidden>
+          <button class="ghost" type="button" id="mePhotoClear" hidden>Remove photo</button>
+          <p class="muted" style="margin:0;font-size:12px">You frame it yourself (drag and zoom), then it is shrunk to a small square and stored with your profile. Other climbers can see it. It also sits in the top bar: tap it any time to come back here.</p>
+        </div>
+      </div>
+      <div class="climber-demo" aria-hidden="true">
+        <svg viewBox="-40 -60 80 70" id="demoBot">
+          <g id="bot"><ellipse class="bot-shadow" cx="0" cy="2" rx="9" ry="3"/><rect class="leg l" x="-6" y="-8" width="4" height="9" rx="2"/><rect class="leg r" x="2" y="-8" width="4" height="9" rx="2"/><rect class="bot-pack" x="-13" y="-22" width="6" height="11" rx="3"/><rect class="bot-body" x="-8" y="-24" width="16" height="17" rx="6"/>
+          <g class="bot-head"><g id="botRobot"><circle class="bot-body" cx="0" cy="-31" r="8"/><circle class="bot-eye" cx="-3" cy="-32" r="1.7"/><circle class="bot-eye" cx="3" cy="-32" r="1.7"/><line class="bot-ant" x1="0" y1="-39" x2="0" y2="-45"/><circle class="bot-tip" cx="0" cy="-46" r="2.2"/></g>
+          <g id="botFace" hidden><clipPath id="botFaceClip"><circle cx="0" cy="-32" r="9.5"/></clipPath><image id="botFaceImg" x="-9.5" y="-41.5" width="19" height="19" preserveAspectRatio="xMidYMid slice" clip-path="url(#botFaceClip)"/><circle class="bot-face-ring" cx="0" cy="-32" r="10"/></g></g></g>
+        </svg>
+        <span class="muted" style="font-size:12px">How you look on the mountain</span>
+      </div>
+    </section>
+  </div>
+  <footer>Your profile is one row in the shared database; only you can change it. Scores, camps and hours live on the <a href="ascent.html">Ascent</a>.</footer>
+</div>
+
+<div class="qz" id="crop" hidden role="dialog" aria-modal="true" aria-labelledby="cropTitle">
+  <div class="qz-box" style="width:min(420px,100%)">
+    <div class="qz-h"><div><div class="eyebrow">Profile picture</div><h2 id="cropTitle" style="margin:2px 0 0;font-size:18px">Frame your face</h2></div><button class="ghost" type="button" id="cropCancel" aria-label="Cancel">✕</button></div>
+    <p class="muted" style="margin:0;font-size:13px">Drag to move, slide to zoom. What's inside the circle becomes your climber's head.</p>
+    <div class="crop-stage" id="cropStage"><img id="cropImg" alt="" draggable="false"><div class="crop-mask" aria-hidden="true"></div></div>
+    <label class="crop-zoom">Zoom<input type="range" id="cropZoom" min="100" max="400" value="100" step="1"></label>
+    <div class="qz-f"><button class="ghost" type="button" id="cropCancel2">Cancel</button><button class="primary" type="button" id="cropOk">Use this photo</button></div>
+  </div>
+</div>
+<script src="assets/site.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/cloud.js"></script>
+<script>AA.nav("profile");AA.mountTracker();</script>
+<script src="assets/profile.js"></script>
+</body>
+</html>

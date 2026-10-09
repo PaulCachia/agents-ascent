@@ -72,24 +72,6 @@
       <div id="modList"></div>
     </section>
     <div style="display:grid;gap:20px;min-width:0">
-      <section class="card" id="meCard">
-        <div class="card-h"><h2>Climber profile</h2><span class="eyebrow" id="meState">your name on the mountain</span></div>
-        <form class="ci" id="meForm" autocomplete="off">
-          <label>Name<input type="text" id="meName" maxlength="40" placeholder="e.g. Paul"></label>
-          <label>Start date (week 1)<input type="date" id="meStart"></label>
-          <label class="full">End goal — what you want to be able to build<input type="text" id="meGoal" maxlength="200" placeholder="e.g. ship a paid product and run a supervised multi-agent business system"></label>
-          <label class="full">My professor (link to your Claude Project)<input type="url" id="meProf" placeholder="https://claude.ai/project/…"></label>
-          <div class="full photo-row">
-            <div class="photo-prev" id="mePhotoPrev" aria-hidden="true"><svg viewBox="-12 -48 24 24"><circle class="bot-body" cx="0" cy="-36" r="9"/><circle class="bot-eye" cx="-3.5" cy="-37" r="1.8"/><circle class="bot-eye" cx="3.5" cy="-37" r="1.8"/></svg></div>
-            <div style="min-width:0">
-              <label style="display:block">Photo (becomes your climber's head)<input type="file" id="mePhoto" accept="image/*"></label>
-              <div class="muted" style="font-size:12px;margin-top:4px">Cropped to a small square and stored with your profile; other climbers can see it. <button class="ghost" type="button" id="mePhotoClear" hidden>Remove photo</button></div>
-            </div>
-          </div>
-          <label class="full" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="mePublic" checked style="width:auto"> Show my climb on the shared mountain (other climbers can view it)</label>
-        </form>
-        <p class="muted" id="meNote" style="margin:8px 0 0;font-size:12px">Saves as you type. The start date sets your week numbers; the goal is what your professor steers towards at every checkpoint.</p>
-      </section>
       <section class="card">
         <div class="card-h"><h2>Check-ins</h2><span class="eyebrow">what you did · quiz · next focus</span></div>
         <form class="ci" id="ciForm">
@@ -113,7 +95,7 @@
       <section class="card" id="profCard">
         <div class="card-h"><h2>Professor</h2><span class="eyebrow" id="profState">checking…</span></div>
         <p class="muted" style="margin:0 0 10px;font-size:13px" id="profText">Checking your sign-in…</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><a class="primary" id="profGo" href="#" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;font-weight:700;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:8px 14px;font-size:14px">Talk to my professor</a><a class="ghost" href="professor.html" style="text-decoration:none;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:8px 14px;color:var(--fg);font-size:14px">Set up a professor</a></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><a class="primary" id="profGo" href="#" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;font-weight:700;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:8px 14px;font-size:14px">Talk to my professor</a><a class="ghost" href="professor.html" style="text-decoration:none;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:8px 14px;color:var(--fg);font-size:14px">Set up a professor</a><a class="ghost" href="profile.html" style="text-decoration:none;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:8px 14px;color:var(--fg);font-size:14px">My profile</a></div>
         <details id="planPaste">
           <summary class="muted" style="font-size:12px;cursor:pointer">Apply a plan from your professor (paste)</summary>
           <textarea id="planText" spellcheck="false" placeholder='{"version": 2, "checkpoint": "After Phase 1", "summary": "…", "modules": {"m05": {"depth": "expanded"}}}' style="margin-top:8px;width:100%;min-height:90px"></textarea>
@@ -138,15 +120,6 @@
 <script src="assets/config.js"></script>
 <script src="assets/cloud.js"></script>
 <script>AA.nav("ascent");AA.mountTracker();</script>
-<div class="qz" id="crop" hidden role="dialog" aria-modal="true" aria-labelledby="cropTitle">
-  <div class="qz-box" style="width:min(420px,100%)">
-    <div class="qz-h"><div><div class="eyebrow">Climber photo</div><h2 id="cropTitle" style="margin:2px 0 0;font-size:18px">Frame your face</h2></div><button class="ghost" type="button" id="cropCancel" aria-label="Cancel">✕</button></div>
-    <p class="muted" style="margin:0;font-size:13px">Drag to move, slide to zoom. What's inside the circle becomes your climber's head.</p>
-    <div class="crop-stage" id="cropStage"><img id="cropImg" alt="" draggable="false"><div class="crop-mask" aria-hidden="true"></div></div>
-    <label class="crop-zoom">Zoom<input type="range" id="cropZoom" min="100" max="400" value="100" step="1"></label>
-    <div class="qz-f"><button class="ghost" type="button" id="cropCancel2">Cancel</button><button class="primary" type="button" id="cropOk">Use this photo</button></div>
-  </div>
-</div>
 <div class="qz" id="qz" hidden role="dialog" aria-modal="true" aria-labelledby="qzTitle">
   <div class="qz-box">
     <div class="qz-h"><div style="min-width:0"><div class="eyebrow" id="qzKind">quiz</div><h2 id="qzTitle" style="margin:2px 0 0;font-size:18px"></h2></div><button class="ghost" type="button" id="qzClose" aria-label="Close">✕</button></div>

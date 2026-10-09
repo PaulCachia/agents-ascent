@@ -226,46 +226,11 @@
       return '<g class="other-climber">' + face + '<text x="' + cx + '" y="' + (cy - 10) + '">' + esc(u.name || "climber") + '</text></g>'; }).join("");
   }
 
-  /* Profile card: fill from the profile; save as you type when signed in. */
-  let meBusy = false;
+  /* Professor link button and the climber's head follow the profile (edited on profile.html). */
   function paintMe() {
-    const p = AA.profile(); meBusy = true;
-    [["meName", p.name || ""], ["meStart", p.start || AA.DEFAULT_START], ["meGoal", p.goal || ""], ["meProf", p.professor || ""]].forEach(([id, v]) => { const el = $(id); if (document.activeElement !== el) el.value = v; });
-    $("mePublic").checked = p.public !== false; meBusy = false;
-    const prev = $("mePhotoPrev"); if (p.photo && /^data:image\//.test(p.photo)) { prev.innerHTML = '<img src="' + p.photo + '" alt="">'; $("mePhotoClear").hidden = false; } else { prev.innerHTML = '<svg viewBox="-12 -48 24 24"><circle class="bot-body" cx="0" cy="-36" r="9"/><circle class="bot-eye" cx="-3.5" cy="-37" r="1.8"/><circle class="bot-eye" cx="3.5" cy="-37" r="1.8"/></svg>'; $("mePhotoClear").hidden = true; }
-    paintFace();
-    $("meState").textContent = AA.isViewing() ? "read-only" : (p.name ? "synced as " + p.name : "fill this in first");
-    const go = $("profGo"); if (p.professor && /^https?:\/\//.test(p.professor)) { go.href = p.professor; go.removeAttribute("aria-disabled"); go.style.opacity = ""; } else { go.href = "#meCard"; go.removeAttribute("target"); go.setAttribute("aria-disabled", "true"); go.style.opacity = ".55"; go.title = "Add your professor's link in the Climber profile"; }
+    const p = AA.profile(); paintFace();
+    const go = $("profGo"); if (p.professor && /^https?:\/\//.test(p.professor)) { go.href = p.professor; go.setAttribute("target", "_blank"); go.removeAttribute("aria-disabled"); go.style.opacity = ""; go.title = ""; } else { go.href = "profile.html"; go.removeAttribute("target"); go.setAttribute("aria-disabled", "true"); go.style.opacity = ".55"; go.title = "Add your professor's link on My profile"; }
   }
-  (function () { let t = null; const save = () => { if (meBusy || !AA.requireSignIn("edit your profile")) return; const p = Object.assign({}, AA.profile(), { name: $("meName").value.trim(), start: $("meStart").value || AA.DEFAULT_START, goal: $("meGoal").value.trim(), professor: $("meProf").value.trim(), public: $("mePublic").checked }); AA.setProfile(p); render(); };
-    ["meName", "meGoal", "meProf"].forEach(id => $(id).addEventListener("input", () => { clearTimeout(t); t = setTimeout(save, 500); }));
-    $("meStart").addEventListener("change", save); $("mePublic").addEventListener("change", save);
-    /* Photo: the climber frames it (drag + zoom) in a square cropper; the circle's contents are shrunk to ~112 px
-       and stored as a small JPEG data URL in the profile row. */
-    $("mePhoto").addEventListener("change", () => { const f = $("mePhoto").files && $("mePhoto").files[0]; if (!f) return; if (!AA.requireSignIn("add a photo")) { $("mePhoto").value = ""; return; }
-      const rd = new FileReader(); rd.onload = () => { const im = new Image(); im.onload = () => openCropper(im); im.onerror = () => AA.toast("Couldn't read that image"); im.src = rd.result; }; rd.readAsDataURL(f); $("mePhoto").value = ""; });
-    const CR = { im: null, base: 1, zoom: 1, x: 0, y: 0, drag: null, size: 280 };
-    const cropEl = $("crop"), stage = $("cropStage"), cimg = $("cropImg"), czoom = $("cropZoom");
-    function cropScale() { return CR.base * CR.zoom; }
-    function cropClamp() { const S = cropScale(), w = CR.im.width * S, h = CR.im.height * S, st = CR.size; CR.x = Math.min(0, Math.max(st - w, CR.x)); CR.y = Math.min(0, Math.max(st - h, CR.y)); }
-    function cropPaint() { cropClamp(); cimg.style.transform = "translate(" + CR.x + "px," + CR.y + "px) scale(" + cropScale() + ")"; }
-    function openCropper(im) { CR.im = im; CR.size = stage.getBoundingClientRect().width || 280; CR.base = Math.max(CR.size / im.width, CR.size / im.height); CR.zoom = 1; czoom.value = 100;
-      cimg.src = im.src; cimg.style.width = im.width + "px"; cimg.style.height = im.height + "px";
-      CR.x = (CR.size - im.width * CR.base) / 2; CR.y = (CR.size - im.height * CR.base) / 2; cropPaint(); cropEl.hidden = false; document.body.style.overflow = "hidden";
-      requestAnimationFrame(() => { const w = stage.getBoundingClientRect().width; if (w && Math.abs(w - CR.size) > 1) { CR.size = w; CR.base = Math.max(w / im.width, w / im.height); CR.x = (w - im.width * CR.base) / 2; CR.y = (w - im.height * CR.base) / 2; cropPaint(); } }); }
-    function closeCropper() { cropEl.hidden = true; document.body.style.overflow = ""; CR.im = null; cimg.removeAttribute("src"); }
-    czoom.addEventListener("input", () => { const z = Number(czoom.value) / 100; const S0 = cropScale(); const cx = CR.size / 2, cy = CR.size / 2; CR.zoom = z; const S1 = cropScale(); CR.x = cx - (cx - CR.x) * S1 / S0; CR.y = cy - (cy - CR.y) * S1 / S0; cropPaint(); });
-    stage.addEventListener("pointerdown", e => { CR.drag = { px: e.clientX, py: e.clientY, x: CR.x, y: CR.y }; stage.setPointerCapture(e.pointerId); });
-    stage.addEventListener("pointermove", e => { if (!CR.drag) return; CR.x = CR.drag.x + (e.clientX - CR.drag.px); CR.y = CR.drag.y + (e.clientY - CR.drag.py); cropPaint(); });
-    ["pointerup", "pointercancel"].forEach(ev => stage.addEventListener(ev, () => { CR.drag = null; }));
-    stage.addEventListener("wheel", e => { e.preventDefault(); czoom.value = Math.max(100, Math.min(400, Number(czoom.value) - Math.sign(e.deltaY) * 8)); czoom.dispatchEvent(new Event("input")); }, { passive: false });
-    $("cropCancel").addEventListener("click", closeCropper); $("cropCancel2").addEventListener("click", closeCropper);
-    $("cropOk").addEventListener("click", () => { if (!CR.im) return; const S = cropScale(); const sx = -CR.x / S, sy = -CR.y / S, sw = CR.size / S; let size = 112, q = 0.82, out = "";
-      for (let tries = 0; tries < 4; tries++) { const c = document.createElement("canvas"); c.width = c.height = size; c.getContext("2d").drawImage(CR.im, sx, sy, sw, sw, 0, 0, size, size); out = c.toDataURL("image/jpeg", q); if (out.length <= 16000) break; q -= 0.18; if (q < 0.4) { q = 0.6; size = 88; } }
-      if (out.length > 16000) { AA.toast("That photo won't shrink enough; try a simpler one."); return; }
-      AA.setProfile(Object.assign({}, AA.profile(), { photo: out })); closeCropper(); render(); AA.toast("Photo saved: your climber has a new head"); });
-    $("mePhotoClear").addEventListener("click", () => { if (!AA.requireSignIn("remove the photo")) return; const p = AA.profile(); delete p.photo; AA.setProfile(p); render(); });
-    $("meForm").addEventListener("submit", e => e.preventDefault()); })();
 
   /* The professor's plan: banner, depth chips, notes and extra resources on the rows. */
   const DEPTH = { core: "", expanded: "EXPANDED", lightened: "LIGHTENED", skip: "SKIP IF PROVEN" };
@@ -427,7 +392,7 @@
   function applyMode() {
     const m = mode(); const bar = $("authBar"), txt = $("authText"), btn = $("authBtn");
     const ro = m === "view"; document.body.classList.toggle("ro", ro);
-    document.querySelectorAll("#modList select, #modList input, #ciForm input, #ciBtn, #meForm input").forEach(el => { el.disabled = ro; });
+    document.querySelectorAll("#modList select, #modList input, #ciForm input, #ciBtn").forEach(el => { el.disabled = ro; });
     paintClimbers(); paintHeader();
     if (bar) {
       const c = AA.cloud || {}; const others = (c.climbers || []).filter(u => !c.user || u.id !== c.user.id);
@@ -447,7 +412,7 @@
     if (m === "local") { st.textContent = "local only"; tx.textContent = "Cloud sync isn't configured on this copy of the site, so progress stays in this browser. Use the manual backup below to share it with Claude."; return; }
     if (m === "pending") { st.textContent = "checking…"; tx.textContent = "Checking your sign-in…"; return; }
     if (m === "offline") { st.textContent = "offline"; tx.textContent = "The sync library didn't load. Changes stay on this device until you reload with a connection."; return; }
-    if (m === "edit") { st.textContent = "synced"; tx.textContent = "Signed in as " + (c.user.email || "you") + ". Every change here saves to your database as you make it. Your professor reads it before each check-in; put quiz scores in the Quiz % box on the module row. After a checkpoint, apply the plan your professor gives you (link or paste below)."; }
+    if (m === "edit") { st.textContent = "synced"; tx.textContent = "Signed in as " + (c.user.email || "you") + ". Every change here saves to your database as you make it. Your professor reads it before each check-in; camps are passed by the on-site tests. After a checkpoint, apply the plan your professor gives you (link or paste below)."; }
     else { st.textContent = "read-only"; tx.textContent = "You're looking at a climber's synced copy; their professor reads the same database. To edit your own climb, tap Sign in (top right) and open the magic link on this device. New here? The same sign-in starts your climb."; }
   }
   window.addEventListener("aa:auth", applyMode); applyMode();
