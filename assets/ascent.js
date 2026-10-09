@@ -227,10 +227,44 @@
   }
 
   /* Professor link button and the climber's head follow the profile (edited on profile.html). */
+  /* The opening message for the professor: who, where, what happened lately. Built from the data the site holds. */
+  function contextMessage() {
+    const p = AA.profile(); const c = AA.cloud || {}; const uid = c.user ? c.user.id : (c.viewId || "");
+    const w = AA.currentWeek(); const done = MODULES.filter(m => ok(state, m.key)); const doing = MODULES.filter(m => modOf(m.key).status === "doing");
+    const tests = MODULES.filter(m => modOf(m.key).quizAttempt).map(m => m.name.split(":")[0] + " " + modOf(m.key).quiz + "% (attempt " + modOf(m.key).quizAttempt + (modOf(m.key).quizAt ? ", " + AA.fmtDate(modOf(m.key).quizAt) : "") + ")");
+    const tracked = Math.round(AA.sessions().reduce((a, x) => a + (Number(x.mins) || 0), 0) / 6) / 10; const week7 = Math.round(AA.sessions().filter(x => x.start > Date.now() - 7 * 864e5).reduce((a, x) => a + (Number(x.mins) || 0), 0) / 6) / 10;
+    const ci = state.checkins[0]; const pl = AA.plan(); const pc = pace(state);
+    const next = MODULES.find(m => !ok(state, m.key));
+    const lines = [
+      "Hi professor, it's " + (p.name || "your student") + (uid ? " (climber id " + uid + ")" : "") + ". Please read my rows and quiz attempts before replying (brief, section 3).",
+      "Where I am: week " + w + " of 26, started " + AA.fmtDate(AA.startISO()) + ". Camps passed: " + done.length + "/24" + (doing.length ? "; in progress: " + doing.map(m => m.name).join(", ") : "") + ". Pace: " + (pc.state === "on" ? "on plan" : pc.state === "ahead" ? pc.diff + " ahead" : Math.abs(pc.diff) + " behind") + ".",
+      "Tests: " + (tests.length ? tests.join("; ") : "none yet") + ".",
+      "Hours: " + tracked + " h on the clock in total, " + week7 + " h in the last 7 days.",
+      "Plan: " + (pl ? "v" + pl.version + (pl.checkpoint ? " (" + pl.checkpoint + ")" : "") + (pl.summary ? " — " + pl.summary : "") : "default course, no adjustments yet") + ".",
+      ci ? "Last check-in (" + AA.fmtDate(ci.date) + "): " + ci.what + (ci.next ? " Next: " + ci.next + "." : "") : "No check-ins logged yet.",
+      p.goal ? "My end goal: " + p.goal : "",
+      next ? "Next camp: " + next.name + "." : "All camps passed.",
+      "Start by summarising where I am in two lines, then ask me what I've done since the last check-in and what I want help with."
+    ].filter(Boolean);
+    return lines.join("\n");
+  }
+  /* Turn the saved professor link into one that opens a NEW conversation with the context pre-filled, where the service allows it. */
+  function professorLink(url, msg) {
+    const q = encodeURIComponent(msg);
+    let m = /^https?:\/\/claude\.ai\/project\/([0-9a-f-]{20,})/i.exec(url); if (m) return { href: "https://claude.ai/new?project=" + m[1] + "&q=" + q, prefill: true, name: "Claude" };
+    if (/^https?:\/\/claude\.ai\//i.test(url)) return { href: "https://claude.ai/new?q=" + q, prefill: true, name: "Claude" };
+    m = /^https?:\/\/chatgpt\.com\/g\/([^/?#]+)/i.exec(url); if (m) return { href: "https://chatgpt.com/g/" + m[1] + "?q=" + q, prefill: true, name: "ChatGPT" };
+    if (/^https?:\/\/chatgpt\.com\//i.test(url)) return { href: "https://chatgpt.com/?q=" + q, prefill: true, name: "ChatGPT" };
+    return { href: url, prefill: false, name: "your AI" };
+  }
   function paintMe() {
     const p = AA.profile(); paintFace();
-    const go = $("profGo"); if (p.professor && /^https?:\/\//.test(p.professor)) { go.href = p.professor; go.setAttribute("target", "_blank"); go.removeAttribute("aria-disabled"); go.style.opacity = ""; go.title = ""; } else { go.href = "profile.html"; go.removeAttribute("target"); go.setAttribute("aria-disabled", "true"); go.style.opacity = ".55"; go.title = "Add your professor's link on My profile"; }
+    const go = $("profGo");
+    if (p.professor && /^https?:\/\//.test(p.professor)) { const L = professorLink(p.professor, contextMessage()); go.href = L.href; go.setAttribute("target", "_blank"); go.removeAttribute("aria-disabled"); go.style.opacity = ""; go.title = L.prefill ? "Opens a new conversation with your progress already written in; press send" : "Opens your AI; your context is copied so you can paste it as the first message"; go.dataset.prefill = L.prefill ? "1" : "0"; }
+    else { go.href = "profile.html"; go.removeAttribute("target"); go.setAttribute("aria-disabled", "true"); go.style.opacity = ".55"; go.title = "Add your professor's link on My profile"; go.dataset.prefill = "0"; }
   }
+  $("profGo").addEventListener("click", () => { const go = $("profGo"); if (go.dataset.prefill === "1") { toast("Opening your professor with your progress written in — press send"); return; } if (go.getAttribute("aria-disabled")) return; AA.copyText(contextMessage()).then(okc => toast(okc ? "Context copied — paste it as your first message" : "Couldn't copy; use Copy my context")); });
+  $("profCopy").addEventListener("click", async () => { const okc = await AA.copyText(contextMessage()); toast(okc ? "Context copied — paste it into any AI" : "Copy was blocked by the browser"); });
 
   /* The professor's plan: banner, depth chips, notes and extra resources on the rows. */
   const DEPTH = { core: "", expanded: "EXPANDED", lightened: "LIGHTENED", skip: "SKIP IF PROVEN" };
@@ -412,7 +446,7 @@
     if (m === "local") { st.textContent = "local only"; tx.textContent = "Cloud sync isn't configured on this copy of the site, so progress stays in this browser. Use the manual backup below to share it with Claude."; return; }
     if (m === "pending") { st.textContent = "checking…"; tx.textContent = "Checking your sign-in…"; return; }
     if (m === "offline") { st.textContent = "offline"; tx.textContent = "The sync library didn't load. Changes stay on this device until you reload with a connection."; return; }
-    if (m === "edit") { st.textContent = "synced"; tx.textContent = "Signed in as " + (c.user.email || "you") + ". Every change here saves to your database as you make it. Your professor reads it before each check-in; camps are passed by the on-site tests. After a checkpoint, apply the plan your professor gives you (link or paste below)."; }
+    if (m === "edit") { st.textContent = "synced"; tx.textContent = "Signed in as " + (c.user.email || "you") + ". Talk to my professor opens a fresh conversation with where you are already written in as the first message; press send and the professor takes it from there (it also reads your rows). After a checkpoint, apply the plan it gives you (link or paste below)."; }
     else { st.textContent = "read-only"; tx.textContent = "You're looking at a climber's synced copy; their professor reads the same database. To edit your own climb, tap Sign in (top right) and open the magic link on this device. New here? The same sign-in starts your climb."; }
   }
   window.addEventListener("aa:auth", applyMode); applyMode();
