@@ -43,21 +43,61 @@
   const LEVELS = ["Novice", "Shell Scripter", "Git Wrangler", "Code Reader", "Prompt Engineer", "Agent Pilot", "Shipper", "Agent Builder", "Orchestrator", "Agentic Engineer"];
   const XP_PER_LEVEL = 320;
   const BADGES = [
-    { id: "first", name: "First Steps", sub: "Orientation done", test: s => ok(s, "m00") },
-    { id: "shell", name: "Shell Shocked", sub: "Terminal tamed", test: s => ok(s, "m01") },
-    { id: "git", name: "Git Wrangler", sub: "Rebase without fear", test: s => ok(s, "m04") },
-    { id: "poly", name: "Polyglot", sub: "Python + TypeScript", test: s => ok(s, "m05") && ok(s, "m06") },
-    { id: "model", name: "Model Whisperer", sub: "Knows what a token costs", test: s => ok(s, "m08") },
-    { id: "hook", name: "Hook, Line & Subagent", sub: "Claude Code deep dive", test: s => ok(s, "m09") },
-    { id: "gate", name: "Gatekeeper", sub: "main is protected", test: s => ok(s, "m11") },
-    { id: "ship", name: "Shipped", sub: "Capstone 1 live", test: s => ok(s, "m14") },
-    { id: "agent", name: "Agent Builder", sub: "Capstone 2 passes evals", test: s => ok(s, "m19") },
-    { id: "orch", name: "Orchestrator", sub: "7 days unattended", test: s => ok(s, "m21") },
-    { id: "founder", name: "Founder", sub: "Capstone 4 launched", test: s => ok(s, "m23") },
-    { id: "scholar", name: "Scholar", sub: "Quiz average ≥ 85 (3+ quizzes)", test: s => { const q = quizStats(s); return q.n >= 3 && q.avg >= 85; } },
-    { id: "pace", name: "Pacesetter", sub: "Ahead of the plan", test: s => pace(s).state === "ahead" },
-    { id: "hours", name: "Forty Hours", sub: "40 h tracked on the clock", test: () => AA.sessions().reduce((a, x) => a + (Number(x.mins) || 0), 0) >= 2400 }
+    { id: "first", name: "First Steps", sub: "Orientation done", shape: "shield", hue: "#3b82f6", glyph: "flag", test: s => ok(s, "m00") },
+    { id: "shell", name: "Shell Shocked", sub: "Terminal tamed", shape: "hex", hue: "#10b981", glyph: "prompt", test: s => ok(s, "m01") },
+    { id: "git", name: "Git Wrangler", sub: "Rebase without fear", shape: "hex", hue: "#f97316", glyph: "branch", test: s => ok(s, "m04") },
+    { id: "poly", name: "Polyglot", sub: "Python + TypeScript", shape: "diamond", hue: "#8b5cf6", glyph: "code", test: s => ok(s, "m05") && ok(s, "m06") },
+    { id: "model", name: "Model Whisperer", sub: "Knows what a token costs", shape: "gear", hue: "#ec4899", glyph: "sparkle", test: s => ok(s, "m08") },
+    { id: "hook", name: "Hook, Line & Subagent", sub: "Claude Code deep dive", shape: "hex", hue: "#d97f1f", glyph: "hook", test: s => ok(s, "m09") },
+    { id: "gate", name: "Gatekeeper", sub: "main is protected", shape: "shield", hue: "#64748b", glyph: "lock", test: s => ok(s, "m11") },
+    { id: "ship", name: "Shipped", sub: "Capstone 1 live", shape: "medal", hue: "#ef4444", glyph: "rocket", test: s => ok(s, "m14") },
+    { id: "agent", name: "Agent Builder", sub: "Capstone 2 passes evals", shape: "gear", hue: "#06b6d4", glyph: "robot", test: s => ok(s, "m19") },
+    { id: "orch", name: "Orchestrator", sub: "7 days unattended", shape: "gear", hue: "#6366f1", glyph: "nodes", test: s => ok(s, "m21") },
+    { id: "founder", name: "Founder", sub: "Capstone 4 launched", shape: "medal", hue: "#b45309", glyph: "star", test: s => ok(s, "m23") },
+    { id: "scholar", name: "Scholar", sub: "Test average ≥ 85 (3+ tests)", shape: "rosette", hue: "#1f9e8f", glyph: "cap", test: s => { const q = quizStats(s); return q.n >= 3 && q.avg >= 85; } },
+    { id: "pace", name: "Pacesetter", sub: "Ahead of the plan", shape: "rosette", hue: "#eab308", glyph: "bolt", test: s => pace(s).state === "ahead" },
+    { id: "hours", name: "Forty Hours", sub: "40 h tracked on the clock", shape: "diamond", hue: "#0ea5e9", glyph: "clock", test: () => AA.sessions().reduce((a, x) => a + (Number(x.mins) || 0), 0) >= 2400 }
   ];
+
+  /* Badge artwork: an enamel shape with a metal rim and a glyph, drawn as inline SVG (64×64, centre 32,34). */
+  const GLYPH = {
+    flag: '<path d="M-7 -10 V10" /><path d="M-7 -10 H7 L3 -5 L7 0 H-7 Z" fill="currentColor" stroke="none"/>',
+    prompt: '<path d="M-8 -5 L-2 0 L-8 5"/><path d="M1 6 H9"/>',
+    branch: '<circle cx="-5" cy="-7" r="2.6"/><circle cx="-5" cy="7" r="2.6"/><circle cx="6" cy="-2" r="2.6"/><path d="M-5 -4.4 V4.4"/><path d="M-5 4 C-5 -1 6 3 6 0.6"/>',
+    code: '<path d="M-8 -5 L-12 0 L-8 5"/><path d="M8 -5 L12 0 L8 5"/><path d="M2 -8 L-2 8"/>',
+    sparkle: '<path d="M0 -11 C1 -4 4 -1 11 0 C4 1 1 4 0 11 C-1 4 -4 1 -11 0 C-4 -1 -1 -4 0 -11 Z" fill="currentColor" stroke="none"/>',
+    hook: '<path d="M3 -11 V2 A6 6 0 0 1 -9 2 V-1"/><path d="M-9 -1 L-6 2"/><circle cx="3" cy="-11" r="1.6" fill="currentColor" stroke="none"/>',
+    lock: '<rect x="-8" y="-2" width="16" height="12" rx="2.5"/><path d="M-5 -2 V-6 A5 5 0 0 1 5 -6 V-2"/><circle cx="0" cy="4" r="1.6" fill="currentColor" stroke="none"/>',
+    rocket: '<path d="M0 -12 C5 -7 6 0 4 7 H-4 C-6 0 -5 -7 0 -12 Z"/><path d="M-4 3 L-8 8 H-3"/><path d="M4 3 L8 8 H3"/><circle cx="0" cy="-3" r="2"/><path d="M-2 7 L0 12 L2 7"/>',
+    robot: '<rect x="-8" y="-6" width="16" height="13" rx="3"/><circle cx="-3.5" cy="0" r="1.6" fill="currentColor" stroke="none"/><circle cx="3.5" cy="0" r="1.6" fill="currentColor" stroke="none"/><path d="M0 -6 V-10"/><circle cx="0" cy="-11" r="1.5" fill="currentColor" stroke="none"/><path d="M-11 -2 V3 M11 -2 V3"/>',
+    nodes: '<circle cx="0" cy="-8" r="2.8"/><circle cx="-8" cy="6" r="2.8"/><circle cx="8" cy="6" r="2.8"/><path d="M-1.5 -5.5 L-6.5 3.5 M1.5 -5.5 L6.5 3.5 M-5.2 6 H5.2"/>',
+    star: '<path d="M0 -11 L3.2 -3.8 L11 -3.4 L5 1.8 L7 9.4 L0 5.4 L-7 9.4 L-5 1.8 L-11 -3.4 L-3.2 -3.8 Z" fill="currentColor" stroke="none"/>',
+    cap: '<path d="M-12 -3 L0 -9 L12 -3 L0 3 Z" fill="currentColor" stroke="none"/><path d="M-7 -0.5 V5 C-7 8 7 8 7 5 V-0.5"/><path d="M12 -3 V5"/>',
+    bolt: '<path d="M2 -12 L-7 2 H0 L-2 12 L7 -2 H0 Z" fill="currentColor" stroke="none"/>',
+    clock: '<circle cx="0" cy="0" r="10"/><path d="M0 -5 V0 L4 3"/>'
+  };
+  function badgeShape(kind) {
+    if (kind === "shield") return "M32 6 L54 14 V32 C54 46 44 55 32 60 C20 55 10 46 10 32 V14 Z";
+    if (kind === "hex") return "M32 7 L54 20 V46 L32 59 L10 46 V20 Z";
+    if (kind === "diamond") return "M32 6 L58 33 L32 60 L6 33 Z";
+    if (kind === "medal") return circlePath(32, 37, 21);
+    if (kind === "rosette") { let d = ""; for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2 - Math.PI / 2; const r = i % 2 ? 22 : 26; d += (i ? "L" : "M") + (32 + r * Math.cos(a)).toFixed(1) + " " + (33 + r * Math.sin(a)).toFixed(1) + " "; } return d + "Z"; }
+    if (kind === "gear") { let d = ""; const n = 10; for (let i = 0; i < n * 2; i++) { const a = (i / (n * 2)) * Math.PI * 2 - Math.PI / 2; const r = i % 2 ? 22 : 26; const a2 = a + Math.PI / (n * 2) * 0.55; const pts = [[a - Math.PI / (n * 2) * 0.55, r], [a2, r]]; pts.forEach(([ang, rad], k) => { d += ((i || k) ? "L" : "M") + (32 + rad * Math.cos(ang)).toFixed(1) + " " + (33 + rad * Math.sin(ang)).toFixed(1) + " "; }); } return d + "Z"; }
+    return circlePath(32, 33, 25);
+  }
+  function circlePath(cx, cy, r) { return "M" + (cx - r) + " " + cy + " a" + r + " " + r + " 0 1 0 " + (r * 2) + " 0 a" + r + " " + r + " 0 1 0 " + (-r * 2) + " 0 Z"; }
+  function badgeSVG(b, on) {
+    const id = "bg-" + b.id; const shape = badgeShape(b.shape); const gy = b.shape === "medal" ? 37 : 33;
+    const ribbon = b.shape === "medal" ? '<path class="ribbon" d="M22 3 H31 L30 18 L24 21 Z" fill="' + b.hue + '" opacity=".85"/><path class="ribbon" d="M42 3 H33 L34 18 L40 21 Z" fill="' + b.hue + '" opacity=".65"/>' : "";
+    return '<svg viewBox="0 0 64 64" role="img" aria-label="' + esc(b.name) + (on ? " (earned)" : " (locked)") + '"><defs>' +
+      '<linearGradient id="' + id + '-rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2b3"/><stop offset=".45" stop-color="#d9a520"/><stop offset=".6" stop-color="#8a5a00"/><stop offset="1" stop-color="#f3d16a"/></linearGradient>' +
+      '<radialGradient id="' + id + '-en" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".5" stop-color="' + b.hue + '"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient></defs>' +
+      ribbon +
+      '<path class="rim" d="' + shape + '" fill="url(#' + id + '-rim)"/>' +
+      '<path class="enamel" d="' + shape + '" fill="url(#' + id + '-en)" transform="translate(32 ' + gy + ') scale(.82) translate(-32 -' + gy + ')"/>' +
+      '<path class="enamel" d="' + shape + '" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1" transform="translate(32 ' + gy + ') scale(.7) translate(-32 -' + gy + ')"/>' +
+      '<g class="glyph" transform="translate(32 ' + gy + ')" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#fff">' + (GLYPH[b.glyph] || "") + '</g></svg>';
+  }
 
   const state = { modules: AA.modules(), checkins: AA.checkins() };
   let lastPos = null, firstRender = true;
@@ -95,8 +135,10 @@
     '<rect class="leg l" x="-6" y="-8" width="4" height="9" rx="2"/><rect class="leg r" x="2" y="-8" width="4" height="9" rx="2"/>' +
     '<rect class="bot-pack" x="-13" y="-22" width="6" height="11" rx="3"/>' +
     '<rect class="bot-body" x="-8" y="-24" width="16" height="17" rx="6"/>' +
-    '<g class="bot-head"><circle class="bot-body" cx="0" cy="-31" r="8"/><circle class="bot-eye" cx="-3" cy="-32" r="1.7"/><circle class="bot-eye" cx="3" cy="-32" r="1.7"/>' +
-    '<line class="bot-ant" x1="0" y1="-39" x2="0" y2="-45"/><circle class="bot-tip" cx="0" cy="-46" r="2.2"/></g></g>';
+    '<g class="bot-head"><g id="botRobot"><circle class="bot-body" cx="0" cy="-31" r="8"/><circle class="bot-eye" cx="-3" cy="-32" r="1.7"/><circle class="bot-eye" cx="3" cy="-32" r="1.7"/>' +
+    '<line class="bot-ant" x1="0" y1="-39" x2="0" y2="-45"/><circle class="bot-tip" cx="0" cy="-46" r="2.2"/></g>' +
+    '<g id="botFace" hidden><clipPath id="botFaceClip"><circle cx="0" cy="-32" r="9.5"/></clipPath><image id="botFaceImg" x="-9.5" y="-41.5" width="19" height="19" preserveAspectRatio="xMidYMid slice" clip-path="url(#botFaceClip)"/><circle class="bot-face-ring" cx="0" cy="-32" r="10"/></g></g></g>';
+  function paintFace() { const p = AA.profile(); const img = $("botFaceImg"); const has = !!(p.photo && /^data:image\//.test(p.photo)); if (has) img.setAttribute("href", p.photo); $("botFace").toggleAttribute("hidden", !has); $("botRobot").toggleAttribute("hidden", has); }
   function placeClimber(len) { const p = trail.getPointAtLength(Math.max(0, Math.min(L, len))); climberG.setAttribute("transform", "translate(" + p.x.toFixed(1) + "," + p.y.toFixed(1) + ")"); }
   let walkAnim = null;
   function walkTo(fromI, toI) { const a = campPts[fromI].len, b = campPts[toI].len; if (RM || fromI === toI) { placeClimber(b); return; }
@@ -158,7 +200,7 @@
     if (lastPos === null || firstRender) { placeClimber(campPts[pos].len); } else if (pos !== lastPos) { walkTo(lastPos, pos); }
     lastPos = pos; firstRender = false;
     const earned = BADGES.filter(b => b.test(state)); $("badgeCount").textContent = earned.length + " of " + BADGES.length;
-    $("badges").innerHTML = BADGES.map(b => '<div class="badge' + (b.test(state) ? " on" : "") + '"><div class="ic">' + esc(b.name.slice(0, 1)) + '</div><div><b>' + esc(b.name) + '</b><small>' + esc(b.sub) + '</small></div></div>').join("");
+    $("badges").innerHTML = BADGES.map(b => { const on = b.test(state); return '<div class="badge' + (on ? " on" : "") + '" title="' + esc(b.name + ": " + b.sub) + '">' + badgeSVG(b, on) + '<div><b>' + esc(b.name) + '</b><small>' + esc(b.sub) + '</small></div>' + (on ? "" : '<span class="lock" aria-hidden="true">🔒</span>') + '</div>'; }).join("");
     const cl = $("ciList"); if (!state.checkins.length) { cl.innerHTML = '<div class="empty">No check-ins yet. Log the first one above; Claude reads these before each quiz.</div>'; }
     else { cl.innerHTML = state.checkins.map(c => '<div class="ci-item" data-id="' + esc(c.id) + '"><div><div class="d">' + esc(AA.fmtDate(c.date)) + (c.hours ? ' · ' + esc(c.hours) + ' h' : "") + (c.quiz ? ' · quiz ' + esc(c.quiz) : "") + '</div><div>' + esc(c.what) + '</div>' + (c.next ? '<div class="meta">Next: ' + esc(c.next) + '</div>' : "") + '</div><button class="ghost" data-del="' + esc(c.id) + '" aria-label="Delete check-in">×</button></div>').join("");
       cl.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => { state.checkins = state.checkins.filter(x => x.id !== b.dataset.del); AA.setCheckins(state.checkins); render(); })); }
@@ -179,7 +221,9 @@
   function paintOthers() {
     const g = $("others"); const c = AA.cloud || {}; const list = c.climbers || []; const me = AA.isViewing() ? c.viewId : (c.user ? c.user.id : null);
     g.innerHTML = list.filter(u => u.id !== me).map((u, j) => { let i = 0; for (; i < MODULES.length; i++) { if (!u.done[MODULES[i].key]) break; } if (i >= MODULES.length) i = MODULES.length - 1;
-      const p = campPts[i]; const dx = 14 + j * 12; return '<g class="other-climber"><circle cx="' + (p.x + dx) + '" cy="' + (p.y - 6) + '" r="5"/><text x="' + (p.x + dx) + '" y="' + (p.y - 15) + '">' + esc(u.name || "climber") + '</text></g>'; }).join("");
+      const p = campPts[i]; const dx = 14 + j * 16; const cx = p.x + dx, cy = p.y - 7;
+      const face = (u.photo && /^data:image\//.test(u.photo)) ? '<clipPath id="oc-' + j + '"><circle cx="' + cx + '" cy="' + cy + '" r="6.5"/></clipPath><image href="' + u.photo + '" x="' + (cx - 6.5) + '" y="' + (cy - 6.5) + '" width="13" height="13" preserveAspectRatio="xMidYMid slice" clip-path="url(#oc-' + j + ')"/><circle class="ring" cx="' + cx + '" cy="' + cy + '" r="7"/>' : '<circle cx="' + cx + '" cy="' + cy + '" r="5"/>';
+      return '<g class="other-climber">' + face + '<text x="' + cx + '" y="' + (cy - 10) + '">' + esc(u.name || "climber") + '</text></g>'; }).join("");
   }
 
   /* Profile card: fill from the profile; save as you type when signed in. */
@@ -188,12 +232,22 @@
     const p = AA.profile(); meBusy = true;
     [["meName", p.name || ""], ["meStart", p.start || AA.DEFAULT_START], ["meGoal", p.goal || ""], ["meProf", p.professor || ""]].forEach(([id, v]) => { const el = $(id); if (document.activeElement !== el) el.value = v; });
     $("mePublic").checked = p.public !== false; meBusy = false;
+    const prev = $("mePhotoPrev"); if (p.photo && /^data:image\//.test(p.photo)) { prev.innerHTML = '<img src="' + p.photo + '" alt="">'; $("mePhotoClear").hidden = false; } else { prev.innerHTML = '<svg viewBox="-12 -48 24 24"><circle class="bot-body" cx="0" cy="-36" r="9"/><circle class="bot-eye" cx="-3.5" cy="-37" r="1.8"/><circle class="bot-eye" cx="3.5" cy="-37" r="1.8"/></svg>'; $("mePhotoClear").hidden = true; }
+    paintFace();
     $("meState").textContent = AA.isViewing() ? "read-only" : (p.name ? "synced as " + p.name : "fill this in first");
     const go = $("profGo"); if (p.professor && /^https?:\/\//.test(p.professor)) { go.href = p.professor; go.removeAttribute("aria-disabled"); go.style.opacity = ""; } else { go.href = "#meCard"; go.removeAttribute("target"); go.setAttribute("aria-disabled", "true"); go.style.opacity = ".55"; go.title = "Add your professor's link in the Climber profile"; }
   }
   (function () { let t = null; const save = () => { if (meBusy || !AA.requireSignIn("edit your profile")) return; const p = Object.assign({}, AA.profile(), { name: $("meName").value.trim(), start: $("meStart").value || AA.DEFAULT_START, goal: $("meGoal").value.trim(), professor: $("meProf").value.trim(), public: $("mePublic").checked }); AA.setProfile(p); render(); };
     ["meName", "meGoal", "meProf"].forEach(id => $(id).addEventListener("input", () => { clearTimeout(t); t = setTimeout(save, 500); }));
     $("meStart").addEventListener("change", save); $("mePublic").addEventListener("change", save);
+    /* Photo: cropped to a square, shrunk to ~112 px and stored as a small JPEG data URL in the profile row. */
+    $("mePhoto").addEventListener("change", () => { const f = $("mePhoto").files && $("mePhoto").files[0]; if (!f) return; if (!AA.requireSignIn("add a photo")) { $("mePhoto").value = ""; return; }
+      const rd = new FileReader(); rd.onload = () => { const im = new Image(); im.onload = () => { let size = 112, q = 0.82, out = "";
+        for (let tries = 0; tries < 4; tries++) { const c = document.createElement("canvas"); c.width = c.height = size; const ctx2 = c.getContext("2d"); const side = Math.min(im.width, im.height); ctx2.drawImage(im, (im.width - side) / 2, (im.height - side) / 2, side, side, 0, 0, size, size); out = c.toDataURL("image/jpeg", q); if (out.length <= 16000) break; q -= 0.18; if (q < 0.4) { q = 0.6; size = 88; } }
+        if (out.length > 16000) { AA.toast("That photo won't shrink enough; try a simpler one."); return; }
+        AA.setProfile(Object.assign({}, AA.profile(), { photo: out })); $("mePhoto").value = ""; render(); AA.toast("Photo saved: your climber has a new head"); };
+        im.onerror = () => AA.toast("Couldn't read that image"); im.src = rd.result; }; rd.readAsDataURL(f); });
+    $("mePhotoClear").addEventListener("click", () => { if (!AA.requireSignIn("remove the photo")) return; const p = AA.profile(); delete p.photo; AA.setProfile(p); render(); });
     $("meForm").addEventListener("submit", e => e.preventDefault()); })();
 
   /* The professor's plan: banner, depth chips, notes and extra resources on the rows. */

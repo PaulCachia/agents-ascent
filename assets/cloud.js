@@ -157,7 +157,7 @@
     const { data, error } = await sb.from("progress").select("user_id,kind,key,data").in("kind", ["profile", "module"]);
     if (error) return;
     const by = {};
-    data.forEach(r => { const u = by[r.user_id] || (by[r.user_id] = { id: r.user_id, name: "", start: "", public: true, done: {} }); if (r.kind === "profile") { u.name = r.data.name || ""; u.start = r.data.start || ""; u.public = r.data.public !== false; u.goal = r.data.goal || ""; } else if (r.data && (r.data.status === "done" || r.data.status === "skip")) u.done[r.key] = true; });
+    data.forEach(r => { const u = by[r.user_id] || (by[r.user_id] = { id: r.user_id, name: "", start: "", public: true, done: {} }); if (r.kind === "profile") { u.name = r.data.name || ""; u.start = r.data.start || ""; u.public = r.data.public !== false; u.goal = r.data.goal || ""; u.photo = r.data.photo || ""; } else if (r.data && (r.data.status === "done" || r.data.status === "skip")) u.done[r.key] = true; });
     AA.cloud.climbers = Object.values(by).filter(u => u.public).sort((a, b) => (a.name || "zz").localeCompare(b.name || "zz"));
     window.dispatchEvent(new CustomEvent("aa:expedition"));
   }

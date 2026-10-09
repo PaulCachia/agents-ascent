@@ -79,6 +79,13 @@
           <label>Start date (week 1)<input type="date" id="meStart"></label>
           <label class="full">End goal — what you want to be able to build<input type="text" id="meGoal" maxlength="200" placeholder="e.g. ship a paid product and run a supervised multi-agent business system"></label>
           <label class="full">My professor (link to your Claude Project)<input type="url" id="meProf" placeholder="https://claude.ai/project/…"></label>
+          <div class="full photo-row">
+            <div class="photo-prev" id="mePhotoPrev" aria-hidden="true"><svg viewBox="-12 -48 24 24"><circle class="bot-body" cx="0" cy="-36" r="9"/><circle class="bot-eye" cx="-3.5" cy="-37" r="1.8"/><circle class="bot-eye" cx="3.5" cy="-37" r="1.8"/></svg></div>
+            <div style="min-width:0">
+              <label style="display:block">Photo (becomes your climber's head)<input type="file" id="mePhoto" accept="image/*"></label>
+              <div class="muted" style="font-size:12px;margin-top:4px">Cropped to a small square and stored with your profile; other climbers can see it. <button class="ghost" type="button" id="mePhotoClear" hidden>Remove photo</button></div>
+            </div>
+          </div>
           <label class="full" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="mePublic" checked style="width:auto"> Show my climb on the shared mountain (other climbers can view it)</label>
         </form>
         <p class="muted" id="meNote" style="margin:8px 0 0;font-size:12px">Saves as you type. The start date sets your week numbers; the goal is what your professor steers towards at every checkpoint.</p>
