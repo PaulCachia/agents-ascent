@@ -48,6 +48,15 @@
       return { version: m.data ? m.data.version : null, released: m.data ? m.data.released : null, camps: camps }; }).catch(() => { coursePromise = null; return null; }));
     /* One climber's course with their plan layered on (uid null = the shared course as written). */
     AA.cloud.courseFor = uid => sb.rpc("course_for", { uid: uid || null });
+    /* Plans a professor sent through the connector: the newest one still waiting for the signed-in climber. */
+    AA.cloud.pendingProposal = async () => { if (!user) return null; const { data, error } = await sb.from("plan_proposals").select("id,plan,message,status,created_at").eq("status", "pending").order("created_at", { ascending: false }).limit(1);
+      return error || !data || !data.length ? null : data[0]; };
+    AA.cloud.decideProposal = (id, status) => (user ? sb.from("plan_proposals").update({ status: status, decided_at: new Date().toISOString() }).eq("id", id) : Promise.resolve({ error: { message: "Sign in first" } }));
+    /* The professor connector: the climber's own key (readable only by them), made, remade or removed here. */
+    AA.cloud.professorKey = async () => { if (!user) return null; const { data, error } = await sb.from("professor_keys").select("key,created_at").maybeSingle(); return error ? { error: error.message } : data; };
+    AA.cloud.makeProfessorKey = () => sb.rpc("create_professor_key");
+    AA.cloud.deleteProfessorKey = () => sb.rpc("delete_professor_key");
+    AA.cloud.connectorUrl = key => cfg.supabaseUrl + "/functions/v1/professor?key=" + encodeURIComponent(key);
     AA.cloud.openPanel = () => { if (!ui) return; const p = ui.querySelector("#syncPanel"); p.hidden = false; paint(); const em = p.querySelector("#syncEmail"); if (em) em.focus(); };
   }
 

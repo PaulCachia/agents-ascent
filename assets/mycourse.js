@@ -60,9 +60,15 @@
     const { data: d, error } = await c.courseFor(target);
     if (n !== loading) return;
     if (error || !d || !arr(d.camps).length) { $("mcBody").innerHTML = '<div class="empty">The course couldn\'t be loaded' + (error ? " (" + esc(error.message) + ")" : "") + '. The written course is in <a href="course.html">the full course document</a>.</div>'; $("mcWho").textContent = "Couldn't load"; return; }
-    data = d; render();
+    data = d; render(); paintProposal();
     if (location.hash && !render.scrolled) { render.scrolled = true; const el = document.getElementById(location.hash.slice(1)); if (el) setTimeout(() => el.scrollIntoView({ block: "start" }), 50); }
   }
+
+  /* A plan the professor sent through the connector and the climber hasn't decided on yet. */
+  async function paintProposal() { const el = $("mcProposal"); const c = AA.cloud || {}; const me = ownId();
+    if (!me || target !== me || !c.pendingProposal) { el.hidden = true; return; }
+    const p = await c.pendingProposal(); if (!p) { el.hidden = true; return; }
+    el.hidden = false; el.innerHTML = "<b>Your professor sent you a new plan</b>" + (p.plan && p.plan.checkpoint ? " (" + esc(p.plan.checkpoint) + ")" : "") + ". Review and apply it on the Ascent →"; }
 
   /* ───────── Helpers for a camp ───────── */
   function changed(c) { return c.depth !== "core" || !!c.note || !!c.ready_add || arr(c.side).length > 0 || arr(c.items).some(i => i.source === "professor" || i.dropped) || arr(c.exercises).some(e => e.source === "professor" || e.replaced); }

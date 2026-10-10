@@ -76,4 +76,35 @@
   }));
 
   window.addEventListener("aa:auth", paint); window.addEventListener("aa:progress", paint); paint();
+
+  /* ───────── Professor connector: make the link, copy it, set it up in Claude, remake or remove it ───────── */
+  const connBody = document.getElementById("connBody"); let connBusy = false, connUser = undefined;
+  const STEPS = ["Copy your connector link (above).",
+    "In Claude, open <b>Customize → Connectors</b>, press <b>+ Add</b>, then <b>Add custom connector</b>.",
+    "Name it <b>Ascent professor</b>, paste the link as its URL, choose <b>No sign in</b>, and add it.",
+    "Open your professor's Project, start a chat, and check the connector is switched on for it (the connectors or tools menu in the message box).",
+    "Copy the brief again from the <a href=\"professor.html\">Your professor</a> page into the Project's instructions, so your professor knows to use it."];
+  async function paintConn(force) {
+    const c = AA.cloud || {};
+    if (!c.configured) { connBody.innerHTML = '<span class="muted">This copy of the site isn\'t connected to the database.</span>'; return; }
+    if (!c.ready || !c.professorKey && c.user) { setTimeout(() => paintConn(force), 200); return; }
+    if (!c.user) { connUser = null; connBody.innerHTML = '<span class="muted">Sign in to set it up.</span> <button class="ghost" type="button" data-opens-sync id="connSign">Sign in</button>'; document.getElementById("connSign").addEventListener("click", () => AA.cloud.openPanel && AA.cloud.openPanel()); return; }
+    if (connUser === c.user.id && !force) return; connUser = c.user.id;
+    const k = await c.professorKey();
+    if (k && k.error) { connBody.innerHTML = '<span class="muted">The connector isn\'t switched on in the database yet (' + AA.esc(k.error) + ').</span>'; return; }
+    if (!k) { connBody.innerHTML = '<button class="primary" type="button" id="connMake">Create my connector link</button>'; document.getElementById("connMake").addEventListener("click", () => make(false)); return; }
+    const url = c.connectorUrl(k.key);
+    connBody.innerHTML = '<label class="conn-url"><span class="muted">Your connector link (keep it private)</span><input type="text" id="connUrl" readonly value="' + AA.esc(url) + '"></label>' +
+      '<div class="conn-btns"><button class="primary" type="button" id="connCopy">Copy link</button><a class="ghost conn-a" href="https://claude.ai" target="_blank" rel="noopener">Open Claude</a></div>' +
+      '<ol class="prov-steps">' + STEPS.map(x => "<li>" + x + "</li>").join("") + "</ol>" +
+      '<p class="muted" style="margin:0;font-size:12px">Made ' + AA.esc(AA.fmtDate(String(k.created_at).slice(0, 10))) + '. Anyone with this link could send you plans (you would still have to apply them) and read your course, so don\'t share it. ' +
+      '<button class="linkish" type="button" id="connRemake">Make a new link</button> retires this one (re-add it in Claude afterwards); <button class="linkish" type="button" id="connOff">turn the connector off</button>.</p>';
+    document.getElementById("connUrl").addEventListener("focus", e => e.target.select());
+    document.getElementById("connCopy").addEventListener("click", async () => { const okc = await AA.copyText(url); AA.toast(okc ? "Connector link copied" : "Copy was blocked; select the link and copy it"); if (!okc) document.getElementById("connUrl").select(); });
+    document.getElementById("connRemake").addEventListener("click", () => make(true));
+    document.getElementById("connOff").addEventListener("click", async () => { if (connBusy) return; connBusy = true; const { error } = await AA.cloud.deleteProfessorKey(); connBusy = false; AA.toast(error ? "Couldn't turn it off: " + error.message : "Connector off: the old link no longer works"); paintConn(true); });
+  }
+  async function make(remake) { if (connBusy) return; connBusy = true; const { error } = await AA.cloud.makeProfessorKey(); connBusy = false;
+    if (error) { AA.toast("Couldn't make the link: " + error.message); return; } AA.toast(remake ? "New link made: the old one stops working. Re-add it in Claude." : "Connector link made"); paintConn(true); }
+  window.addEventListener("aa:auth", () => paintConn(false)); paintConn(false);
 })();

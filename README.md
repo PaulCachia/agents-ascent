@@ -48,6 +48,20 @@ extra camps (no test) after a given camp. The Ascent page checks every plan agai
 applied. Applying keeps the old plan: `plan/current` is the plan in force and `plan/h<timestamp>` rows are every
 plan ever applied, which My course lists with a link to use one again.
 
+### Handing a plan over
+
+The professor hands a plan over by the first route it can use:
+
+1. **Connector** (Claude). `supabase/functions/professor/index.ts` is a small MCP server on Supabase Edge
+   Functions (deployed with JWT verification off) with three tools: `read_progress`, `read_course` and
+   `propose_plan`. A climber makes a professor key on My profile (`create_professor_key`, in
+   `supabase/professor.sql`); the connector link carries it. `propose_plan` runs the same checks as the site, then
+   stores the plan in `plan_proposals` as pending (a newer one supersedes it). The Ascent page shows it to its
+   owner with Apply / Not now / Decline; nothing changes until they apply it.
+2. **One-click link**: `ascent.html#plan=<URL-safe base64 of the JSON>` (URL-encoded JSON also works). A plan
+   opened from a link is kept on the device until applied or put aside, so the sign-in round trip doesn't lose it.
+3. **Paste** the JSON under Professor on the Ascent page.
+
 ## Where progress is stored
 
 Locally first: the browser's `localStorage` (keys prefixed `aa.v1.`) is always the working copy, so the site

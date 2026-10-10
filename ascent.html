@@ -25,10 +25,11 @@
 
   <section class="card offer" id="planOffer" hidden>
     <div class="card-h"><h2>Your professor proposes a new plan</h2><span class="eyebrow" id="offerMeta"></span></div>
+    <p class="offer-msg" id="offerMsg" hidden></p>
     <p id="offerText" style="margin:0 0 8px"></p>
     <div class="muted" id="offerChanges" style="font-size:13px;margin-bottom:10px"></div>
     <div class="muted" id="offerErr" style="font-size:13px;color:var(--warn);margin-bottom:10px" hidden></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" id="offerApply">Apply this plan</button><button class="ghost" type="button" id="offerSkip">Not now</button></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary" type="button" id="offerApply">Apply this plan</button><button class="ghost" type="button" id="offerSkip">Not now</button><button class="ghost" type="button" id="offerDecline" hidden>Decline</button></div>
   </section>
 
   <div class="scene" id="sceneWrap">

@@ -370,24 +370,49 @@
     if (side.length) pl.sideCamps = side;
     return { ok: !errs.length, errs: errs, warns: warns, plan: pl };
   }
-  let offered = null;
-  async function offerPlan(obj, source, fail) {
+  let offered = null, offeredProposal = null;
+  /* A plan opened from a link is kept on this device until it's applied or put aside, so signing in (which
+     reloads the page) doesn't lose it. A plan the professor sent through the connector waits in the database. */
+  const PENDING = "pendingPlan";
+  function clearPending() { AA.store.set(PENDING, null); }
+  async function offerPlan(obj, source, fail, opt) {
+    opt = opt || {}; offeredProposal = opt.proposal || null;
     const card = $("planOffer"); card.hidden = false; $("offerApply").disabled = true;
+    const msg = offeredProposal && offeredProposal.message; $("offerMsg").hidden = !msg; $("offerMsg").textContent = msg ? "“" + msg + "”" : "";
+    $("offerDecline").hidden = !offeredProposal;
     const course = obj ? await courseData() : null; if (course) COURSE = course;
     const r = obj ? checkPlan(obj, course) : { ok: false, errs: [fail || "This plan can't be read."], warns: [] }; offered = r.ok ? r.plan : null;
     $("offerMeta").textContent = (source || "") + (r.ok ? " · v" + r.plan.version + (r.plan.checkpoint ? " · " + r.plan.checkpoint : "") : "");
     $("offerText").textContent = r.ok ? (r.plan.summary || "A new plan for the rest of the climb.") : "This plan can't be applied as written.";
     $("offerChanges").innerHTML = r.ok ? planChanges(r.plan).map(esc).join("<br>") + (r.warns.length ? '<div class="muted" style="margin-top:6px">' + r.warns.map(esc).join("<br>") + "</div>" : "") : "";
     $("offerErr").hidden = r.ok; $("offerErr").innerHTML = r.errs.map(esc).join("<br>"); $("offerApply").disabled = !r.ok;
-    card.scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "start" });
+    if (opt.fromLink && r.ok) AA.store.set(PENDING, { at: Date.now(), plan: obj });
+    if (!opt.quiet) card.scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "start" });
   }
   $("offerApply").addEventListener("click", async () => { if (!offered || !AA.requireSignIn("apply a plan")) return; const c = COURSE || await courseData();
-    AA.applyPlan(offered, { courseVersion: c && c.version }); offered = null; $("planOffer").hidden = true; if (location.hash.indexOf("plan=") >= 0) history.replaceState(null, "", location.pathname); render(); toast("Plan v" + AA.plan().version + " applied · see it in My course"); });
-  $("offerSkip").addEventListener("click", () => { offered = null; $("planOffer").hidden = true; if (location.hash.indexOf("plan=") >= 0) history.replaceState(null, "", location.pathname); });
-  $("planApplyBtn").addEventListener("click", () => { const t = $("planText").value.trim(); if (!t) return; let obj; try { obj = JSON.parse(t.replace(/^```(?:json)?\s*|\s*```$/g, "")); } catch (e) { offerPlan(null, "pasted", "That isn't valid JSON: " + e.message); return; } offerPlan(obj, "pasted"); });
+    AA.applyPlan(offered, { courseVersion: c && c.version }); offered = null; $("planOffer").hidden = true; clearPending(); if (location.hash.indexOf("plan=") >= 0) history.replaceState(null, "", location.pathname);
+    if (offeredProposal) { const id = offeredProposal.id; offeredProposal = null; AA.cloud.decideProposal(id, "applied"); }
+    render(); toast("Plan v" + AA.plan().version + " applied · see it in My course"); });
+  $("offerSkip").addEventListener("click", () => { offered = null; $("planOffer").hidden = true; clearPending(); if (offeredProposal) { snoozed = offeredProposal.id; offeredProposal = null; toast("It'll be here next time you open the Ascent"); } if (location.hash.indexOf("plan=") >= 0) history.replaceState(null, "", location.pathname); });
+  $("offerDecline").addEventListener("click", async () => { if (!offeredProposal || !AA.requireSignIn("decline a plan")) return; const id = offeredProposal.id; offeredProposal = null; offered = null; $("planOffer").hidden = true;
+    const { error } = await AA.cloud.decideProposal(id, "declined"); toast(error ? "Couldn't save that: " + error.message : "Declined. Your professor will see that next time it checks."); });
+  /* The connector's plans: show the newest pending one to its signed-in owner (on load, sign-in, and coming back to the tab). */
+  let snoozed = null, lastCheck = 0;
+  async function checkProposals() {
+    const c = AA.cloud || {}; if (!c.user || AA.isViewing() || !c.pendingProposal || !$("planOffer").hidden) return;
+    if (Date.now() - lastCheck < 20000) return; lastCheck = Date.now();
+    const p = await c.pendingProposal(); if (!p || p.id === snoozed || !$("planOffer").hidden) return;
+    const when = new Date(p.created_at); offerPlan(p.plan, "from your professor · " + AA.fmtDate(when.toISOString().slice(0, 10)) + " " + String(when.getHours()).padStart(2, "0") + ":" + String(when.getMinutes()).padStart(2, "0"), null, { proposal: p });
+  }
+  function offerStashed() { const st = AA.store.get(PENDING, null); if (!st || !st.plan || location.hash.indexOf("plan=") >= 0 || !$("planOffer").hidden) return false;
+    if (Date.now() - (st.at || 0) > 3 * 864e5) { clearPending(); return false; } offerPlan(st.plan, "from the link you opened earlier", null, { quiet: false }); return true; }
+  window.addEventListener("aa:auth", () => { const c = AA.cloud || {}; if (c.user && !AA.isViewing()) { if (!offerStashed()) { lastCheck = 0; checkProposals(); } } });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkProposals(); });
+  $("planApplyBtn").addEventListener("click", () => { const t = $("planText").value.trim(); if (!t) return; const link = /#plan=([^\s&]+)/.exec(t); if (link) { location.hash = "plan=" + link[1]; return; }
+    let obj; try { obj = JSON.parse(t.replace(/^```(?:json)?\s*|\s*```$/g, "")); } catch (e) { offerPlan(null, "pasted", "That isn't valid JSON: " + e.message); return; } offerPlan(obj, "pasted"); });
   function planFromHash() { const m = /[#&]plan=([^&]+)/.exec(location.hash || ""); if (!m) return; let obj = null; const raw = m[1];
     try { obj = JSON.parse(decodeURIComponent(raw)); } catch (e) { try { const b = raw.replace(/-/g, "+").replace(/_/g, "/"); obj = JSON.parse(decodeURIComponent(escape(atob(b + "===".slice((b.length + 3) % 4))))); } catch (e2) { obj = null; } }
-    if (obj) setTimeout(() => offerPlan(obj, "from a link"), 300); else offerPlan(null, "from a link", "The link's plan couldn't be read. Ask your professor for the JSON and paste it under Professor instead."); }
+    if (obj) setTimeout(() => offerPlan(obj, "from your professor's link", null, { fromLink: true }), 300); else offerPlan(null, "from a link", "The link's plan couldn't be read (it may have been cut short). Ask your professor for the JSON and paste it under Professor instead."); }
   planFromHash(); window.addEventListener("hashchange", planFromHash);
 
   /* Signed-out climber selector. */
