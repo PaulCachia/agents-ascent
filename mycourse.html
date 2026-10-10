@@ -16,33 +16,45 @@
   <header>
     <div class="eyebrow" id="mcEyebrow">The course</div>
     <h1 id="mcTitle">My course</h1>
-    <p class="muted" style="margin:4px 0 0;max-width:64ch">The course every climber shares, with your professor's changes on top. When the course is corrected, the fix reaches you; what your professor changed for you stays marked, so you can always tell checked material from additions.</p>
+    <p class="muted mc-who" id="mcWho">Loading the course…</p>
   </header>
 
-  <div class="authbar" id="mcBar"><span id="mcWho">Loading the course…</span><span class="viewsel"><label for="mcSel" class="muted" style="font-size:12px">Course for</label><select id="mcSel" aria-label="Whose course to show"></select></span></div>
-
   <section class="card mc-plan" id="plans">
-    <div class="card-h"><h2>The plan in force</h2><span class="eyebrow" id="mcCourseV"></span></div>
-    <a class="mc-proposal" id="mcProposal" href="ascent.html" hidden></a>
-    <div id="mcPlan" class="muted" style="font-size:14px">…</div>
-    <div class="mc-legend" aria-label="Legend">
-      <span><i class="lg course"></i>Course material, the same for everyone</span>
-      <span><i class="lg pro"></i>Added for you by your professor</span>
-      <span><i class="lg drop"></i>Dropped for you</span>
-      <span><i class="lg side"></i>Side camp (no test)</span>
+    <div class="mc-plan-top">
+      <div id="mcPlan" class="mc-plan-body">…</div>
+      <label class="mc-for"><span class="muted">Course for</span><select id="mcSel" aria-label="Whose course to show"></select></label>
     </div>
-    <details id="mcHist" hidden><summary class="muted">Plans applied before</summary><ol class="mc-hist" id="mcHistList"></ol></details>
-    <div class="mc-prof" id="mcProf" hidden><span class="muted">Your professor reads exactly this page, as text:</span> <a id="mcProfLink" href="#" target="_blank" rel="noopener">open the text version</a> <button class="ghost" type="button" id="mcProfCopy">Copy the link</button></div>
+    <a class="mc-proposal" id="mcProposal" href="ascent.html" hidden></a>
+    <div class="mc-more">
+      <details id="mcKey"><summary>How to read this page</summary>
+        <div class="mc-key-body">
+          <p class="muted">Every climber shares one course. When it's corrected, the fix reaches everyone; what a professor changes for one climber is marked on top, so you can always tell checked material from additions.</p>
+          <div class="mc-legend" aria-label="Legend">
+            <span><i class="lg course"></i>Course material, the same for everyone</span>
+            <span><i class="lg pro"></i>Added for you by your professor</span>
+            <span><i class="lg drop"></i>Dropped for you</span>
+            <span><i class="lg side"></i>Side camp (no test)</span>
+          </div>
+          <p class="muted">✔ checked: the resource was opened and checked when the course was researched. ◐ check it loads: an official or well-known page that wasn't opened individually. <span id="mcCourseV"></span></p>
+          <div class="mc-prof" id="mcProf" hidden><span class="muted">Your professor reads exactly this page, as text:</span> <a id="mcProfLink" href="#" target="_blank" rel="noopener">open the text version</a> <button class="ghost" type="button" id="mcProfCopy">Copy the link</button></div>
+        </div>
+      </details>
+      <details id="mcHist" hidden><summary>Plans applied before</summary><ol class="mc-hist" id="mcHistList"></ol></details>
+    </div>
   </section>
 
   <div class="mc-tools">
-    <div class="mc-seg" role="group" aria-label="Which camps to show"><button type="button" class="on" data-f="all" aria-pressed="true">All camps</button><button type="button" data-f="changed" aria-pressed="false">Changed for me</button></div>
-    <label class="mc-jump"><span class="muted">Jump to</span><select id="mcJump" aria-label="Jump to a camp"></select></label>
+    <label class="mc-search"><span aria-hidden="true">⌕</span><input type="search" id="mcSearch" placeholder="Search: rebase, Stripe, MCP…" aria-label="Search the course" autocomplete="off"></label>
+    <div class="mc-tools-r">
+      <div class="mc-seg" role="group" aria-label="Which camps to show"><button type="button" class="on" data-f="all" aria-pressed="true">All camps</button><button type="button" data-f="changed" aria-pressed="false">Changed for me</button></div>
+      <button class="ghost mc-btn" type="button" id="mcToggleAll" aria-controls="mcBody">Expand all</button>
+    </div>
+    <div class="mc-count" id="mcCount" aria-live="polite"></div>
   </div>
 
   <div id="mcBody" class="mc-body"><div class="empty">Loading the course from the database…</div></div>
 
-  <footer>The general sections (TL;DR, how to use the course, the week-by-week schedules, day-one toolkit and costs, glossary, skip list and sources) are in <a href="course.html">the full course document</a>. ✔ means the resource was opened and checked when the course was researched; ◐ means an official or well-known page that wasn't opened individually, so check it loads.</footer>
+  <footer>The general sections (TL;DR, how to use the course, week-by-week schedules, day-one toolkit and costs, glossary, skip list and sources) are in <a href="course.html">the full course document</a>.</footer>
 </div>
 <script src="assets/site.js"></script>
 <script src="assets/config.js"></script>
