@@ -88,7 +88,7 @@ window.AA = (function () {
     const el = document.createElement("div"); el.className = "nav";
     el.innerHTML = '<div class="nav-in"><a class="brand" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20 9 7l4 6 2-3 7 10Z" fill="var(--accent)"/><path d="M9 7l2 3-2 1-2-1Z" fill="var(--snow)"/></svg><span>The Agent\'s Ascent</span></a>' +
       '<nav><a href="index.html" data-p="home">Home</a><a href="mycourse.html" data-p="course">My course</a><a href="ascent.html" data-p="ascent">Ascent</a></nav>' +
-      '<button class="theme" type="button" id="themeBtn" aria-label="Toggle light and dark theme" title="Theme">◐</button>' +
+      '<button class="theme" type="button" id="themeBtn" aria-label="Toggle light and dark theme" title="Theme"><span class="theme-ic" aria-hidden="true"></span></button>' +
       '<a class="avatar" id="navAvatar" href="profile.html" aria-label="My profile" title="My profile"></a></div>';
     document.body.prepend(el);
     const a = el.querySelector('nav a[data-p="' + active + '"]'); if (a) a.classList.add("on");
@@ -137,13 +137,13 @@ window.AA = (function () {
     root.innerHTML = '<div class="trk-panel" id="trkPanel" hidden><div class="eyebrow">Session</div><input type="text" id="trkNote" placeholder="What are you working on? (optional)" maxlength="120">' +
       '<div class="row"><span>Today</span><b id="trkToday">0 min</b></div><div class="row"><span>This week</span><b id="trkWeek">0 min</b></div><div class="row"><span>All time</span><b id="trkAll">0 min</b></div>' +
       '<div class="muted" style="font-size:12px">Sessions count towards the hours on the Ascent page and save to your database when you are signed in.</div></div>' +
-      '<div class="trk-pill" id="trkPill" role="group" aria-label="Time tracker"><button class="go" id="trkGo" type="button" aria-label="Start session">▶</button><span class="t" id="trkTime">00:00</span><span class="lbl" id="trkLbl">Start session</span></div>';
+      '<div class="trk-pill" id="trkPill" role="group" aria-label="Time tracker"><button class="go" id="trkGo" type="button" aria-label="Start session">▶︎</button><span class="t" id="trkTime">00:00</span><span class="lbl" id="trkLbl">Start session</span></div>';
     document.body.appendChild(root);
     const pill = root.querySelector("#trkPill"), go = root.querySelector("#trkGo"), time = root.querySelector("#trkTime"), lbl = root.querySelector("#trkLbl"), panel = root.querySelector("#trkPanel"), note = root.querySelector("#trkNote");
     function paint() {
       const t = tracker();
       pill.classList.toggle("running", !!t);
-      go.textContent = t ? "■" : "▶"; go.setAttribute("aria-label", t ? "Stop session" : "Start session");
+      go.textContent = t ? "■" : "▶︎"; go.setAttribute("aria-label", t ? "Stop session" : "Start session");
       lbl.textContent = t ? "Stop" : "Start session";
       time.textContent = t ? hms(Date.now() - t.start) : "00:00";
       root.querySelector("#trkToday").textContent = fmtMins(minsToday() + (t ? Math.floor((Date.now() - t.start) / 60000) : 0));

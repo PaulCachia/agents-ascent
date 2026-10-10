@@ -21,7 +21,7 @@
       <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:18px">
         <a class="primary" href="ascent.html" style="text-decoration:none;display:inline-block;font-weight:700;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:10px 16px">Open the Ascent</a>
         <a class="ghost" href="mycourse.html" style="text-decoration:none;display:inline-block;border:1px solid var(--line);border-radius:10px;padding:10px 16px;color:var(--fg)">Read the course</a>
-        <button class="ghost" type="button" id="heroStart" data-opens-sync style="font-size:14px;padding:10px 16px;border-radius:10px">▶ Start a study session</button>
+        <button class="ghost" type="button" id="heroStart" data-opens-sync style="font-size:14px;padding:10px 16px;border-radius:10px">▶︎ Start a study session</button>
       </div>
     </div>
     <div class="art" aria-hidden="true">
@@ -50,7 +50,7 @@
   <section class="tiles">
     <a class="tile" href="mycourse.html"><span class="eyebrow">The map</span><span class="big">Your course</span><p>Nine phases, 24 camps, four capstones, the same for every climber, with your professor's changes marked on top. Every camp has videos, an exercise, a "ready to move on when…" check and the pitfalls to avoid.</p></a>
     <a class="tile" href="ascent.html"><span class="eyebrow">The game</span><span class="big">The Ascent</span><p>A climber moves up the mountain as you pass checkpoints. XP, ten levels, fourteen badges, a rocket at the summit. Check-ins and quiz scores live here too.</p></a>
-    <a class="tile" href="ascent.html#sessList"><span class="eyebrow">The clock</span><span class="big">Study sessions</span><p>Press ▶ on any page when you sit down and ■ when you stop. Hours count towards your plan and show up as "on the clock" in the Ascent.</p></a>
+    <a class="tile" href="ascent.html#sessList"><span class="eyebrow">The clock</span><span class="big">Study sessions</span><p>Press ▶︎ on any page when you sit down and ■ when you stop. Hours count towards your plan and show up as "on the clock" in the Ascent.</p></a>
     <a class="tile" href="professor.html"><span class="eyebrow">The guide</span><span class="big">Your professor</span><p>Every climber gets their own: a Claude Project that reads your camps, quizzes you, and re-plans the climb with you at each checkpoint. Set-up takes five minutes.</p></a>
   </section>
 
@@ -83,7 +83,7 @@ AA.nav("home"); AA.mountTracker();
   var s = ""; for (var i = 0; i < 40; i++) { s += '<circle class="star" cx="' + (Math.random() * 600).toFixed(1) + '" cy="' + (Math.random() * 180).toFixed(1) + '" r="' + (Math.random() * 1.3 + .3).toFixed(2) + '"/>'; }
   document.getElementById("hstars").innerHTML = s;
   var b = document.getElementById("heroStart");
-  function paintBtn(){ b.textContent = AA.tracker() ? "■ Stop the session" : "▶ Start a study session"; }
+  function paintBtn(){ b.textContent = AA.tracker() ? "■ Stop the session" : "▶︎ Start a study session"; }
   b.addEventListener("click", function(){ if (AA.tracker()) { var r = AA.stopSession(); AA.toast("Session saved: " + AA.fmtMins(r.mins)); } else { if (!AA.requireSignIn("put time on the clock")) return; AA.startSession(""); AA.toast("Session started"); } paintBtn(); });
   window.addEventListener("aa:sessions", paintBtn); paintBtn();
 })();

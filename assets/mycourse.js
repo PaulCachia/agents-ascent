@@ -89,9 +89,9 @@
     if (st.status === "doing") return '<span class="chip doing">In progress</span>';
     return "";
   }
-  const ICON = { video: "▶", reading: "≡", course: "◆" };
+  const ICON = { video: "▶︎", reading: "≡", course: "◆" };
   function statusMark(s) { s = String(s || ""); if (!s) return ""; const good = s.indexOf("✔") === 0;
-    return '<span class="mc-chk' + (good ? "" : " part") + '" title="' + (good ? "Opened and checked when the course was researched" : "An official or well-known page that wasn't opened individually; check it loads") + '">' + esc(s === "✔" ? "✔ checked" : s === "◐" ? "◐ check it loads" : s) + "</span>"; }
+    return '<span class="mc-chk' + (good ? "" : " part") + '" title="' + (good ? "Opened and checked when the course was researched" : "An official or well-known page that wasn't opened individually; check it loads") + '">' + esc(s === "✔" ? "✓ checked" : s === "◐" ? "◐ check it loads" : s.replace(/^✔/, "✓")) + "</span>"; }
   function findItem(key, id) { const c = arr(data && data.camps).find(x => x.key === key); return c ? arr(c.items).find(i => i.id === id) : null; }
   function itemHTML(it, campKey, q) {
     const pro = it.source === "professor", drop = !!it.dropped; const u = httpUrl(it.url);
@@ -144,7 +144,7 @@
     return '<details class="cp st-' + st + (changed(c) ? " changed" : "") + (here ? " here" : "") + '" id="' + esc(c.key) + '"' + (open ? " open" : "") + ">" +
       '<summary class="cp-h"><span class="cp-dot" aria-hidden="true"></span><span class="cp-k">' + (c.capstone ? "★" : esc(c.key.slice(1))) + "</span>" +
       '<span class="cp-t"><span class="cp-name">' + esc(c.title) + (c.core ? "" : ' <span class="cp-opt">optional</span>') + "</span>" +
-      '<span class="cp-meta"><span>' + esc(c.week_label || "") + "</span><span>" + esc(hours) + "</span>" + (c.video_min ? "<span>▶ " + fmtMin(c.video_min) + "</span>" : "") + "</span></span>" +
+      '<span class="cp-meta"><span>' + esc(c.week_label || "") + "</span><span>" + esc(hours) + "</span>" + (c.video_min ? "<span>▶︎ " + fmtMin(c.video_min) + "</span>" : "") + "</span></span>" +
       '<span class="cp-badges">' + (here ? '<span class="pill here">You\'re here</span>' : "") + depth + statusChip(c.key, m) + (changed(c) ? '<span class="cp-mark" title="Your professor changed this camp">changed</span>' : "") + "</span>" +
       '<span class="chev" aria-hidden="true"></span></summary>' + campBody(c, q) + "</details>";
   }
@@ -224,7 +224,7 @@
       html += '<details class="ph st-' + pst + (g.camps.some(c => c.key === hereKey) ? " here" : "") + '" id="' + esc(g.id) + '"' + (open ? " open" : "") + ">" +
         '<summary class="ph-h"><span class="ph-node" aria-hidden="true">' + esc(pn.n) + "</span>" +
         '<span class="ph-t"><span class="ph-land">' + esc(ph.land || "") + (pn.n ? ", phase " + esc(pn.n) : "") + "</span><span class=\"ph-name\">" + esc(pn.name) + "</span>" +
-        '<span class="ph-meta"><span>' + esc(ph.weeks || "") + "</span><span>~" + Math.round(hours) + " h</span>" + (video ? "<span>▶ " + fmtMin(video) + "</span>" : "") + "<span>" + total + " camp" + (total === 1 ? "" : "s") + "</span>" + (nCh ? '<span class="ph-ch">' + nCh + " changed for you</span>" : "") + "</span></span>" +
+        '<span class="ph-meta"><span>' + esc(ph.weeks || "") + "</span><span>~" + Math.round(hours) + " h</span>" + (video ? "<span>▶︎ " + fmtMin(video) + "</span>" : "") + "<span>" + total + " camp" + (total === 1 ? "" : "s") + "</span>" + (nCh ? '<span class="ph-ch">' + nCh + " changed for you</span>" : "") + "</span></span>" +
         (m ? '<span class="ph-prog" title="' + passed + " of " + total + ' camps passed"><span class="bar"><i style="width:' + Math.round(passed / total * 100) + '%"></i></span><span>' + passed + "/" + total + "</span></span>" : "") +
         '<span class="chev" aria-hidden="true"></span></summary><div class="ph-body">' +
         (!narrow && ph.intro ? '<div class="mc-prose ph-intro">' + md(ph.intro) + "</div>" : "") +

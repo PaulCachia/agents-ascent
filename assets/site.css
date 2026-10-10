@@ -49,6 +49,8 @@ pre code{background:none;padding:0}
 .nav-in nav a{color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:8px;font-weight:600;font-size:14px}
 .nav-in nav a:hover,.nav-in nav a.on{color:var(--fg);background:var(--surface2)}
 .nav-in .theme{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;width:34px;height:34px;cursor:pointer;display:grid;place-items:center}
+/* Drawn, not a character: iPhones have no glyph for ◐ in these fonts and showed an empty button. */
+.theme-ic{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;background:linear-gradient(90deg,currentColor 50%,transparent 50%);box-sizing:border-box}
 .nav-in .avatar{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--surface2);overflow:hidden;display:grid;place-items:center;flex:0 0 auto}
 .nav-in .avatar img,.nav-in .avatar svg{width:100%;height:100%;object-fit:cover;display:block}
 .nav-in .avatar.on,.nav-in .avatar:hover{border-color:var(--accent)}
@@ -380,11 +382,10 @@ button.linkish{font:inherit;background:none;border:0;padding:0;color:var(--accen
 .mc-count:empty{display:none}
 .mc-body{display:grid;gap:12px}
 .mc-trail{position:relative;display:grid;gap:10px;padding-left:48px}
-.mc-trail::before{content:"";position:absolute;left:19px;top:24px;bottom:24px;width:2px;background:repeating-linear-gradient(to bottom,var(--line) 0 7px,transparent 7px 12px)}
+.mc-trail::before{content:"";position:absolute;left:19px;top:24px;bottom:24px;border-left:2px dashed var(--line)}
 details.ph{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;min-width:0;scroll-margin-top:72px}
 details.ph[open]{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
 .ph-h{display:grid;grid-template-columns:minmax(0,1fr) auto 18px;gap:12px;align-items:center;padding:14px 16px;cursor:pointer;list-style:none;border-radius:16px}
-.ph-h::-webkit-details-marker,.cp-h::-webkit-details-marker,.ph-check>summary::-webkit-details-marker{display:none}
 .ph-h:focus-visible,.cp-h:focus-visible,.ph-check>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .ph-node{position:absolute;left:-46px;top:12px;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:15px;background:var(--bg);border:2px solid var(--line);color:var(--muted)}
 details.ph.st-done .ph-node{background:var(--done);border-color:var(--done);color:#07201c}
@@ -430,12 +431,10 @@ details.cp.side .cp-k{color:var(--done);font-weight:700;font-size:15px}
 .mc-m{font-size:12px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
 .mc-item.hit{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .ph-check{border-top:1px dashed var(--line);padding-top:10px}
-.ph-check>summary{cursor:pointer;font-weight:700;font-size:14px;list-style:none;display:flex;gap:8px;align-items:center;border-radius:8px}
-.ph-check>summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .18s ease}
-.ph-check[open]>summary::before{transform:rotate(45deg)}
+.ph-check>summary{font-weight:700;font-size:14px;border-radius:8px}
 .ph-check .mc-prose{margin-top:8px;font-size:14px}
 .cp-body>.mc-prose,.ph-check .mc-prose,.mc-exs,.mc-ready,.mc-pit,.mc-note,.mc-upd{max-width:80ch}
-@media (prefers-reduced-motion: reduce){.chev::before,.ph-check>summary::before{transition:none}}
+@media (prefers-reduced-motion: reduce){.chev::before,summary::before{transition:none}}
 @media (max-width:640px){
   .mc-tools{grid-template-columns:1fr}.mc-tools-r{justify-content:flex-start}
   .mc-trail{padding-left:36px}.mc-trail::before{left:13px}
@@ -460,3 +459,17 @@ details.cp.side .cp-k{color:var(--done);font-weight:700;font-size:15px}
 .mc-more>details[open]>summary{color:var(--fg)}
 .mc-key-body{display:grid;gap:8px;margin-top:8px}
 .mc-key-body p{margin:0;font-size:13px;max-width:80ch}
+
+/* ───────── Open-and-close sections, every page ─────────
+   Closed sections take no space. Safari on iPhone kept the full height of a closed section's
+   contents (an empty box), so the contents are removed outright rather than left to the browser. */
+details:not([open])>:not(summary){display:none!important}
+details:not([open])::details-content{display:none}
+/* Drawn arrows instead of the built-in marker, which iPhones show as a blue emoji. */
+summary{list-style:none}
+summary::-webkit-details-marker{display:none}
+summary:not(.ph-h):not(.cp-h){cursor:pointer}
+summary:not(.ph-h):not(.cp-h)::before{content:"";display:inline-block;vertical-align:middle;width:6px;height:6px;margin:-3px 10px 0 2px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);opacity:.75;transition:transform .18s ease;flex:none}
+details[open]>summary:not(.ph-h):not(.cp-h)::before{transform:rotate(45deg)}
+summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion: reduce){summary::before{transition:none}}
