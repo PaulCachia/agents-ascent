@@ -43,7 +43,11 @@ STOP = {"for", "the", "and", "a", "an", "to", "with", "in", "of", "your", "from"
 def slug(text, n=5, cap=44):
     t = re.sub(r"\*|`|\[|\]|\(.*?\)", " ", text.lower())
     words = [w for w in re.findall(r"[a-z0-9]+", t) if w not in STOP]
-    s = "-".join(words[:n])[:cap].strip("-")
+    s = ""
+    for w in words[:n]:  # whole words only, up to the cap
+        if s and len(s) + 1 + len(w) > cap:
+            break
+        s = (s + "-" + w) if s else w[:cap]
     return s or "item"
 
 

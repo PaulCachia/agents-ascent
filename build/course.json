@@ -525,7 +525,7 @@
      "why": "**For depth:** lectures on functions, exceptions, libraries, file I/O and OOP, plus 3–4 problem sets with the AI explaining, not solving.",
      "status": "✔",
      "kind": "video",
-     "id": "m05.harvard-cs50p-introduction-programming-pytho"
+     "id": "m05.harvard-cs50p-introduction-programming"
     },
     {
      "title": "uv docs",
@@ -797,7 +797,7 @@
      "why": "Reusable SKILL.md packages; context isolation.",
      "status": "✔",
      "kind": "course",
-     "id": "m09.introduction-agent-skills-introduction-subag"
+     "id": "m09.introduction-agent-skills-introduction"
     },
     {
      "title": "Claude Code: A Highly Agentic Coding Assistant",
@@ -1580,7 +1580,7 @@
      "why": "Traces, cost, prompt versions",
      "status": "◐",
      "kind": "course",
-     "id": "m18.observability-langfuse-alternatives-langsmit"
+     "id": "m18.observability-langfuse-alternatives"
     },
     {
      "title": "RAG: Supabase pgvector",
