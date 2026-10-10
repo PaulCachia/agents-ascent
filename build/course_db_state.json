@@ -1,0 +1,102 @@
+{
+ "version": 1,
+ "phases": "dec32fc5786d3345",
+ "camps": {
+  "m00": {
+   "hash": "27c25126ac7644b3",
+   "changed_in": 1
+  },
+  "m01": {
+   "hash": "3b0dddf12fbe36bc",
+   "changed_in": 1
+  },
+  "m02": {
+   "hash": "00b2df4a870e4b9d",
+   "changed_in": 1
+  },
+  "m03": {
+   "hash": "e750d7875c815b3d",
+   "changed_in": 1
+  },
+  "m04": {
+   "hash": "7ff51dd9db63efc7",
+   "changed_in": 1
+  },
+  "m05": {
+   "hash": "0c532da45b254a5c",
+   "changed_in": 1
+  },
+  "m06": {
+   "hash": "6606459a48f7c3c1",
+   "changed_in": 1
+  },
+  "m07": {
+   "hash": "8e6ea080bdcdfe5a",
+   "changed_in": 1
+  },
+  "m08": {
+   "hash": "a90fa3bcef1bd9dd",
+   "changed_in": 1
+  },
+  "m09": {
+   "hash": "c05d469f640e7b34",
+   "changed_in": 1
+  },
+  "m10": {
+   "hash": "f670fc3a406e431b",
+   "changed_in": 1
+  },
+  "m11": {
+   "hash": "2c421db1c39440c3",
+   "changed_in": 1
+  },
+  "m12": {
+   "hash": "d9086b1328d78d19",
+   "changed_in": 1
+  },
+  "m13": {
+   "hash": "f4e425d49053b2e2",
+   "changed_in": 1
+  },
+  "m14": {
+   "hash": "93654d97699d9859",
+   "changed_in": 1
+  },
+  "m15": {
+   "hash": "68378eb609fa3c36",
+   "changed_in": 1
+  },
+  "m16": {
+   "hash": "6d902de4151c9d1c",
+   "changed_in": 1
+  },
+  "m17": {
+   "hash": "9533789417126f02",
+   "changed_in": 1
+  },
+  "m18": {
+   "hash": "e64cbc0561e95344",
+   "changed_in": 1
+  },
+  "m19": {
+   "hash": "6ea86a85cc303f62",
+   "changed_in": 1
+  },
+  "m20": {
+   "hash": "c0134dc56edabb53",
+   "changed_in": 1
+  },
+  "m21": {
+   "hash": "2630070c415f4dc1",
+   "changed_in": 1
+  },
+  "m22": {
+   "hash": "7f0ebc4d052d2a17",
+   "changed_in": 1
+  },
+  "m23": {
+   "hash": "4f0c691babf08341",
+   "changed_in": 1
+  }
+ }
+}
