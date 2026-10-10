@@ -178,7 +178,7 @@ create or replace function public.course_md(uid uuid default null, camp text def
 returns text language plpgsql stable security invoker set search_path = public as $$
 declare
   d jsonb := public.course_for(uid);
-  pl jsonb := d->'plan';
+  pl jsonb := nullif(d->'plan', 'null'::jsonb);  -- JSON null (no plan) → SQL null
   out text[] := '{}';
   phases jsonb := '{}';
   ph jsonb; c jsonb; it jsonb; ex jsonb; s jsonb;
