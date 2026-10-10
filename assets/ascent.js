@@ -160,7 +160,7 @@
   /* Module list */
   (function () { const list = $("modList"); let html = ""; PHASES.forEach(ph => { const pm = MODULES.filter(m => m.phase === ph.id); const ph_h = pm.reduce((a, m) => a + (m.hours || 0), 0), ph_v = pm.reduce((a, m) => a + (m.video || 0), 0);
     html += '<div class="phase"><div class="phase-h"><h3>' + esc(ph.land) + ' <small>· ' + esc(ph.title) + '</small></h3><small>' + esc(ph.weeks) + ' · ~' + ph_h + ' h' + (ph_v ? ' · ▶ ' + fmtDur(ph_v) : '') + '</small></div>';
-    MODULES.forEach((m, i) => { if (m.phase !== ph.id) return; html += '<div class="mod todo" data-key="' + m.key + '"><div class="n">' + (m.cap ? "★" : String(i + 1).padStart(2, "0")) + '</div><div class="name">' + (m.core ? '<span class="spine" title="Essential spine: can be lightened, never dropped">●</span>' : "") + esc(m.name) + (m.cap ? '<span class="cap-tag">CAPSTONE · 300 XP</span>' : "") + '<small>' + esc(m.wk) + ' · <a href="course.html#' + m.anchor + '">open in course</a></small>' +
+    MODULES.forEach((m, i) => { if (m.phase !== ph.id) return; html += '<div class="mod todo" id="' + m.key + '" data-key="' + m.key + '"><div class="n">' + (m.cap ? "★" : String(i + 1).padStart(2, "0")) + '</div><div class="name">' + (m.core ? '<span class="spine" title="Essential spine: can be lightened, never dropped">●</span>' : "") + esc(m.name) + (m.cap ? '<span class="cap-tag">CAPSTONE · 300 XP</span>' : "") + '<small>' + esc(m.wk) + ' · <a href="mycourse.html#' + m.key + '">open in My course</a></small>' +
       '<div class="dur"><span class="chip" title="Hours the course budgets for this module, videos and exercises included">⏱ ' + (m.hours == null ? "in 6.4" : "~" + m.hours + " h") + '</span>' + (m.video ? '<button class="chip vbtn" type="button" data-v="' + m.key + '" aria-expanded="false" title="Tap for the videos">▶ ' + fmtDur(m.video) + ' video</button>' : '<span class="chip dim">▶ no set videos</span>') + '<span class="chip depth" id="dp-' + m.key + '" hidden></span>' +
       '<span class="chip score" id="qs-' + m.key + '" hidden></span><button class="chip qbtn" type="button" data-q="' + m.key + '" data-set="practice" title="Unlimited; explanations shown; never posted">Practice</button><button class="chip qbtn test" type="button" data-q="' + m.key + '" data-set="test" title="8 questions, 90 s each, marked on the server; 70% passes the camp">Take the test</button></div>' +
       '<div class="vids" id="v-' + m.key + '" hidden>' + esc(m.vids) + '</div><div class="plannote" id="pn-' + m.key + '" hidden></div></div>' +
@@ -236,7 +236,7 @@
     const ci = state.checkins[0]; const pl = AA.plan(); const pc = pace(state);
     const next = MODULES.find(m => !ok(state, m.key));
     const lines = [
-      "Hi professor, it's " + (p.name || "your student") + (uid ? " (climber id " + uid + ")" : "") + ". Please read my rows and quiz attempts before replying (brief, section 3).",
+      "Hi professor, it's " + (p.name || "your student") + (uid ? " (climber id " + uid + ")" : "") + "." + (uid ? " Before replying, open the three links at the end: my course with my plan applied, my rows and my test attempts." : " Please look me up by name (brief, section 3) before replying."),
       "Where I am: week " + w + " of 26, started " + AA.fmtDate(AA.startISO()) + ". Camps passed: " + done.length + "/24" + (doing.length ? "; in progress: " + doing.map(m => m.name).join(", ") : "") + ". Pace: " + (pc.state === "on" ? "on plan" : pc.state === "ahead" ? pc.diff + " ahead" : Math.abs(pc.diff) + " behind") + ".",
       "Tests: " + (tests.length ? tests.join("; ") : "none yet") + ".",
       "Hours: " + tracked + " h on the clock in total, " + week7 + " h in the last 7 days.",
@@ -246,8 +246,13 @@
       next ? "Next camp: " + next.name + "." : "All camps passed.",
       "Start by summarising where I am in two lines, then ask me what I've done since the last check-in and what I want help with."
     ].filter(Boolean);
+    if (uid) { const L = dataLinks(uid); lines.push("", "My course (with my plan): " + L.course, "My rows: " + L.rows, "My tests: " + L.tests); }
     return lines.join("\n");
   }
+  /* The three read-only addresses a professor needs for one climber (public key; nothing here can write). */
+  function dataLinks(uid) { const cfg = window.AA_CONFIG || {}; const base = (cfg.supabaseUrl || "") + "/rest/v1/", k = "apikey=" + (cfg.supabaseAnonKey || "");
+    return { course: base + "rpc/course_md?uid=" + uid + "&" + k, rows: base + "progress?user_id=eq." + uid + "&select=kind,key,data,updated_at&order=updated_at.desc&" + k,
+      tests: base + "quiz_attempts?user_id=eq." + uid + "&select=module,qset,attempt,score,missed,seconds,created_at&order=created_at.desc&" + k }; }
   /* Turn the saved professor link into one that opens a NEW conversation with the context pre-filled, where the service allows it. */
   function professorLink(url, msg) {
     const q = encodeURIComponent(msg);
@@ -266,48 +271,123 @@
   $("profGo").addEventListener("click", () => { const go = $("profGo"); if (go.dataset.prefill === "1") { toast("Opening your professor with your progress written in — press send"); return; } if (go.getAttribute("aria-disabled")) return; AA.copyText(contextMessage()).then(okc => toast(okc ? "Context copied — paste it as your first message" : "Couldn't copy; use Copy my context")); });
   $("profCopy").addEventListener("click", async () => { const okc = await AA.copyText(contextMessage()); toast(okc ? "Context copied — paste it into any AI" : "Copy was blocked by the browser"); });
 
-  /* The professor's plan: banner, depth chips, notes and extra resources on the rows. */
+  /* The professor's plan: banner, depth chips, and on each camp row what the plan adds, drops or asks for. */
   const DEPTH = { core: "", expanded: "EXPANDED", lightened: "LIGHTENED", skip: "SKIP IF PROVEN" };
+  const arr = x => (Array.isArray(x) ? x : []);
+  const str = (x, n) => (x == null ? "" : String(x)).trim().slice(0, n);
+  const httpUrl = u => (/^https?:\/\/[^\s"'<>]+$/i.test(String(u || "").trim()) ? String(u).trim().slice(0, 500) : "");
+  const dropId = x => (typeof x === "string" ? x : x && x.id) || "";
+  /* The shared course (ids and titles per camp) from the database; null when it can't be reached. */
+  let COURSE = null;
+  function courseData() { const c = AA.cloud || {}; if (c.course) return c.course();
+    return new Promise(res => { if (!c.configured) return res(null); let n = 0; const t = setInterval(() => { if (AA.cloud.course) { clearInterval(t); AA.cloud.course().then(res); } else if (++n > 40) { clearInterval(t); res(null); } }, 150); }); }
+  courseData().then(c => { if (c) { COURSE = c; render(); } });
+  function itemTitle(k, id) { const c = COURSE && COURSE.camps[k]; const it = c && c.items.find(i => i.id === id); return it ? it.title : id; }
+  function linkTo(x) { const u = httpUrl(x.url); return u ? '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(x.title || u) + '</a>' : esc(x.title || ""); }
   function paintPlan() {
     const pl = AA.plan(); const bar = $("planBar");
     MODULES.forEach(m => { const d = pl && pl.modules && pl.modules[m.key] || null; const chip = $("dp-" + m.key), note = $("pn-" + m.key);
       const depth = d && d.depth && DEPTH[d.depth] ? d.depth : "core";
       chip.hidden = depth === "core"; chip.textContent = DEPTH[depth]; chip.className = "chip depth" + (depth === "lightened" ? " light" : depth === "skip" ? " skip" : "");
-      const bits = []; if (d && d.note) bits.push(esc(d.note)); if (d && Array.isArray(d.extra) && d.extra.length) bits.push("Professor added: " + d.extra.map(x => (x.url ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.title || x.url) + '</a>' : esc(x.title || "")) + (x.len ? " " + esc(x.len) : "")).join(" · "));
+      const bits = []; const ex = arr(d && d.extra), dr = arr(d && d.drop), xs = arr(d && d.exercises);
+      if (d && d.note) bits.push(esc(d.note));
+      if (ex.length) bits.push("<b>Added:</b> " + ex.map(x => linkTo(x) + (x.len ? " " + esc(x.len) : "")).join(" · "));
+      if (dr.length) bits.push("<b>Dropped:</b> " + dr.map(x => esc(itemTitle(m.key, dropId(x)))).join(" · "));
+      if (xs.length) bits.push("<b>New exercise" + (xs.length > 1 ? "s" : "") + ":</b> " + xs.map(x => esc(x.text.length > 160 ? x.text.slice(0, 160) + "…" : x.text)).join(" · "));
+      if (d && d.ready) bits.push("<b>Before moving on:</b> " + esc(d.ready));
+      if (ex.length || dr.length || xs.length || (d && d.ready)) bits.push('<a href="mycourse.html#' + m.key + '">See it in My course →</a>');
       note.hidden = !bits.length; note.innerHTML = bits.join("<br>"); });
+    paintSideCamps(pl);
     if (!pl) { bar.hidden = true; return; }
-    bar.hidden = false; $("planTitle").textContent = "Plan v" + (pl.version || 1) + (pl.checkpoint ? " · " + pl.checkpoint : "") + (pl.updatedAt ? " · " + AA.fmtDate(String(pl.updatedAt).slice(0, 10)) : "");
-    $("planSummary").textContent = pl.summary || ""; $("planDetail").innerHTML = planChanges(pl).map(esc).join("<br>") || "No module changes; the default course applies.";
+    const n = AA.planHistory().length;
+    bar.hidden = false; $("planTitle").textContent = "Plan v" + (pl.version || 1) + (pl.checkpoint ? " · " + pl.checkpoint : "") + " · " + AA.fmtDate(String(pl.appliedAt || pl.updatedAt || "").slice(0, 10));
+    $("planSummary").textContent = pl.summary || "";
+    $("planDetail").innerHTML = (planChanges(pl).map(esc).join("<br>") || "No camp changes; the course applies as written.") + '<br><a href="mycourse.html#plans">' + (n > 1 ? "All " + n + " plans you've applied" : "Your plan history") + " →</a>";
   }
-  function planChanges(pl) { const out = []; MODULES.forEach(m => { const d = pl.modules && pl.modules[m.key]; if (!d) return; const bits = []; if (d.depth && d.depth !== "core") bits.push(DEPTH[d.depth].toLowerCase()); if (d.note) bits.push(d.note); if (Array.isArray(d.extra) && d.extra.length) bits.push(d.extra.length + " extra resource" + (d.extra.length > 1 ? "s" : "")); if (bits.length) out.push(m.name + ": " + bits.join("; ")); }); if (Array.isArray(pl.weeks) && pl.weeks.length) out.push("Week-by-week text replaced for " + pl.weeks.filter(Boolean).length + " weeks"); return out; }
+  /* Side camps the professor added: their own rows after the camp they follow. No test; you mark them done. */
+  function paintSideCamps(pl) {
+    document.querySelectorAll("#modList .mod.side").forEach(el => el.remove());
+    const last = {};
+    arr(pl && pl.sideCamps).forEach(s => { const anchor = last[s.after] || document.querySelector('.mod[data-key="' + s.after + '"]'); if (!anchor) return; const st = modOf("side:" + s.id);
+      const el = document.createElement("div"); el.className = "mod side " + (st.status === "done" || st.status === "doing" ? st.status : "todo"); el.dataset.side = s.id;
+      el.innerHTML = '<div class="n">+</div><div class="name"><span class="side-tag">Side camp · from your professor</span>' + esc(s.title) + '<small>' + (s.hours ? "~" + esc(s.hours) + " h · " : "") + 'no test · <a href="mycourse.html#side-' + esc(s.id) + '">open in My course</a></small>' + (s.note ? '<div class="plannote">' + esc(s.note) + '</div>' : "") + '</div>' +
+        '<select aria-label="Status for side camp ' + esc(s.title) + '"><option value="todo">Not started</option><option value="doing">In progress</option><option value="done">Done</option></select>';
+      const sel = el.querySelector("select"); sel.value = st.status === "done" || st.status === "doing" ? st.status : "todo"; sel.disabled = mode() === "view";
+      sel.addEventListener("change", () => saveModule("side:" + s.id, { status: sel.value, date: sel.value === "done" ? AA.todayISO() : null }));
+      anchor.after(el); last[s.after] = el; });
+  }
+  function planChanges(pl) { const out = [];
+    MODULES.forEach(m => { const d = pl.modules && pl.modules[m.key]; if (!d) return; const bits = []; const ex = arr(d.extra), dr = arr(d.drop), xs = arr(d.exercises);
+      if (d.depth && d.depth !== "core") bits.push(DEPTH[d.depth].toLowerCase());
+      if (d.note) bits.push(d.note);
+      if (ex.length) bits.push("+ " + ex.map(x => x.title).join(", "));
+      if (dr.length) bits.push("− " + dr.map(x => itemTitle(m.key, dropId(x))).join(", "));
+      if (xs.length) bits.push(xs.length + " new exercise" + (xs.length > 1 ? "s" : ""));
+      if (d.ready) bits.push("ready check: " + d.ready);
+      if (bits.length) out.push(m.name + ": " + bits.join("; ")); });
+    arr(pl.sideCamps).forEach(s => { const a = MODULES.find(m => m.key === s.after); out.push("Side camp after " + (a ? a.name : s.after) + ": " + s.title + (s.hours ? " (~" + s.hours + " h)" : "")); });
+    if (Array.isArray(pl.weeks) && pl.weeks.some(Boolean)) out.push("Week-by-week text replaced for " + pl.weeks.filter(Boolean).length + " weeks");
+    return out; }
   $("planMore").addEventListener("click", () => { const d = $("planDetail"); d.hidden = !d.hidden; $("planMore").setAttribute("aria-expanded", String(!d.hidden)); });
 
-  /* Validate a plan object: shape, known modules, depths, and the spine rule (essential camps cannot be skipped). */
-  function checkPlan(obj) {
-    const errs = []; if (!obj || typeof obj !== "object") return { ok: false, errs: ["Not a plan object."] };
-    const pl = { version: Number(obj.version) || 1, checkpoint: String(obj.checkpoint || ""), summary: String(obj.summary || ""), updatedAt: obj.updatedAt || AA.todayISO(), modules: {}, weeks: Array.isArray(obj.weeks) ? obj.weeks.slice(0, AA.TOTAL_WEEKS).map(w => (w == null ? "" : String(w))) : undefined };
-    const mods = obj.modules && typeof obj.modules === "object" ? obj.modules : {};
-    Object.keys(mods).forEach(k => { const m = MODULES.find(x => x.key === k); const d = mods[k] || {}; if (!m) { errs.push("Unknown module key " + k); return; }
+  /* Check a plan before it can be applied: shape, known camps and ids, the spine rule, links that are real links.
+     Everything is trimmed to size; unknown fields are dropped. Returns the clean plan that gets saved. */
+  function checkPlan(obj, course) {
+    const errs = [], warns = []; if (!obj || typeof obj !== "object" || Array.isArray(obj)) return { ok: false, errs: ["Not a plan object."], warns };
+    const cc = course && course.camps || null; if (!cc) warns.push("The course couldn't be loaded just now, so resource ids weren't checked.");
+    const pl = { version: Number(obj.version) || 1, checkpoint: str(obj.checkpoint, 80), summary: str(obj.summary, 600), updatedAt: str(obj.updatedAt, 30) || AA.todayISO(), modules: {} };
+    if (Array.isArray(obj.weeks)) pl.weeks = obj.weeks.slice(0, AA.TOTAL_WEEKS).map(w => str(w, 300));
+    const mods = obj.modules && typeof obj.modules === "object" && !Array.isArray(obj.modules) ? obj.modules : {};
+    const item = (x, k, ids) => { const e = { title: str(x.title, 140) }; const u = httpUrl(x.url); if (u) e.url = u; else if (x.url) errs.push((k ? k + ": " : "") + "\"" + str(x.title || x.url, 60) + "\" needs a full https:// link");
+      ["len", "why", "creator"].forEach(f => { const v = str(x[f], f === "why" ? 300 : 80); if (v) e[f] = v; });
+      const r = str(x.replaces, 60); if (r && ids !== undefined) { e.replaces = r; if (ids && ids.indexOf(r) < 0) errs.push(k + ": replaces " + r + ", which isn't a resource of this camp"); }
+      if (!e.title) e.title = e.url || ""; return e; };
+    Object.keys(mods).forEach(k => { const m = MODULES.find(x => x.key === k); const d = mods[k] && typeof mods[k] === "object" ? mods[k] : {}; if (!m) { errs.push("Unknown camp " + k + " (camps are m00 to m23)"); return; }
       const depth = d.depth || "core"; if (!DEPTH.hasOwnProperty(depth)) { errs.push(k + ": depth must be core, expanded, lightened or skip"); return; }
-      if (depth === "skip" && m.core) errs.push(m.name + " is on the essential spine and cannot be skipped (lighten it instead)");
-      pl.modules[k] = { depth: depth, note: d.note ? String(d.note).slice(0, 400) : "", extra: Array.isArray(d.extra) ? d.extra.slice(0, 8).map(x => ({ title: String(x.title || "").slice(0, 120), url: /^https?:\/\//.test(x.url || "") ? String(x.url) : "", len: String(x.len || "").slice(0, 20) })) : [] }; });
-    if (pl.weeks === undefined) delete pl.weeks;
-    return { ok: !errs.length, errs, plan: pl };
+      if (depth === "skip" && m.core) errs.push(m.name + " is on the essential spine and can't be skipped (lighten it instead)");
+      ["drop", "extra", "exercises"].forEach(f => { if (d[f] != null && !Array.isArray(d[f])) errs.push(k + ": " + f + " must be a list"); });
+      const camp = cc && cc[k]; const itemIds = camp ? camp.items.map(i => i.id) : null, exIds = camp ? camp.exercises.map(e => e.id) : null;
+      const out = { depth: depth }; const note = str(d.note, 400); if (note) out.note = note;
+      const extra = arr(d.extra).slice(0, 8).filter(x => x && typeof x === "object").map(x => item(x, k, itemIds)).filter(e => e.title);
+      const drop = []; arr(d.drop).slice(0, 20).forEach(x => { const id = str(dropId(x), 60); if (!id || drop.some(y => y.id === id)) return; if (itemIds && itemIds.indexOf(id) < 0) { errs.push(k + ": can't drop " + id + "; it isn't a resource of this camp"); return; } const why = x && typeof x === "object" ? str(x.why, 200) : ""; drop.push(why ? { id: id, why: why } : { id: id }); });
+      extra.forEach(e => { if (e.replaces && !drop.some(y => y.id === e.replaces) && (!itemIds || itemIds.indexOf(e.replaces) >= 0)) drop.push({ id: e.replaces, why: "replaced by " + e.title }); });
+      const exs = arr(d.exercises).slice(0, 6).filter(x => x && typeof x === "object" && str(x.text, 1000)).map(x => { const e = { text: str(x.text, 1000) }; const r = str(x.replaces, 40); if (r) { e.replaces = r; if (exIds && exIds.indexOf(r) < 0) errs.push(k + ": replaces exercise " + r + ", which isn't one of this camp's"); } return e; });
+      if (camp && m.core && camp.items.length && camp.items.every(i => drop.some(y => y.id === i.id)) && !extra.length) errs.push(m.name + " is on the spine: keep at least one of its resources or add a replacement");
+      if (extra.length) out.extra = extra; if (drop.length) out.drop = drop; if (exs.length) out.exercises = exs;
+      const ready = str(d.ready, 400); if (ready) out.ready = ready;
+      pl.modules[k] = out; });
+    if (obj.sideCamps != null && !Array.isArray(obj.sideCamps)) errs.push("sideCamps must be a list");
+    const side = [];
+    arr(obj.sideCamps).slice(0, 12).forEach((s, i) => { if (!s || typeof s !== "object") return; const id = str(s.id, 30).toLowerCase(); const where = "Side camp " + (id || "#" + (i + 1));
+      if (!/^[a-z0-9][a-z0-9-]{0,29}$/.test(id)) { errs.push(where + ": id must be short, lowercase letters, numbers and dashes"); return; }
+      if (side.some(x => x.id === id)) { errs.push(where + ": id used twice"); return; }
+      if (!MODULES.some(m => m.key === s.after)) { errs.push(where + ": after must be a camp key, m00 to m23"); return; }
+      const t = str(s.title, 120); if (!t) { errs.push(where + ": needs a title"); return; }
+      const o = { id: id, after: s.after, title: t }; const h = Number(s.hours); if (s.hours != null && isFinite(h) && h > 0 && h <= 60) o.hours = Math.round(h * 2) / 2;
+      const note = str(s.note, 400); if (note) o.note = note; const ex = str(s.exercise, 1000); if (ex) o.exercise = ex;
+      const items = arr(s.items).slice(0, 8).filter(x => x && typeof x === "object").map(x => item(x, "", undefined)).filter(e => e.title); if (items.length) o.items = items;
+      side.push(o); });
+    if (side.length) pl.sideCamps = side;
+    return { ok: !errs.length, errs: errs, warns: warns, plan: pl };
   }
   let offered = null;
-  function offerPlan(obj, source) {
-    const r = checkPlan(obj); offered = r.ok ? r.plan : null; const card = $("planOffer"); card.hidden = false;
+  async function offerPlan(obj, source, fail) {
+    const card = $("planOffer"); card.hidden = false; $("offerApply").disabled = true;
+    const course = obj ? await courseData() : null; if (course) COURSE = course;
+    const r = obj ? checkPlan(obj, course) : { ok: false, errs: [fail || "This plan can't be read."], warns: [] }; offered = r.ok ? r.plan : null;
     $("offerMeta").textContent = (source || "") + (r.ok ? " · v" + r.plan.version + (r.plan.checkpoint ? " · " + r.plan.checkpoint : "") : "");
     $("offerText").textContent = r.ok ? (r.plan.summary || "A new plan for the rest of the climb.") : "This plan can't be applied as written.";
-    $("offerChanges").innerHTML = r.ok ? planChanges(r.plan).map(esc).join("<br>") : ""; $("offerErr").hidden = r.ok; $("offerErr").innerHTML = r.errs.map(esc).join("<br>"); $("offerApply").disabled = !r.ok;
+    $("offerChanges").innerHTML = r.ok ? planChanges(r.plan).map(esc).join("<br>") + (r.warns.length ? '<div class="muted" style="margin-top:6px">' + r.warns.map(esc).join("<br>") + "</div>" : "") : "";
+    $("offerErr").hidden = r.ok; $("offerErr").innerHTML = r.errs.map(esc).join("<br>"); $("offerApply").disabled = !r.ok;
     card.scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "start" });
   }
-  $("offerApply").addEventListener("click", () => { if (!offered || !AA.requireSignIn("apply a plan")) return; AA.setPlan(offered); offered = null; $("planOffer").hidden = true; if (location.hash.indexOf("plan=") >= 0) history.replaceState(null, "", location.pathname); render(); toast("Plan v" + AA.plan().version + " applied"); });
+  $("offerApply").addEventListener("click", async () => { if (!offered || !AA.requireSignIn("apply a plan")) return; const c = COURSE || await courseData();
+    AA.applyPlan(offered, { courseVersion: c && c.version }); offered = null; $("planOffer").hidden = true; if (location.hash.indexOf("plan=") >= 0) history.replaceState(null, "", location.pathname); render(); toast("Plan v" + AA.plan().version + " applied · see it in My course"); });
   $("offerSkip").addEventListener("click", () => { offered = null; $("planOffer").hidden = true; if (location.hash.indexOf("plan=") >= 0) history.replaceState(null, "", location.pathname); });
-  $("planApplyBtn").addEventListener("click", () => { const t = $("planText").value.trim(); if (!t) return; let obj; try { obj = JSON.parse(t); } catch (e) { offerPlan(null, "pasted"); $("offerErr").textContent = "That isn't valid JSON: " + e.message; $("offerErr").hidden = false; return; } offerPlan(obj, "pasted"); });
+  $("planApplyBtn").addEventListener("click", () => { const t = $("planText").value.trim(); if (!t) return; let obj; try { obj = JSON.parse(t.replace(/^```(?:json)?\s*|\s*```$/g, "")); } catch (e) { offerPlan(null, "pasted", "That isn't valid JSON: " + e.message); return; } offerPlan(obj, "pasted"); });
   function planFromHash() { const m = /[#&]plan=([^&]+)/.exec(location.hash || ""); if (!m) return; let obj = null; const raw = m[1];
     try { obj = JSON.parse(decodeURIComponent(raw)); } catch (e) { try { const b = raw.replace(/-/g, "+").replace(/_/g, "/"); obj = JSON.parse(decodeURIComponent(escape(atob(b + "===".slice((b.length + 3) % 4))))); } catch (e2) { obj = null; } }
-    if (obj) setTimeout(() => offerPlan(obj, "from a link"), 300); else { offerPlan(null, "from a link"); $("offerErr").textContent = "The link's plan couldn't be read. Ask your professor for the JSON and paste it under Professor instead."; $("offerErr").hidden = false; } }
+    if (obj) setTimeout(() => offerPlan(obj, "from a link"), 300); else offerPlan(null, "from a link", "The link's plan couldn't be read. Ask your professor for the JSON and paste it under Professor instead."); }
   planFromHash(); window.addEventListener("hashchange", planFromHash);
 
   /* Signed-out climber selector. */

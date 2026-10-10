@@ -12,7 +12,7 @@ window.AA = (function () {
   /* A read-only "view" overlay: another climber's data, kept apart from this browser's own working copy so it can
      never be merged or pushed into the signed-in account. While viewing, the getters below read the overlay. */
   let viewing = false;
-  function setView(d) { d = d || {}; store.set("view.modules", d.modules || {}); store.set("view.checkins", d.checkins || []); store.set("view.sessions", d.sessions || []); store.set("view.profile", d.profile || {}); store.set("view.plan", d.plan || null); viewing = true; }
+  function setView(d) { d = d || {}; store.set("view.modules", d.modules || {}); store.set("view.checkins", d.checkins || []); store.set("view.sessions", d.sessions || []); store.set("view.profile", d.profile || {}); store.set("view.plan", d.plan || null); store.set("view.planlog", d.planlog || []); viewing = true; }
   function clearView() { viewing = false; }
   function isViewing() { return viewing; }
   function vk(k) { return viewing ? "view." + k : k; }
@@ -22,7 +22,8 @@ window.AA = (function () {
     checkins() { const c = store.get("checkins", []); return Array.isArray(c) ? c : []; },
     sessions() { const s = store.get("sessions", []); return Array.isArray(s) ? s : []; },
     profile() { const p = store.get("profile", {}); return p && typeof p === "object" ? p : {}; },
-    plan() { const p = store.get("plan", null); return p && typeof p === "object" && p.modules ? p : null; }
+    plan() { const p = store.get("plan", null); return p && typeof p === "object" && p.modules ? p : null; },
+    planlog() { const l = store.get("planlog", []); return Array.isArray(l) ? l.filter(e => e && e.at && e.plan) : []; }
   };
   const PLAN = [
     "Phase 0 + terminal: Karpathy talk, NetworkChuck, WSL/Homebrew. Deliverable: learning contract.",
@@ -62,6 +63,17 @@ window.AA = (function () {
   /* The professor's plan (see professor.html): depth per module, optional week text, notes. null = the default course. */
   function plan() { const p = store.get(vk("plan"), null); return p && typeof p === "object" && p.modules ? p : null; }
   function setPlan(p) { store.set("plan", p); }
+  /* Every plan ever applied, oldest first: [{ at: ms, plan }]. The one in force is also the "plan" key. */
+  function planHistory() { const l = store.get(vk("planlog"), []); return Array.isArray(l) ? l.filter(e => e && e.at && e.plan && e.plan.modules) : []; }
+  /* Apply a plan: stamp when, and which course version it was made against, then keep it in the history too. */
+  function applyPlan(p, opt) {
+    opt = opt || {}; const at = Date.now();
+    const q = Object.assign({}, p, { appliedAt: new Date(at).toISOString() });
+    if (opt.courseVersion) q.courseVersion = opt.courseVersion;
+    if (opt.reappliedFrom) q.reappliedFrom = opt.reappliedFrom; else delete q.reappliedFrom;
+    const log = own.planlog().concat([{ at: at, plan: q }]); while (log.length > 30) log.shift();
+    store.set("planlog", log); store.set("plan", q); return q;
+  }
   function weekPlan(n) { const p = plan(); const w = p && Array.isArray(p.weeks) && p.weeks[n - 1]; return w || PLAN[n - 1] || ""; }
   function fmtDate(iso) { if (!iso) return ""; const p = iso.split("-"); if (p.length < 3) return iso; const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+p[1] - 1]; return (+p[2]) + " " + m + " " + p[0]; }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -75,7 +87,7 @@ window.AA = (function () {
   function nav(active) {
     const el = document.createElement("div"); el.className = "nav";
     el.innerHTML = '<div class="nav-in"><a class="brand" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20 9 7l4 6 2-3 7 10Z" fill="var(--accent)"/><path d="M9 7l2 3-2 1-2-1Z" fill="var(--snow)"/></svg><span>The Agent\'s Ascent</span></a>' +
-      '<nav><a href="index.html" data-p="home">Home</a><a href="course.html" data-p="course">Course</a><a href="ascent.html" data-p="ascent">Ascent</a></nav>' +
+      '<nav><a href="index.html" data-p="home">Home</a><a href="mycourse.html" data-p="course">My course</a><a href="ascent.html" data-p="ascent">Ascent</a></nav>' +
       '<button class="theme" type="button" id="themeBtn" aria-label="Toggle light and dark theme" title="Theme">◐</button>' +
       '<a class="avatar" id="navAvatar" href="profile.html" aria-label="My profile" title="My profile"></a></div>';
     document.body.prepend(el);
@@ -160,7 +172,7 @@ window.AA = (function () {
 
   function exportJSON() {
     const ss = own.sessions();
-    return JSON.stringify({ app: "agents-ascent", version: 1, exportedAt: new Date().toISOString(), week: currentWeek(), profile: own.profile(), plan: own.plan(), modules: own.modules(), checkins: own.checkins(), sessions: ss, totals: { trackedMinutes: ss.reduce((a, s) => a + (Number(s.mins) || 0), 0), sessionCount: ss.length } }, null, 2);
+    return JSON.stringify({ app: "agents-ascent", version: 1, exportedAt: new Date().toISOString(), week: currentWeek(), profile: own.profile(), plan: own.plan(), planlog: own.planlog(), modules: own.modules(), checkins: own.checkins(), sessions: ss, totals: { trackedMinutes: ss.reduce((a, s) => a + (Number(s.mins) || 0), 0), sessionCount: ss.length } }, null, 2);
   }
   function importJSON(text, mode) {
     let j; try { j = JSON.parse(text); } catch (e) { return { ok: false, error: "That isn't valid JSON." }; }
@@ -175,6 +187,6 @@ window.AA = (function () {
   }
   async function copyText(text) { try { await navigator.clipboard.writeText(text); return true; } catch (e) { return false; } }
 
-  return { store, own, DEFAULT_START, TOTAL_WEEKS, PLAN, todayISO, currentWeek, startISO, startDate, weekPlan, profile, setProfile, plan, setPlan, setView, clearView, isViewing, fmtDate, uid, esc, applyTheme, toggleTheme, nav, sessions, tracker, startSession, stopSession, deleteSession, minsToday, minsThisWeek, fmtMins, hms, toast, canEdit, requireSignIn, mountTracker, modules, setModules, checkins, setCheckins, exportJSON, importJSON, copyText };
+  return { store, own, DEFAULT_START, TOTAL_WEEKS, PLAN, todayISO, currentWeek, startISO, startDate, weekPlan, profile, setProfile, plan, setPlan, planHistory, applyPlan, setView, clearView, isViewing, fmtDate, uid, esc, applyTheme, toggleTheme, nav, sessions, tracker, startSession, stopSession, deleteSession, minsToday, minsThisWeek, fmtMins, hms, toast, canEdit, requireSignIn, mountTracker, modules, setModules, checkins, setCheckins, exportJSON, importJSON, copyText };
 })();
 AA.applyTheme();

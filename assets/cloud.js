@@ -32,12 +32,22 @@
       if (user) pull(); else pullPublic();
       expedition();
     });
-    window.addEventListener("aa:store", e => { if (!user || pulling) return; const k = e.detail && e.detail.key; if (KIND[k]) schedulePush(k); });
+    window.addEventListener("aa:store", e => { if (!user || pulling) return; let k = e.detail && e.detail.key; if (k === "planlog") k = "plan"; if (KIND[k]) schedulePush(k); });
     AA.cloud.signIn = signIn; AA.cloud.signOut = () => sb.auth.signOut(); AA.cloud.pull = () => (user ? pull() : pullPublic());
     /* View a climber's rows read-only (works signed in or out). "me" or your own id returns to your working copy. */
     AA.cloud.viewAs = id => { const u = AA.cloud.user; if (u && (!id || id === "me" || id === u.id)) { AA.clearView(); AA.cloud.viewId = null; window.dispatchEvent(new CustomEvent("aa:auth")); window.dispatchEvent(new CustomEvent("aa:progress")); window.dispatchEvent(new CustomEvent("aa:sessions")); return Promise.resolve(); } if (!AA.cloud.user) AA.store.set("viewId", id); return viewClimber(id); };
     AA.cloud.refreshExpedition = expedition;
     AA.cloud.rpc = (fn, args) => sb.rpc(fn, args || {});
+    /* The shared course (ids of every resource and exercise, per camp), loaded once: used to check a plan before it's applied. */
+    let coursePromise = null;
+    AA.cloud.course = () => coursePromise || (coursePromise = Promise.all([
+      sb.from("course_meta").select("version,released").eq("id", 1).maybeSingle(),
+      sb.from("course_camps").select("key,title,core,items,exercises,changed_in").order("pos")
+    ]).then(([m, c]) => { if (m.error || c.error || !c.data || !c.data.length) { coursePromise = null; return null; }
+      const camps = {}; c.data.forEach(r => { camps[r.key] = { title: r.title, core: r.core, changed_in: r.changed_in, items: (r.items || []).map(i => ({ id: i.id, title: i.title })), exercises: (r.exercises || []).map(e => ({ id: e.id, text: e.text })) }; });
+      return { version: m.data ? m.data.version : null, released: m.data ? m.data.released : null, camps: camps }; }).catch(() => { coursePromise = null; return null; }));
+    /* One climber's course with their plan layered on (uid null = the shared course as written). */
+    AA.cloud.courseFor = uid => sb.rpc("course_for", { uid: uid || null });
     AA.cloud.openPanel = () => { if (!ui) return; const p = ui.querySelector("#syncPanel"); p.hidden = false; paint(); const em = p.querySelector("#syncEmail"); if (em) em.focus(); };
   }
 
@@ -91,7 +101,8 @@
     if (kind === "checkins") return o.checkins().filter(c => c && c.id).map(c => ({ user_id: user.id, kind: "checkin", key: String(c.id), data: c }));
     if (kind === "sessions") return o.sessions().filter(x => x && x.id).map(x => ({ user_id: user.id, kind: "session", key: String(x.id), data: x }));
     if (kind === "profile") { const p = o.profile(); return Object.keys(p).length ? [{ user_id: user.id, kind: "profile", key: "me", data: p }] : []; }
-    if (kind === "plan") { const p = o.plan(); return p ? [{ user_id: user.id, kind: "plan", key: "current", data: p }] : []; }
+    if (kind === "plan") { const p = o.plan(); const rows = p ? [{ user_id: user.id, kind: "plan", key: "current", data: p }] : [];
+      o.planlog().forEach(e => rows.push({ user_id: user.id, kind: "plan", key: "h" + e.at, data: e })); return rows; }
     return [];
   }
 
@@ -109,6 +120,8 @@
     } catch (err) { const m = err.message || "error"; status("Couldn't save (" + m + "). Will retry on the next change.", true); synced(kind, false, m); }
   }
 
+  /* Plan history rows (key "h<ms>") → [{ at, plan }], oldest first. */
+  function historyOf(planRows) { return Object.keys(planRows).filter(k => /^h\d+$/.test(k)).map(k => planRows[k]).filter(e => e && e.at && e.plan).sort((a, b) => a.at - b.at); }
   function group(data) { const c = { module: {}, checkin: {}, session: {}, profile: {}, plan: {} }; data.forEach(r => { if (c[r.kind]) c[r.kind][r.key] = r.data; }); return c; }
 
   /* Merge cloud rows into the signed-in working copy: cloud wins per module/profile/plan; check-ins and sessions union by id. */
@@ -123,6 +136,8 @@
       AA.store.set("sessions", Object.values(ss).sort((a, b) => (b.start || 0) - (a.start || 0)));
       if (cloud.profile.me) AA.setProfile(Object.assign({}, o.profile(), cloud.profile.me));
       if (cloud.plan.current) AA.setPlan(cloud.plan.current);
+      const log = {}; o.planlog().forEach(e => { log[e.at] = e; }); historyOf(cloud.plan).forEach(e => { log[e.at] = e; });
+      AA.store.set("planlog", Object.values(log).sort((a, b) => a.at - b.at));
     } finally { pulling = false; }
     window.dispatchEvent(new CustomEvent("aa:progress")); window.dispatchEvent(new CustomEvent("aa:sessions"));
     return cloud;
@@ -147,7 +162,7 @@
     const { data, error } = await q;
     if (error) { status("Couldn't read the database: " + error.message, true); return; }
     const c = group(data);
-    AA.setView({ modules: c.module, checkins: Object.values(c.checkin).sort((a, b) => (b.created || 0) - (a.created || 0)), sessions: Object.values(c.session).sort((a, b) => (b.start || 0) - (a.start || 0)), profile: c.profile.me || {}, plan: c.plan.current || null });
+    AA.setView({ modules: c.module, checkins: Object.values(c.checkin).sort((a, b) => (b.created || 0) - (a.created || 0)), sessions: Object.values(c.session).sort((a, b) => (b.start || 0) - (a.start || 0)), profile: c.profile.me || {}, plan: c.plan.current || null, planlog: historyOf(c.plan) });
     window.dispatchEvent(new CustomEvent("aa:auth")); window.dispatchEvent(new CustomEvent("aa:progress")); window.dispatchEvent(new CustomEvent("aa:sessions"));
     status("Showing " + ((c.profile.me && c.profile.me.name) || "a climber") + "'s synced copy (read-only).");
   }
@@ -157,7 +172,7 @@
     const { data, error } = await sb.from("progress").select("user_id,kind,key,data").in("kind", ["profile", "module"]);
     if (error) return;
     const by = {};
-    data.forEach(r => { const u = by[r.user_id] || (by[r.user_id] = { id: r.user_id, name: "", start: "", public: true, done: {} }); if (r.kind === "profile") { u.name = r.data.name || ""; u.start = r.data.start || ""; u.public = r.data.public !== false; u.goal = r.data.goal || ""; u.photo = r.data.photo || ""; } else if (r.data && (r.data.status === "done" || r.data.status === "skip")) u.done[r.key] = true; });
+    data.forEach(r => { const u = by[r.user_id] || (by[r.user_id] = { id: r.user_id, name: "", start: "", public: true, done: {} }); if (r.kind === "profile") { u.name = r.data.name || ""; u.start = r.data.start || ""; u.public = r.data.public !== false; u.goal = r.data.goal || ""; u.photo = r.data.photo || ""; } else if (/^m\d\d$/.test(r.key) && r.data && (r.data.status === "done" || r.data.status === "skip")) u.done[r.key] = true; });
     AA.cloud.climbers = Object.values(by).filter(u => u.public).sort((a, b) => (a.name || "zz").localeCompare(b.name || "zz"));
     window.dispatchEvent(new CustomEvent("aa:expedition"));
   }

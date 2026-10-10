@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Agent's Ascent — My course</title>
+<meta name="description" content="The course every climber shares, with your professor's changes on top: what was added, dropped or swapped for you, and any side camps.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 20 9 7l4 6 2-3 7 10Z' fill='%23f0a04b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Nunito+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('aa.v1.theme'));if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+</head>
+<body>
+<div class="wrap" style="padding-top:20px">
+  <header>
+    <div class="eyebrow" id="mcEyebrow">The course</div>
+    <h1 id="mcTitle">My course</h1>
+    <p class="muted" style="margin:4px 0 0;max-width:64ch">The course every climber shares, with your professor's changes on top. When the course is corrected, the fix reaches you; what your professor changed for you stays marked, so you can always tell checked material from additions.</p>
+  </header>
+
+  <div class="authbar" id="mcBar"><span id="mcWho">Loading the course…</span><span class="viewsel"><label for="mcSel" class="muted" style="font-size:12px">Course for</label><select id="mcSel" aria-label="Whose course to show"></select></span></div>
+
+  <section class="card mc-plan" id="plans">
+    <div class="card-h"><h2>The plan in force</h2><span class="eyebrow" id="mcCourseV"></span></div>
+    <div id="mcPlan" class="muted" style="font-size:14px">…</div>
+    <div class="mc-legend" aria-label="Legend">
+      <span><i class="lg course"></i>Course material, the same for everyone</span>
+      <span><i class="lg pro"></i>Added for you by your professor</span>
+      <span><i class="lg drop"></i>Dropped for you</span>
+      <span><i class="lg side"></i>Side camp (no test)</span>
+    </div>
+    <details id="mcHist" hidden><summary class="muted">Plans applied before</summary><ol class="mc-hist" id="mcHistList"></ol></details>
+    <div class="mc-prof" id="mcProf" hidden><span class="muted">Your professor reads exactly this page, as text:</span> <a id="mcProfLink" href="#" target="_blank" rel="noopener">open the text version</a> <button class="ghost" type="button" id="mcProfCopy">Copy the link</button></div>
+  </section>
+
+  <div class="mc-tools">
+    <div class="mc-seg" role="group" aria-label="Which camps to show"><button type="button" class="on" data-f="all" aria-pressed="true">All camps</button><button type="button" data-f="changed" aria-pressed="false">Changed for me</button></div>
+    <label class="mc-jump"><span class="muted">Jump to</span><select id="mcJump" aria-label="Jump to a camp"></select></label>
+  </div>
+
+  <div id="mcBody" class="mc-body"><div class="empty">Loading the course from the database…</div></div>
+
+  <footer>The general sections (TL;DR, how to use the course, the week-by-week schedules, day-one toolkit and costs, glossary, skip list and sources) are in <a href="course.html">the full course document</a>. ✔ means the resource was opened and checked when the course was researched; ◐ means an official or well-known page that wasn't opened individually, so check it loads.</footer>
+</div>
+<script src="assets/site.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/cloud.js"></script>
+<script src="assets/mycourse.js"></script>
+</body>
+</html>

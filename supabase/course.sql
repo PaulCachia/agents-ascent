@@ -118,8 +118,8 @@ returns jsonb language sql stable set search_path = public as $$
                       'creator', nullif(x->>'creator', ''), 'why', nullif(x->>'why', ''), 'replaces', nullif(x->>'replaces', ''))) order by o)
                    from pitems), '[]'::jsonb),
     'exercises',
-      coalesce((select jsonb_agg(e || jsonb_build_object('source', 'course',
-                                   'replaced', exists (select 1 from pex where pex.e->>'replaces' = e->>'id')) order by t.o)
+      coalesce((select jsonb_agg(t.e || jsonb_build_object('source', 'course',
+                                   'replaced', exists (select 1 from pex where pex.e->>'replaces' = t.e->>'id')) order by t.o)
                 from jsonb_array_elements(c.exercises) with ordinality t(e, o)), '[]'::jsonb)
       || coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('id', c.key || '.px' || o, 'source', 'professor',
                       'text', e->>'text', 'replaces', nullif(e->>'replaces', ''))) order by o) from pex), '[]'::jsonb),

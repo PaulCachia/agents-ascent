@@ -19,11 +19,34 @@ python3 -m http.server 8000
 
 ## Updating the course text
 
-Edit `build/course.md`, then:
+The course lives in two places built from the same source, `build/course.md`: the readable page
+(`course.html`) and the database (one row per camp, with a stable id for every resource and exercise). Edit
+`build/course.md`, then:
 
 ```bash
-python3 build/build_course.py
+python3 build/build_course.py      # course.html
+python3 build/build_course_db.py   # supabase/course_data.sql + build/course.json; bumps the course version
 ```
+
+Run `supabase/course_data.sql` in the Supabase SQL editor (after `supabase/course.sql` the first time). Every
+climber gets the fix at once; each camp records the version it last changed in (`changed_in`), and a camp that
+changed after a climber's plan was made is flagged on their My course page and to their professor. Ids are
+built from titles, so renaming a resource changes its id: check no applied plan uses the old one.
+
+### The course and each climber's layer
+
+`supabase/course.sql` holds `course_meta`, `course_phases` and `course_camps` (everyone reads, nobody writes
+through the API) and two read-only functions:
+
+- `course_for(uid)` returns the course as JSON with that climber's plan applied. `mycourse.html` draws it.
+- `course_md(uid, camp)` returns the same as Markdown for the professor, from one link:
+  `/rest/v1/rpc/course_md?uid=<id>&apikey=<key>` (add `&camp=m05` for one camp).
+
+A plan (version 3) can, per camp, set a depth, add a note, `drop` resources by id, add `extra` resources
+(`replaces` drops the original), add or replace `exercises`, and add to the `ready` check; `sideCamps` adds
+extra camps (no test) after a given camp. The Ascent page checks every plan against the course before it can be
+applied. Applying keeps the old plan: `plan/current` is the plan in force and `plan/h<timestamp>` rows are every
+plan ever applied, which My course lists with a link to use one again.
 
 ## Where progress is stored
 
