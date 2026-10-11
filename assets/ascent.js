@@ -217,13 +217,34 @@
     $("hdrEyebrow").textContent = (AA.isViewing() ? "Viewing " + (p.name ? p.name + "'s" : "a climber's") + " climb" : nm + " 26-week expedition") + " · started " + st;
   }
 
-  /* Other climbers on the same mountain (public profiles), drawn beside the trail with their names. */
+  /* Other climbers on the same mountain (public profiles): the same climber as yours, a little smaller, each in
+     their own colour, with their photo as the head when they've added one. Tap one to look at their climb. */
+  /* No orange or cream: those are your own climber's colours. */
+  const CLIMBER_COLOURS = ["#3b8beb", "#9a6cf0", "#e2588f", "#2fb37f", "#c2453e"];
+  function climberColours(list) { const out = {}, used = new Set();
+    list.slice().sort((a, b) => (a.id < b.id ? -1 : 1)).forEach(u => { let h = 0; for (const ch of String(u.id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+      let k = h % CLIMBER_COLOURS.length; for (let t = 0; t < CLIMBER_COLOURS.length && used.has(k); t++) k = (k + 1) % CLIMBER_COLOURS.length;
+      used.add(k % CLIMBER_COLOURS.length); out[u.id] = CLIMBER_COLOURS[k]; });
+    return out; }
+  function otherFigure(j, photo) {
+    const head = photo
+      ? '<clipPath id="oc-' + j + '"><circle cx="0" cy="-32" r="9.5"/></clipPath><image href="' + photo + '" x="-9.5" y="-41.5" width="19" height="19" preserveAspectRatio="xMidYMid slice" clip-path="url(#oc-' + j + ')"/><circle class="ob-ring" cx="0" cy="-32" r="10"/>'
+      : '<circle class="ob-c" cx="0" cy="-31" r="8"/><circle class="ob-eye" cx="-3" cy="-32" r="1.7"/><circle class="ob-eye" cx="3" cy="-32" r="1.7"/><line class="ob-ant" x1="0" y1="-39" x2="0" y2="-45"/><circle class="ob-tip" cx="0" cy="-46" r="2.2"/>';
+    return '<ellipse class="bot-shadow" cx="0" cy="2" rx="9" ry="3"/><rect class="ob-c" x="-6" y="-8" width="4" height="9" rx="2"/><rect class="ob-c" x="2" y="-8" width="4" height="9" rx="2"/>' +
+      '<rect class="ob-pack" x="-13" y="-22" width="6" height="11" rx="3"/><rect class="ob-c" x="-8" y="-24" width="16" height="17" rx="6"/>' + head; }
   function paintOthers() {
-    const g = $("others"); const c = AA.cloud || {}; const list = c.climbers || []; const me = AA.isViewing() ? c.viewId : (c.user ? c.user.id : null);
-    g.innerHTML = list.filter(u => u.id !== me).map((u, j) => { let i = 0; for (; i < MODULES.length; i++) { if (!u.done[MODULES[i].key]) break; } if (i >= MODULES.length) i = MODULES.length - 1;
-      const p = campPts[i]; const dx = 14 + j * 16; const cx = p.x + dx, cy = p.y - 7;
-      const face = (u.photo && /^data:image\//.test(u.photo)) ? '<clipPath id="oc-' + j + '"><circle cx="' + cx + '" cy="' + cy + '" r="6.5"/></clipPath><image href="' + u.photo + '" x="' + (cx - 6.5) + '" y="' + (cy - 6.5) + '" width="13" height="13" preserveAspectRatio="xMidYMid slice" clip-path="url(#oc-' + j + ')"/><circle class="ring" cx="' + cx + '" cy="' + cy + '" r="7"/>' : '<circle cx="' + cx + '" cy="' + cy + '" r="5"/>';
-      return '<g class="other-climber">' + face + '<text x="' + cx + '" y="' + (cy - 10) + '">' + esc(u.name || "climber") + '</text></g>'; }).join("");
+    const g = $("others"); const c = AA.cloud || {}; const all = c.climbers || []; const me = AA.isViewing() ? c.viewId : (c.user ? c.user.id : null);
+    const col = climberColours(all); const slots = {}; if (lastPos !== null) slots[lastPos] = 1;
+    const OFF = [0, 30, -30, 60, -60, 90, -90];
+    g.innerHTML = all.filter(u => u.id !== me).map((u, j) => {
+      let i = 0; for (; i < MODULES.length; i++) { if (!u.done[MODULES[i].key]) break; } const passed = i; if (i >= MODULES.length) i = MODULES.length - 1;
+      const slot = slots[i] || 0; slots[i] = slot + 1; const p = campPts[i]; const x = p.x + OFF[slot % OFF.length], y = p.y;
+      const photo = u.photo && /^data:image\//.test(u.photo) ? u.photo : ""; const name = u.name || "A climber";
+      const tip = name + ": " + passed + " of " + MODULES.length + " camps passed";
+      return '<g class="other-climber" data-id="' + esc(u.id) + '" style="--c:' + col[u.id] + '" transform="translate(' + x.toFixed(1) + "," + y.toFixed(1) + ')" tabindex="0" role="button" aria-label="' + esc(tip + ". Open their climb") + '">' +
+        "<title>" + esc(tip) + '</title><g transform="scale(.86)">' + otherFigure(j, photo) + "</g>" +
+        '<text x="0" y="' + ((photo ? -50 : -47) - (slot % 2 ? 13 : 0)) + '">' + esc(name) + "</text></g>"; }).join("");
+    g.querySelectorAll(".other-climber").forEach(el => { const go = () => AA.cloud.viewAs(el.dataset.id); el.addEventListener("click", go); el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); });
   }
 
   /* Professor link button and the climber's head follow the profile (edited on profile.html). */
