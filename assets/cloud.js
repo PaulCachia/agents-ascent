@@ -37,6 +37,8 @@
     /* View a climber's rows read-only (works signed in or out). "me" or your own id returns to your working copy. */
     AA.cloud.viewAs = id => { const u = AA.cloud.user; if (u && (!id || id === "me" || id === u.id)) { AA.clearView(); AA.cloud.viewId = null; window.dispatchEvent(new CustomEvent("aa:auth")); window.dispatchEvent(new CustomEvent("aa:progress")); window.dispatchEvent(new CustomEvent("aa:sessions")); return Promise.resolve(); } if (!AA.cloud.user) AA.store.set("viewId", id); return viewClimber(id); };
     AA.cloud.refreshExpedition = expedition;
+    /* Climbers who joined or moved while this tab sat open appear when you come back to it. */
+    let expAt = 0; document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && Date.now() - expAt > 30000) { expAt = Date.now(); expedition(); } });
     AA.cloud.rpc = (fn, args) => sb.rpc(fn, args || {});
     /* The shared course (ids of every resource and exercise, per camp), loaded once: used to check a plan before it's applied. */
     let coursePromise = null;

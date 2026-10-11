@@ -37,13 +37,15 @@ create policy "owner full access" on public.progress
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
--- Read-only access with the public (anon) key, so Claude can read progress
--- without holding a secret. This exposes module statuses, notes, check-ins and
--- session notes to anyone who has the project URL and anon key. If you'd rather
--- keep them private, drop this policy and give Claude the service_role key instead.
+-- Read-only access for everyone, so Claude can read progress without holding a
+-- secret and climbers see each other on the mountain. It covers signed-in climbers
+-- too (authenticated): with anon alone, signing in hid every other climber.
+-- This exposes module statuses, notes, check-ins and session notes to anyone who
+-- has the project URL and public key. If you'd rather keep them private, drop this
+-- policy and give Claude the service_role key instead.
 drop policy if exists "public read" on public.progress;
 create policy "public read" on public.progress
-  for select to anon
+  for select to anon, authenticated
   using (true);
 
 -- A compact view Claude can read in one call.
