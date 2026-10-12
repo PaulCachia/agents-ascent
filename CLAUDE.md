@@ -1,9 +1,9 @@
 # Working on this repo with Claude
 
 This is the public code for The Agent's Ascent. The reasoning behind it (decisions, incidents, the playbook and the
-current Handover) is in Paul's private build-log repo, `PaulCachia/ascent-buildlog`.
+current Handover) is in Paul's private build-log repo, `Unconventionalists/ascent-buildlog`.
 
-**Start of a session:** attach `PaulCachia/ascent-buildlog` and read `HANDOVER.md`, then the newest file in `log/`.
+**Start of a session:** attach `Unconventionalists/ascent-buildlog` and read `HANDOVER.md`, then the newest file in `log/`.
 Before changing an area, search its `decisions/` and `incidents/` indexes. If you can't reach the build log, ask Paul.
 
 **After shipping** (pushed to `main` and checked live): do the wrap-up in the build log
