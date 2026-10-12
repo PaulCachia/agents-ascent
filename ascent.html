@@ -19,6 +19,10 @@
       <h1>The Agent's Ascent</h1>
       <p class="muted" style="margin:4px 0 0;max-width:60ch">Each camp is a module from <a href="mycourse.html">your course</a>. Pass its checkpoint and the climber moves on. Four capstones are the flags; the summit is a real launch. Press ▶︎ in the corner to put study time on the clock.</p>
     </div>
+    <div class="hdr-prof" id="hdrProf" hidden>
+      <a class="prof-cta" id="hdrProfGo" href="#" target="_blank" rel="noopener"><span class="prof-ic" aria-hidden="true"></span><span id="hdrProfLabel">Talk to my professor</span></a>
+      <span class="muted" id="hdrProfSub">Opens with your progress written in</span>
+    </div>
   </header>
 
   <div class="authbar" id="authBar" hidden><span id="authText"></span><span class="viewsel" id="viewWrap" hidden><label for="viewSel" class="muted" style="font-size:12px">Climber</label><select id="viewSel" aria-label="Choose whose climb to view"></select></span><button class="primary" type="button" id="authBtn" data-opens-sync hidden>Sign in to edit here</button></div>
@@ -41,10 +45,10 @@
       <polygon class="snow" points="500,214 520,200 540,214 528,218 512,218" opacity=".9"/>
       <polygon class="snow" points="740,174 760,160 780,174 770,180 750,180" opacity=".9"/>
       <polygon class="mtn2" points="0,560 0,420 110,390 220,450 330,370 440,400 560,300 680,350 800,250 900,290 1000,210 1000,560"/>
-      <polygon class="mtn1" points="0,560 0,500 100,470 210,520 330,440 450,470 560,380 660,420 760,300 850,330 950,160 1000,230 1000,560"/>
-      <polygon class="snow" points="930,190 950,160 968,195 955,200 940,200" opacity=".95"/>
-      <path id="trail" class="trail" d="M 50 535 C 150 535 190 470 290 465 S 440 500 470 430 S 360 370 520 360 S 700 400 680 310 S 560 255 700 240 S 870 270 850 180 S 900 130 935 170"/>
-      <path id="trailDone" class="trail-done" d="M 50 535 C 150 535 190 470 290 465 S 440 500 470 430 S 360 370 520 360 S 700 400 680 310 S 560 255 700 240 S 870 270 850 180 S 900 130 935 170"/>
+      <polygon class="mtn1" points="0,560 0,500 100,470 210,520 330,440 450,470 560,380 660,420 760,300 850,330 950,118 1000,215 1000,560"/>
+      <polygon class="snow" points="928,155 950,118 970,160 956,166 941,166" opacity=".95"/>
+      <path id="trail" class="trail" d="M 50 535 C 150 535 190 470 290 465 S 440 500 470 430 S 360 370 520 360 S 700 400 680 310 S 560 255 700 240 S 880 280 870 215 S 900 150 948 112"/>
+      <path id="trailDone" class="trail-done" d="M 50 535 C 150 535 190 470 290 465 S 440 500 470 430 S 360 370 520 360 S 700 400 680 310 S 560 255 700 240 S 880 280 870 215 S 900 150 948 112"/>
       <g id="pad"></g>
       <g id="camps"></g>
       <g id="planMarks"></g>
@@ -74,26 +78,6 @@
       <div id="modList"></div>
     </section>
     <div style="display:grid;gap:20px;min-width:0">
-      <section class="card">
-        <div class="card-h"><h2>Check-ins</h2><span class="eyebrow">what you did · quiz · next focus</span></div>
-        <form class="ci" id="ciForm">
-          <label>Date<input type="date" id="ciDate" required></label>
-          <label>Extra hours (not on the clock)<input type="number" id="ciHours" min="0" step="0.5" placeholder="e.g. 2"></label>
-          <label class="full">What you did<input type="text" id="ciWhat" required placeholder="Finished CS50P lecture 2; built the API→CSV script"></label>
-          <label>Quiz<input type="text" id="ciQuiz" placeholder="e.g. 7/8"></label>
-          <label>Next focus<input type="text" id="ciNext" placeholder="Week 5: async fetcher"></label>
-          <div class="full"><button class="primary" type="submit" id="ciBtn">Log check-in</button></div>
-        </form>
-        <div class="ci-list" id="ciList"></div>
-      </section>
-      <section class="card">
-        <div class="card-h"><h2>Sessions on the clock</h2><span class="eyebrow">from the ▶︎ / ■ button</span></div>
-        <div class="sess" id="sessList"></div>
-      </section>
-      <section class="card">
-        <div class="card-h"><h2>Badges</h2><span class="eyebrow" id="badgeCount">0 of 14</span></div>
-        <div class="badges" id="badges"></div>
-      </section>
       <section class="card" id="profCard">
         <div class="card-h"><h2>Professor</h2><span class="eyebrow" id="profState">checking…</span></div>
         <p class="muted" style="margin:0 0 10px;font-size:13px" id="profText">Checking your sign-in…</p>
@@ -113,6 +97,26 @@
           </div>
           <textarea id="ioText" hidden aria-label="Progress export" spellcheck="false" style="margin-top:8px"></textarea>
         </details>
+      </section>
+      <section class="card">
+        <div class="card-h"><h2>Check-ins</h2><span class="eyebrow">what you did · quiz · next focus</span></div>
+        <form class="ci" id="ciForm">
+          <label>Date<input type="date" id="ciDate" required></label>
+          <label>Extra hours (not on the clock)<input type="number" id="ciHours" min="0" step="0.5" placeholder="e.g. 2"></label>
+          <label class="full">What you did<input type="text" id="ciWhat" required placeholder="Finished CS50P lecture 2; built the API→CSV script"></label>
+          <label>Quiz<input type="text" id="ciQuiz" placeholder="e.g. 7/8"></label>
+          <label>Next focus<input type="text" id="ciNext" placeholder="Week 5: async fetcher"></label>
+          <div class="full"><button class="primary" type="submit" id="ciBtn">Log check-in</button></div>
+        </form>
+        <div class="ci-list" id="ciList"></div>
+      </section>
+      <section class="card">
+        <div class="card-h"><h2>Sessions on the clock</h2><span class="eyebrow">from the ▶︎ / ■ button</span></div>
+        <div class="sess" id="sessList"></div>
+      </section>
+      <section class="card">
+        <div class="card-h"><h2>Badges</h2><span class="eyebrow" id="badgeCount">0 of 14</span></div>
+        <div class="badges" id="badges"></div>
       </section>
     </div>
   </div>

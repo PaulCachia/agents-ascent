@@ -127,7 +127,7 @@
     '<circle class="rocket-win" cx="0" cy="-22" r="3"/></g></g>'; })();
   campsG.innerHTML = MODULES.map((m, i) => { const p = campPts[i]; const r = m.cap ? 12 : 9; return '<g class="camp todo' + (m.cap ? " cap" : "") + '" data-i="' + i + '" tabindex="0" role="button" aria-label="' + esc(m.name) + '">' +
     '<circle class="pulse" cx="' + p.x + '" cy="' + p.y + '" r="11"/>' +
-    (m.cap ? '<line class="pole" x1="' + p.x + '" y1="' + (p.y - r) + '" x2="' + p.x + '" y2="' + (p.y - r - 22) + '"/><polygon class="flag" points="' + p.x + ',' + (p.y - r - 22) + ' ' + (p.x + 16) + ',' + (p.y - r - 17) + ' ' + p.x + ',' + (p.y - r - 12) + '"/>' : "") +
+    (m.cap ? '<line class="pole" x1="' + p.x + '" y1="' + (p.y - r) + '" x2="' + p.x + '" y2="' + (p.y - r - 22) + '"/><polygon class="flag" points="' + p.x + ',' + (p.y - r - 22) + ' ' + (p.x + (i === N - 1 ? -16 : 16)) + ',' + (p.y - r - 17) + ' ' + p.x + ',' + (p.y - r - 12) + '"/>' : "") +
     '<circle class="ring" cx="' + p.x + '" cy="' + p.y + '" r="' + r + '"/>' +
     '<text x="' + p.x + '" y="' + (p.y + 0.5) + '">' + (m.cap ? "★" : i + 1) + '</text></g>'; }).join("");
   campsG.querySelectorAll(".camp").forEach(c => { const go = () => { const i = +c.dataset.i; const row = document.querySelector('.mod[data-key="' + MODULES[i].key + '"]'); if (row) { row.scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "center" }); document.querySelectorAll(".mod.hi").forEach(x => x.classList.remove("hi")); row.classList.add("hi"); setTimeout(() => row.classList.remove("hi"), 2000); } }; c.addEventListener("click", go); c.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); });
@@ -288,7 +288,17 @@
     const go = $("profGo");
     if (p.professor && /^https?:\/\//.test(p.professor)) { const L = professorLink(p.professor, contextMessage()); go.href = L.href; go.setAttribute("target", "_blank"); go.removeAttribute("aria-disabled"); go.style.opacity = ""; go.title = L.prefill ? "Opens a new conversation with your progress already written in; press send" : "Opens your AI; your context is copied so you can paste it as the first message"; go.dataset.prefill = L.prefill ? "1" : "0"; }
     else { go.href = "profile.html"; go.removeAttribute("target"); go.setAttribute("aria-disabled", "true"); go.style.opacity = ".55"; go.title = "Add your professor's link on My profile"; go.dataset.prefill = "0"; }
+    paintHdrProf();
   }
+  /* The professor button at the top of the page, for your own climb: talk to it, or set it up if you haven't yet. */
+  function paintHdrProf() {
+    const box = $("hdrProf"), a = $("hdrProfGo"), go = $("profGo"); if (!box) return;
+    box.hidden = mode() !== "edit"; if (box.hidden) return;
+    const has = !go.getAttribute("aria-disabled");
+    if (has) { a.href = go.href; a.setAttribute("target", "_blank"); a.title = go.title; a.dataset.prefill = go.dataset.prefill; $("hdrProfLabel").textContent = "Talk to my professor"; $("hdrProfSub").textContent = go.dataset.prefill === "1" ? "Opens with your progress written in" : "Your progress is copied to paste in"; }
+    else { a.href = "professor.html"; a.removeAttribute("target"); a.title = "Set up your own professor: about 5 minutes"; a.dataset.prefill = "setup"; $("hdrProfLabel").textContent = "Set up my professor"; $("hdrProfSub").textContent = "About 5 minutes; it shapes the course around you"; }
+  }
+  $("hdrProfGo").addEventListener("click", () => { const a = $("hdrProfGo"); if (a.dataset.prefill === "setup") return; if (a.dataset.prefill === "1") { toast("Opening your professor with your progress written in — press send"); return; } AA.copyText(contextMessage()).then(okc => toast(okc ? "Context copied — paste it as your first message" : "Couldn't copy; use Copy my context")); });
   $("profGo").addEventListener("click", () => { const go = $("profGo"); if (go.dataset.prefill === "1") { toast("Opening your professor with your progress written in — press send"); return; } if (go.getAttribute("aria-disabled")) return; AA.copyText(contextMessage()).then(okc => toast(okc ? "Context copied — paste it as your first message" : "Couldn't copy; use Copy my context")); });
   $("profCopy").addEventListener("click", async () => { const okc = await AA.copyText(contextMessage()); toast(okc ? "Context copied — paste it into any AI" : "Copy was blocked by the browser"); });
 
@@ -593,7 +603,7 @@
     const m = mode(); const bar = $("authBar"), txt = $("authText"), btn = $("authBtn");
     const ro = m === "view"; document.body.classList.toggle("ro", ro);
     document.querySelectorAll("#modList select, #modList input, #ciForm input, #ciBtn").forEach(el => { el.disabled = ro; });
-    paintClimbers(); paintHeader();
+    paintClimbers(); paintHeader(); paintHdrProf();
     if (bar) {
       const c = AA.cloud || {}; const others = (c.climbers || []).filter(u => !c.user || u.id !== c.user.id);
       bar.className = "authbar" + (m === "view" ? " view" : m === "offline" ? " warn" : ""); bar.hidden = m === "local" || (m === "edit" && !others.length); btn.hidden = m !== "view";
