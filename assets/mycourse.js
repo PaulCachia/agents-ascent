@@ -64,10 +64,16 @@
     if (location.hash && !render.scrolled) { render.scrolled = true; setTimeout(() => reveal(decodeURIComponent(location.hash.slice(1))), 50); }
   }
 
+  /* Plans compared without their stamps (when applied, which course version). The Ascent page settles a waiting
+     plan that matches the one in force; here it's simply not announced. */
+  function canon(v) { return Array.isArray(v) ? "[" + v.map(canon).join(",") + "]" : v && typeof v === "object" ? "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}" : JSON.stringify(v === undefined ? null : v); }
+  function samePlan(a, b) { if (!a || !b) return false; const strip = p => { const q = Object.assign({}, p); ["appliedAt", "courseVersion", "reappliedFrom", "updatedAt"].forEach(k => delete q[k]); return canon(q); }; return strip(a) === strip(b); }
   /* A plan the professor sent through the connector and the climber hasn't decided on yet. */
   async function paintProposal() { const el = $("mcProposal"); const c = AA.cloud || {}; const me = ownId();
     if (!me || target !== me || !c.pendingProposal) { el.hidden = true; return; }
-    const p = await c.pendingProposal(); if (!p) { el.hidden = true; return; }
+    const p = await c.pendingProposal(); const cur = AA.plan();
+    const settled = p && cur && (samePlan(p.plan, cur) || (cur.appliedAt && new Date(cur.appliedAt) >= new Date(p.created_at) && p.plan && p.plan.version === cur.version && p.plan.summary === cur.summary));
+    if (!p || settled) { el.hidden = true; return; }
     el.hidden = false; el.innerHTML = "<b>Your professor sent you a new plan</b>" + (p.plan && p.plan.checkpoint ? " (" + esc(p.plan.checkpoint) + ")" : "") + ". Review and apply it on the Ascent →"; }
 
 

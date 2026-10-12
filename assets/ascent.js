@@ -318,12 +318,43 @@
       if (d && d.ready) bits.push("<b>Before moving on:</b> " + esc(d.ready));
       if (ex.length || dr.length || xs.length || (d && d.ready)) bits.push('<a href="mycourse.html#' + m.key + '">See it in My course →</a>');
       note.hidden = !bits.length; note.innerHTML = bits.join("<br>"); });
-    paintSideCamps(pl);
+    paintSideCamps(pl); paintMapMarks(pl);
     if (!pl) { bar.hidden = true; return; }
     const n = AA.planHistory().length;
     bar.hidden = false; $("planTitle").textContent = "Plan v" + (pl.version || 1) + (pl.checkpoint ? " · " + pl.checkpoint : "") + " · " + AA.fmtDate(String(pl.appliedAt || pl.updatedAt || "").slice(0, 10));
     $("planSummary").textContent = pl.summary || "";
     $("planDetail").innerHTML = (planChanges(pl).map(esc).join("<br>") || "No camp changes; the course applies as written.") + '<br><a href="mycourse.html#plans">' + (n > 1 ? "All " + n + " plans you've applied" : "Your plan history") + " →</a>";
+  }
+  /* The plan drawn on the mountain: a small badge on each camp the professor changed (+ expanded, − lightened,
+     × skipped, a dot for other changes such as added or swapped resources) and a tent on a short spur for each
+     side camp, between the camp it follows and the next one. Tap a tent to jump to its row. */
+  const marksG = $("planMarks");
+  function paintMapMarks(pl) {
+    const mods = (pl && pl.modules) || {}; let html = "", nCh = 0;
+    MODULES.forEach((m, i) => { const d = mods[m.key]; if (!d) return;
+      const depth = d.depth && DEPTH[d.depth] ? d.depth : "core"; const ex = arr(d.extra).length, dr = arr(d.drop).length, xs = arr(d.exercises).length;
+      if (depth === "core" && !ex && !dr && !xs && !d.note && !d.ready) return; nCh++;
+      const p = campPts[i], r = m.cap ? 12 : 9, cx = (p.x + r * .78).toFixed(1), cy = (p.y - r * .78).toFixed(1);
+      const glyph = depth === "expanded" ? "+" : depth === "lightened" ? "\u2212" : depth === "skip" ? "\u00d7" : "";
+      const what = [depth !== "core" ? DEPTH[depth].toLowerCase() : "", ex ? ex + " added" : "", dr ? dr + " dropped" : "", xs ? xs + " new exercise" + (xs > 1 ? "s" : "") : "", d.note ? "a note" : ""].filter(Boolean).join(", ");
+      html += '<g class="pm ' + depth + '"><title>' + esc(m.name + ", changed for you: " + what) + '</title><circle cx="' + cx + '" cy="' + cy + '" r="5.6"/>' +
+        (glyph ? '<text x="' + cx + '" y="' + cy + '">' + glyph + "</text>" : '<circle class="pm-dot" cx="' + cx + '" cy="' + cy + '" r="1.9"/>') + "</g>"; });
+    const per = {}; let nSide = 0;
+    arr(pl && pl.sideCamps).forEach(s => { const i = MODULES.findIndex(m => m.key === s.after); if (i < 0) return; const k = per[i] = (per[i] || 0) + 1; nSide++;
+      const a = campPts[i].len, b = i + 1 < N ? campPts[i + 1].len : Math.min(L, a + 40); const t = a + (b - a) / 2;
+      const p0 = trail.getPointAtLength(t), pa = trail.getPointAtLength(Math.min(L, t + 2)), pb = trail.getPointAtLength(Math.max(0, t - 2));
+      let tx = pa.x - pb.x, ty = pa.y - pb.y; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl; let nx = ty, ny = -tx; if (ny > 0) { nx = -nx; ny = -ny; }
+      const fan = [0, -22, 22, -44, 44][(k - 1) % 5], D = 28 + (k > 5 ? 24 : 0), x = p0.x + nx * D + tx * fan, y = p0.y + ny * D + ty * fan; const st = modOf("side:" + s.id).status; const f = n => n.toFixed(1);
+      html += '<g class="sm ' + (st === "done" ? "done" : st === "doing" ? "doing" : "todo") + '" data-side="' + esc(s.id) + '" tabindex="0" role="button" aria-label="' + esc("Side camp: " + s.title + ". Show it in the list") + '">' +
+        "<title>" + esc("Side camp: " + s.title + (s.hours ? " (~" + s.hours + " h)" : "") + (st === "done" ? ", done" : "")) + "</title>" +
+        '<line class="spur" x1="' + f(p0.x) + '" y1="' + f(p0.y) + '" x2="' + f(x) + '" y2="' + f(y + 5) + '"/><circle class="hit" cx="' + f(x) + '" cy="' + f(y) + '" r="11"/>' +
+        '<path class="tent" d="M' + f(x - 8.5) + "," + f(y + 5) + " L" + f(x) + "," + f(y - 8) + " L" + f(x + 8.5) + "," + f(y + 5) + ' Z"/>' +
+        '<path class="door" d="M' + f(x) + "," + f(y - 1.5) + " L" + f(x - 2.8) + "," + f(y + 5) + " L" + f(x + 2.8) + "," + f(y + 5) + ' Z"/></g>'; });
+    marksG.innerHTML = html;
+    marksG.querySelectorAll(".sm").forEach(el => { const go = () => { const row = document.querySelector('#modList .mod.side[data-side="' + el.dataset.side + '"]'); if (!row) return; row.scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "center" }); row.classList.add("hi"); setTimeout(() => row.classList.remove("hi"), 2000); };
+      el.addEventListener("click", go); el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); });
+    const lg = $("planLegend"); lg.hidden = !(nCh || nSide);
+    lg.innerHTML = "On the map: " + [nCh ? '<span class="lg-badge">+</span> expanded, <span class="lg-badge">\u2212</span> lightened, <span class="lg-badge"><i></i></span> other changes (' + nCh + " camp" + (nCh > 1 ? "s" : "") + ")" : "", nSide ? '<span class="lg-tent"></span> side camp' + (nSide > 1 ? "s (" + nSide + ")" : "") : ""].filter(Boolean).join("; ") + ".";
   }
   /* Side camps the professor added: their own rows after the camp they follow. No test; you mark them done. */
   function paintSideCamps(pl) {
@@ -392,6 +423,14 @@
     return { ok: !errs.length, errs: errs, warns: warns, plan: pl };
   }
   let offered = null, offeredProposal = null;
+  /* Two plans are the same plan when their cleaned contents match (stamps such as appliedAt are ignored). */
+  function canon(v) { return Array.isArray(v) ? "[" + v.map(canon).join(",") + "]" : v && typeof v === "object" ? "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}" : JSON.stringify(v === undefined ? null : v); }
+  function planPrint(p) { if (!p) return ""; const r = checkPlan(p, null); if (!r.plan) return ""; const q = Object.assign({}, r.plan); delete q.updatedAt; return canon(q); }
+  const samePlan = (a, b) => !!a && !!b && planPrint(a) === planPrint(b);
+  /* Tell the database a professor's plan is settled; on failure say so and stop offering it on this page. */
+  async function settleProposal(id, status) { const res = await AA.cloud.decideProposal(id, status); if (res && res.error) { snoozed = id; toast("Saved here, but couldn't update the professor's copy (" + res.error.message + "). It won't be offered again on this page."); return false; } return true; }
+  /* A plan applied from a link or by pasting may be the same one the professor also sent through the connector. */
+  async function settleMatchingProposal(plan) { const c = AA.cloud || {}; if (!c.user || !c.pendingProposal) return; const p = await c.pendingProposal(); if (p && samePlan(p.plan, plan)) settleProposal(p.id, "applied"); }
   /* A plan opened from a link is kept on this device until it's applied or put aside, so signing in (which
      reloads the page) doesn't lose it. A plan the professor sent through the connector waits in the database. */
   const PENDING = "pendingPlan";
@@ -412,10 +451,10 @@
   }
   $("offerApply").addEventListener("click", async () => { if (!offered || !AA.requireSignIn("apply a plan")) return; const c = COURSE || await courseData();
     AA.applyPlan(offered, { courseVersion: c && c.version }); offered = null; $("planOffer").hidden = true; clearPending(); if (location.hash.indexOf("plan=") >= 0) history.replaceState(null, "", location.pathname);
-    if (offeredProposal) { const id = offeredProposal.id; offeredProposal = null; AA.cloud.decideProposal(id, "applied"); }
-    render(); toast("Plan v" + AA.plan().version + " applied · see it in My course"); });
+    const applied = AA.plan(); render(); toast("Plan v" + applied.version + " applied · see it in My course");
+    if (offeredProposal) { const id = offeredProposal.id; offeredProposal = null; snoozed = id; settleProposal(id, "applied"); } else settleMatchingProposal(applied); });
   $("offerSkip").addEventListener("click", () => { offered = null; $("planOffer").hidden = true; clearPending(); if (offeredProposal) { snoozed = offeredProposal.id; offeredProposal = null; toast("It'll be here next time you open the Ascent"); } if (location.hash.indexOf("plan=") >= 0) history.replaceState(null, "", location.pathname); });
-  $("offerDecline").addEventListener("click", async () => { if (!offeredProposal || !AA.requireSignIn("decline a plan")) return; const id = offeredProposal.id; offeredProposal = null; offered = null; $("planOffer").hidden = true;
+  $("offerDecline").addEventListener("click", async () => { if (!offeredProposal || !AA.requireSignIn("decline a plan")) return; const id = offeredProposal.id; offeredProposal = null; offered = null; $("planOffer").hidden = true; snoozed = id;
     const { error } = await AA.cloud.decideProposal(id, "declined"); toast(error ? "Couldn't save that: " + error.message : "Declined. Your professor will see that next time it checks."); });
   /* The connector's plans: show the newest pending one to its signed-in owner (on load, sign-in, and coming back to the tab). */
   let snoozed = null, lastCheck = 0;
@@ -423,6 +462,7 @@
     const c = AA.cloud || {}; if (!c.user || AA.isViewing() || !c.pendingProposal || !$("planOffer").hidden) return;
     if (Date.now() - lastCheck < 20000) return; lastCheck = Date.now();
     const p = await c.pendingProposal(); if (!p || p.id === snoozed || !$("planOffer").hidden) return;
+    if (samePlan(p.plan, AA.plan())) { snoozed = p.id; settleProposal(p.id, "applied"); return; }
     const when = new Date(p.created_at); offerPlan(p.plan, "from your professor · " + AA.fmtDate(when.toISOString().slice(0, 10)) + " " + String(when.getHours()).padStart(2, "0") + ":" + String(when.getMinutes()).padStart(2, "0"), null, { proposal: p });
   }
   function offerStashed() { const st = AA.store.get(PENDING, null); if (!st || !st.plan || location.hash.indexOf("plan=") >= 0 || !$("planOffer").hidden) return false;

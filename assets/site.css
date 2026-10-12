@@ -156,6 +156,23 @@ tr:last-child td{border-bottom:0}
 .camp.done text{fill:var(--accent-ink)}
 .camp.done.cap text{fill:#1b1206}
 .camp.cap circle.ring{stroke:var(--accent);stroke-width:3}
+/* Your plan on the mountain: badges on changed camps, tents for side camps. */
+.pm{pointer-events:none}
+.pm circle{fill:var(--accent);stroke:var(--bg);stroke-width:1.6}
+.pm .pm-dot{fill:var(--accent-ink);stroke:none}
+.pm text{font-family:var(--body);font-weight:800;font-size:10px;fill:var(--accent-ink);text-anchor:middle;dominant-baseline:central}
+.sm{cursor:pointer;outline:none}
+.sm .spur{stroke:var(--done);stroke-width:1.6;stroke-dasharray:2 3;opacity:.85;pointer-events:none}
+.sm .hit{fill:transparent}
+.sm .tent{fill:var(--surface);stroke:var(--done);stroke-width:2;stroke-linejoin:round}
+.sm .door{fill:var(--done)}
+.sm.doing .tent{stroke:var(--accent)} .sm.doing .door{fill:var(--accent)}
+.sm.done .tent{fill:var(--done)} .sm.done .door{fill:var(--bg)}
+.sm:hover .tent,.sm:focus-visible .tent{stroke-width:3}
+.plan-legend{font-size:12.5px;color:var(--muted);margin-top:4px}
+.plan-legend .lg-badge{display:inline-grid;place-items:center;width:14px;height:14px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:11px;line-height:1;vertical-align:-2px}
+.plan-legend .lg-badge i{width:5px;height:5px;border-radius:50%;background:var(--accent-ink)}
+.plan-legend .lg-tent{display:inline-block;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:11px solid var(--done);vertical-align:-1px}
 .camp.cap.done circle.ring{fill:var(--accent);stroke:var(--accent)}
 .camp .flag{fill:var(--accent)} .camp .pole{stroke:var(--snow);stroke-width:1.5}
 .camp:focus{outline:none} .camp:focus circle.ring{stroke-width:4}
