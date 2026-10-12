@@ -14,7 +14,7 @@
   const RULES = '<ul class="ob-rules">' +
     "<li><b>Practice is unlimited</b>, never posted, and shows the right answer and why.</li>" +
     "<li><b>The test is 8 questions, 90 seconds each.</b> The clock starts when the first question appears.</li>" +
-    "<li><b>70% (6 of 8) passes the camp</b> and moves your climber. Your first attempt is the one on the board.</li>" +
+    "<li><b>70% (6 of 8) passes the camp</b> and moves your climber. Every test posts its score with the attempt number.</li>" +
     "<li><b>Not passed? A retake opens 24 hours later.</b> After two attempts without a pass, the third waits 72 hours and a session with your professor.</li></ul>";
   const CONNECT_STEPS = ["Copy your connector link.",
     "In Claude, open <b>Customize → Connectors</b>, press <b>+ Add</b>, then <b>Add custom connector</b>.",

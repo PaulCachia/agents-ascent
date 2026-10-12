@@ -546,7 +546,7 @@
     qzBody.innerHTML = '<ul class="qz-rules">' +
       "<li><b>8 questions, 90 seconds each: 12 minutes in all.</b> The clock starts when the first question appears, not before.</li>" +
       "<li>Move back and forth and change answers until you submit. When time runs out, what you've answered is marked.</li>" +
-      "<li><b>70% (6 of 8) passes the camp</b> and posts your score. Your first attempt is the one on the board.</li>" +
+      "<li><b>70% (6 of 8) passes the camp.</b> Every test posts its score with the attempt number beside it, and a pass closes the test.</li>" +
       "<li>Not passed? <b>A retake opens 24 hours later.</b> After two attempts without a pass, the third waits 72 hours and a session with your professor.</li>" +
       "<li>Closing this window doesn't stop the clock: the test keeps running on the server.</li></ul>" +
       '<p class="qz-tip">Not sure yet? <button class="linkish" type="button" id="qzPractice">Do a practice round first</button>: unlimited, never posted, with explanations.</p>';
