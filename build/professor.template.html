@@ -46,7 +46,7 @@
       <div class="s"><div><b>Paste the brief as the Project's instructions</b><p>Copy the brief below (the button copies the whole thing) into the Project's instructions. It tells the professor how to find you, how to read your progress, how to quiz you, and how checkpoints and plans work.</p></div></div>
       <div class="s"><div><b>Link the professor to your profile</b><p>Copy the Project's web address into <b>My professor</b> on My profile. <b>Talk to my professor</b> on the Ascent page then opens a fresh conversation in that Project with your progress already written in as the first message, ending with the links to your course, your rows and your tests; press send and you're talking.</p></div></div>
       <div class="s"><div><b>Optional: the professor connector (Claude)</b><p>On <a href="profile.html">My profile</a>, <b>Professor connector</b> makes a private link you add to Claude as a custom connector. Your professor can then send a plan straight to your Ascent page, where you apply it with one tap, and read your course and progress without opening links. Without it, your professor gives you a one-click link to the plan instead.</p></div></div>
-      <div class="s"><div><b>First conversation</b><p>Open the professor, give your name, and say where you are. It reads your rows, sets this week's work, and tells you how check-ins and quizzes will run. From then on you come back weekly, and at the end of each phase for a checkpoint.</p></div></div>
+      <div class="s"><div><b>First conversation: your intake</b><p>Press <b>Talk to my professor</b> on the Ascent page and send. The first conversation is an intake: it asks about your goal, the hours you have each week, what you already know and what you'd like to build, then sends you your <b>first personal plan</b>, which you apply with one tap on the Ascent page. From then on you come back weekly, and at the end of each phase for a checkpoint.</p></div></div>
     </div>
   </section>
 
@@ -57,6 +57,7 @@
 
   <section class="card briefbox">
     <div class="card-h"><h2>The brief</h2><span class="eyebrow">paste into the Project's instructions</span></div>
+    <p class="muted" style="margin:0 0 10px;font-size:13.5px">Already have a professor? The brief is improved from time to time. Its version date is at the top; when it's newer than the one in your Project, copy it again and replace the Project's instructions.</p>
     <div class="tools"><button class="primary" type="button" id="copyBrief">Copy the brief</button><button class="ghost" type="button" id="showRaw">Show as plain text</button><a class="ghost" href="professor/PROFESSOR.md" style="text-decoration:none;display:inline-block;border:1px solid var(--line);border-radius:8px;padding:4px 10px;color:var(--muted);font-size:12px">Open the Markdown file</a><span class="muted" id="copyMsg" style="font-size:12px"></span></div>
     <textarea class="raw" id="rawBrief" hidden spellcheck="false" aria-label="The professor brief as plain text"><!--BRIEF_RAW--></textarea>
     <div class="brief" id="brief">
@@ -69,6 +70,7 @@
 <script src="assets/site.js"></script>
 <script src="assets/config.js"></script>
 <script src="assets/cloud.js"></script>
+<script src="assets/onboard.js"></script>
 <script>
 AA.nav("professor"); AA.mountTracker();
 (function () {

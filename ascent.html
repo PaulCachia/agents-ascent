@@ -17,7 +17,7 @@
     <div>
       <div class="eyebrow" id="hdrEyebrow">A 26-week expedition</div>
       <h1>The Agent's Ascent</h1>
-      <p class="muted" style="margin:4px 0 0;max-width:60ch">Each camp is a module from <a href="mycourse.html">your course</a>. Pass its checkpoint and the climber moves on. Four capstones are the flags; the summit is a real launch. Press ▶︎ in the corner to put study time on the clock.</p>
+      <p class="muted" style="margin:4px 0 0;max-width:60ch">Each camp is a module from <a href="mycourse.html">your course</a>. Pass its checkpoint and the climber moves on. Four capstones are the flags; the summit is a real launch. Press ▶︎ in the corner to put study time on the clock. New here? <a href="how.html">See how it works</a>.</p>
     </div>
     <div class="hdr-prof" id="hdrProf" hidden>
       <a class="prof-cta" id="hdrProfGo" href="#" target="_blank" rel="noopener"><span class="prof-ic" aria-hidden="true"></span><span id="hdrProfLabel">Talk to my professor</span></a>
@@ -26,6 +26,8 @@
   </header>
 
   <div class="authbar" id="authBar" hidden><span id="authText"></span><span class="viewsel" id="viewWrap" hidden><label for="viewSel" class="muted" style="font-size:12px">Climber</label><select id="viewSel" aria-label="Choose whose climb to view"></select></span><button class="primary" type="button" id="authBtn" data-opens-sync hidden>Sign in to edit here</button></div>
+
+  <section class="card ob-first" id="obList" hidden aria-label="First steps"></section>
 
   <section class="card offer" id="planOffer" hidden>
     <div class="card-h"><h2>Your professor proposes a new plan</h2><span class="eyebrow" id="offerMeta"></span></div>
@@ -125,6 +127,7 @@
 <script src="assets/site.js"></script>
 <script src="assets/config.js"></script>
 <script src="assets/cloud.js"></script>
+<script src="assets/onboard.js"></script>
 <script>AA.nav("ascent");AA.mountTracker();</script>
 <div class="qz" id="qz" hidden role="dialog" aria-modal="true" aria-labelledby="qzTitle">
   <div class="qz-box">

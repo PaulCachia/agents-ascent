@@ -122,3 +122,21 @@ attempt once its clock runs out; passing closes the test. The question bank (cur
 12 practice per module) is not in this repository because it carries the answer key; the course owner keeps it
 and loads it through the SQL editor. `quiz_attempts` is public to read so professors can see attempts and the
 topics missed.
+
+Question-writing rule (checked by the bank's own script before loading): all four options of an item are about the
+same length and level of detail, wrong options are real beginner misconceptions, and the right answer's position
+is random. Before the test starts the site shows the rules with a way back; the server clock only starts when the
+first question is issued.
+
+### First-time set-up and the welcome email
+
+`assets/onboard.js` runs on the main pages. After a climber's first sign-in (once their cloud copy has synced) it
+opens a guided set-up: profile, professor, connector, how tests work, first chat. Every step can be skipped, and a
+**First steps** list on the Ascent page ticks itself off from the database until everything is done. Someone who
+already has a profile, a professor and a plan is treated as set up and isn't interrupted. `how.html` is the
+one-page picture of how the Ascent works.
+
+When the set-up closes, the site asks the `welcome` Edge Function (`supabase/functions/welcome`, JWT verification
+off; it checks the sign-in token itself) to send one welcome email through Brevo. `supabase/welcome.sql` records
+who has been welcomed so it goes once. It needs the secret `BREVO_API_KEY` on the Edge Functions; without it
+nothing is sent and the site tries again on a later visit.

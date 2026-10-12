@@ -23,7 +23,7 @@
 
   <div class="cols" style="margin-top:16px">
     <section class="card" id="meCard">
-      <div class="card-h"><h2>Climber</h2><span class="eyebrow">name · start · goal · professor</span></div>
+      <div class="card-h"><h2>Climber</h2><button class="linkish" type="button" id="meSetup" style="font-size:13px" onclick="AA.openSetup ? AA.openSetup(0) : (location.href = 'ascent.html')">Open the guided set-up</button></div>
       <form class="ci" id="meForm" autocomplete="off">
         <label>Name<input type="text" id="meName" maxlength="40" placeholder="e.g. Paul"></label>
         <label>Start date (week 1)<input type="date" id="meStart"></label>
@@ -87,6 +87,7 @@
 <script src="assets/site.js"></script>
 <script src="assets/config.js"></script>
 <script src="assets/cloud.js"></script>
+<script src="assets/onboard.js"></script>
 <script>AA.nav("profile");AA.mountTracker();</script>
 <script src="assets/profile.js"></script>
 </body>

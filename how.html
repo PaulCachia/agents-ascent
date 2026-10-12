@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>How the Ascent works</title>
+<meta name="description" content="The loop you repeat at every camp, who does what, how the tests work, and how your professor shapes the course around you.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 20 9 7l4 6 2-3 7 10Z' fill='%23f0a04b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Nunito+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=JSON.parse(localStorage.getItem('aa.v1.theme'));if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+<style>
+  .how-lead{max-width:62ch;font-size:17px;color:var(--muted);margin:8px 0 0}
+  /* The loop: six stations on a dashed trail, then back to the start for the next camp. */
+  .loop{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;position:relative}
+  .loop::before{content:"";position:absolute;left:8%;right:8%;top:27px;border-top:2px dashed var(--line)}
+  .loop li{position:relative;display:grid;justify-items:center;align-content:start;text-align:center;gap:6px;padding:0 6px}
+  .loop .st{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--bg);border:2px solid var(--line);font-family:var(--display);font-weight:800;font-size:20px;color:var(--fg);position:relative;z-index:1}
+  .loop li.you .st{border-color:var(--accent);color:var(--accent)}
+  .loop li.prof .st{border-color:var(--done);color:var(--done)}
+  .loop b{font-family:var(--display);font-size:16px}
+  .loop p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45;max-width:20ch}
+  .loop-back{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:18px;font-size:14px;color:var(--muted)}
+  .loop-back svg{width:120px;height:24px;flex:none}
+  .loop-key{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);margin-top:4px}
+  .loop-key span{display:inline-flex;align-items:center;gap:6px}
+  .loop-key i{width:12px;height:12px;border-radius:50%;border:2px solid var(--accent);display:inline-block}
+  .loop-key i.p{border-color:var(--done)}
+  @media (max-width:760px){
+    .loop{grid-template-columns:1fr;gap:14px;padding-left:4px}
+    .loop::before{left:31px;right:auto;top:28px;bottom:28px;border-top:0;border-left:2px dashed var(--line)}
+    .loop li{grid-template-columns:56px 1fr;justify-items:start;text-align:left;column-gap:14px;row-gap:2px;padding:0}
+    .loop .st{grid-row:span 2}
+    .loop b{align-self:end}
+    .loop p{max-width:none}
+    .loop-back{justify-content:flex-start}
+  }
+  .who{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .who > div{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface2);display:grid;gap:6px;align-content:start}
+  .who h3{font-size:17px}
+  .who ul{margin:0;padding-left:18px;font-size:14px;color:var(--muted);display:grid;gap:4px}
+  @media (max-width:900px){.who{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:520px){.who{grid-template-columns:1fr}}
+  .rules{margin:0;padding-left:20px;display:grid;gap:8px;font-size:15px;max-width:72ch}
+  .rules li::marker{color:var(--accent)}
+  .map-key{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  .map-key div{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--muted)}
+  .mk{flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:14px;line-height:1}
+  .mk i{width:7px;height:7px;border-radius:50%;background:var(--accent-ink)}
+  .mk.tent{background:none;width:0;height:0;border-radius:0;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:18px solid var(--done)}
+  .setup-steps{margin:0;padding-left:0;list-style:none;display:grid;gap:10px;counter-reset:s;max-width:76ch}
+  .setup-steps li{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start}
+  .setup-steps li::before{counter-increment:s;content:counter(s);font-family:var(--display);font-weight:800;font-size:20px;color:var(--accent);line-height:1.2}
+  .setup-steps b{display:block}
+  .setup-steps span{color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap" style="padding-top:20px">
+  <header>
+    <h1>How the Ascent works</h1>
+    <p class="how-lead">Twenty-four camps up one mountain. At every camp you repeat the same short loop, and your professor bends the route around your goal, your time and what you already know.</p>
+  </header>
+
+  <section class="card" aria-labelledby="loopH">
+    <h2 id="loopH">The loop at every camp</h2>
+    <ol class="loop">
+      <li class="you"><span class="st" aria-hidden="true">1</span><b>Learn</b><p>Watch and read the camp's resources, then do its exercises.</p></li>
+      <li class="you"><span class="st" aria-hidden="true">2</span><b>Practise</b><p>Practice quizzes: as many as you like, never posted, with explanations.</p></li>
+      <li class="you"><span class="st" aria-hidden="true">3</span><b>Test</b><p>8 questions, 12 minutes. 70% passes the camp.</p></li>
+      <li class="you"><span class="st" aria-hidden="true">4</span><b>Climb</b><p>The camp is passed and your climber moves up the mountain.</p></li>
+      <li class="prof"><span class="st" aria-hidden="true">5</span><b>Check in</b><p>Tell your professor what you did and what confused you.</p></li>
+      <li class="prof"><span class="st" aria-hidden="true">6</span><b>Re-plan</b><p>Your professor sends a plan for what's next. One tap applies it.</p></li>
+    </ol>
+    <div class="loop-back"><svg viewBox="0 0 120 24" aria-hidden="true"><path d="M114 6 C 100 22, 20 22, 6 8" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="3 4"/><path d="M2 4 L8 3 L7 10" fill="none" stroke="var(--accent)" stroke-width="2"/></svg>Then back to step 1 at the next camp. The summit is a real launch.</div>
+    <div class="loop-key"><span><i></i>You</span><span><i class="p"></i>You and your professor</span></div>
+  </section>
+
+  <section class="card" aria-labelledby="whoH">
+    <h2 id="whoH">Who does what</h2>
+    <div class="who">
+      <div><h3>You</h3><ul><li>Study the camp and do the exercises</li><li>Press ▶︎ to put study time on the clock</li><li>Take the practice and the test</li><li>Log a check-in each week</li></ul></div>
+      <div><h3>Your professor</h3><ul><li>Reads your progress, hours and test results</li><li>Teaches what's shaky and asks you to explain it back</li><li>Builds your personal plan, starting at your first chat</li><li>Re-plans at the end of each phase</li></ul></div>
+      <div><h3>The site</h3><ul><li>Holds the course, the same for everyone</li><li>Lays your plan on top of it</li><li>Marks the tests and moves your climber</li><li>Keeps your progress in your account</li></ul></div>
+      <div><h3>Your climbing partner</h3><ul><li>Climbs the same mountain at their own pace</li><li>Shows up as a climber in their own colour</li><li>Tap them to see their climb</li></ul></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="testH">
+    <h2 id="testH">The tests</h2>
+    <ul class="rules">
+      <li><b>Practice is unlimited</b>, never posted, and shows the right answer and why. Use it before the test.</li>
+      <li><b>The test is 8 random questions, 90 seconds each.</b> The clock starts when the first question appears. You can go back and change answers until you submit.</li>
+      <li><b>70% (6 of 8) passes the camp</b> and posts your score. Your first attempt is the one on the board.</li>
+      <li><b>Not passed? A retake opens 24 hours later.</b> After two attempts without a pass, the third waits 72 hours and a session with your professor.</li>
+      <li>Closing the test doesn't stop its clock: it keeps running on the server.</li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="planH">
+    <h2 id="planH">Your plan, on the map</h2>
+    <p class="muted" style="margin:0;max-width:72ch">Everyone shares one course. Your professor's changes sit on top of it, just for you, and show on your mountain. <a href="mycourse.html">My course</a> lists them under <b>Changed for me</b>.</p>
+    <div class="map-key">
+      <div><span class="mk">+</span>Expanded: more depth or a stretch project</div>
+      <div><span class="mk">&minus;</span>Lightened: fewer resources, more support</div>
+      <div><span class="mk"><i></i></span>Resources added or swapped</div>
+      <div><span class="mk tent" aria-hidden="true"></span>A side camp your professor added (no test)</div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="startH">
+    <h2 id="startH">Getting set up</h2>
+    <ol class="setup-steps">
+      <li><div><b>Sign in</b><span>On the <a href="ascent.html">Ascent page</a>, tap Sign in and open the email link on the same device.</span></div></li>
+      <li><div><b>Fill in your profile</b><span>Your name, start date, end goal and a photo for your climber, on <a href="profile.html">My profile</a>.</span></div></li>
+      <li><div><b>Set up your professor</b><span>About five minutes: a Claude Project with the brief. <a href="professor.html">Step-by-step guide</a>.</span></div></li>
+      <li><div><b>Connect it (recommended)</b><span>Lets your professor send plans straight to your Ascent page. On <a href="profile.html">My profile</a>, under Professor connector.</span></div></li>
+      <li><div><b>Have your first chat</b><span>Press Talk to my professor. It asks about your goal and time, then sends your first personal plan.</span></div></li>
+      <li><div><b>Start climbing</b><span>Press ▶︎ to start the clock and open Orientation, the first camp.</span></div></li>
+    </ol>
+  </section>
+
+  <footer>Questions about the course itself are for your professor. The full written course is in <a href="course.html">the course document</a>.</footer>
+</div>
+<script src="assets/site.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/cloud.js"></script>
+<script src="assets/onboard.js"></script>
+<script>AA.nav("how");AA.mountTracker();</script>
+</body>
+</html>

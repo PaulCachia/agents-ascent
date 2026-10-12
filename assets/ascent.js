@@ -265,7 +265,8 @@
       ci ? "Last check-in (" + AA.fmtDate(ci.date) + "): " + ci.what + (ci.next ? " Next: " + ci.next + "." : "") : "No check-ins logged yet.",
       p.goal ? "My end goal: " + p.goal : "",
       next ? "Next camp: " + next.name + "." : "All camps passed.",
-      "Start by summarising where I am in two lines, then ask me what I've done since the last check-in and what I want help with."
+      pl ? "Start by summarising where I am in two lines, then ask me what I've done since the last check-in and what I want help with."
+        : "This is the start of my climb with you and I have no plan yet. Please run your intake first: ask me about my goal, the hours I have each week, what I already know and what I want to build, then send me my first personal plan."
     ].filter(Boolean);
     if (uid) { const L = dataLinks(uid); lines.push("", "My course (with my plan): " + L.course, "My rows: " + L.rows, "My tests: " + L.tests); }
     return lines.join("\n");
@@ -283,6 +284,7 @@
     if (/^https?:\/\/chatgpt\.com\//i.test(url)) return { href: "https://chatgpt.com/?q=" + q, prefill: true, name: "ChatGPT" };
     return { href: url, prefill: false, name: "your AI" };
   }
+  AA.contextMessage = contextMessage; AA.professorLink = professorLink;
   function paintMe() {
     const p = AA.profile(); paintFace();
     const go = $("profGo");
@@ -535,9 +537,37 @@
   function qzHide() { qzEl.hidden = true; document.body.style.overflow = ""; clearInterval(QZ.timer); QZ.timer = null; }
   function qzMsg(title, text, extra) { $("qzTitle").textContent = title; $("qzTimer").hidden = true; $("qzProg").textContent = ""; $("qzTime").textContent = ""; qzBody.innerHTML = '<p style="margin:0">' + text + '</p>' + (extra || ""); qzPrev.hidden = true; qzNext.textContent = "Close"; qzNext.onclick = qzHide; qzNext.disabled = false; qzShow(); }
   function fmtWhen(iso) { const d = new Date(iso); return d.toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); }
-  function openQuiz(module, qset) {
+  /* Before a test: the rules, and a way back. Nothing is fetched (so no clock runs) until "Start the test". */
+  function testIntro(module) {
+    const m = MODULES.find(x => x.key === module); const st = modOf(module); const tries = Number(st.quizAttempt) || 0;
+    QZ.module = module; QZ.set = "test"; QZ.done = false; QZ.session = null;
+    $("qzKind").textContent = "Test · " + m.name; $("qzTitle").textContent = "Before you start"; $("qzTimer").hidden = true;
+    $("qzProg").textContent = tries ? "This will be attempt " + (tries + 1) : ""; $("qzTime").textContent = "";
+    qzBody.innerHTML = '<ul class="qz-rules">' +
+      "<li><b>8 questions, 90 seconds each: 12 minutes in all.</b> The clock starts when the first question appears, not before.</li>" +
+      "<li>Move back and forth and change answers until you submit. When time runs out, what you've answered is marked.</li>" +
+      "<li><b>70% (6 of 8) passes the camp</b> and posts your score. Your first attempt is the one on the board.</li>" +
+      "<li>Not passed? <b>A retake opens 24 hours later.</b> After two attempts without a pass, the third waits 72 hours and a session with your professor.</li>" +
+      "<li>Closing this window doesn't stop the clock: the test keeps running on the server.</li></ul>" +
+      '<p class="qz-tip">Not sure yet? <button class="linkish" type="button" id="qzPractice">Do a practice round first</button>: unlimited, never posted, with explanations.</p>';
+    $("qzPractice").onclick = () => openQuiz(module, "practice");
+    qzPrev.hidden = false; qzPrev.disabled = false; qzPrev.textContent = "Go back"; qzPrev.onclick = qzHide;
+    qzNext.disabled = false; qzNext.textContent = "Start the test"; qzNext.onclick = () => openQuiz(module, "test", true);
+    qzShow(); qzNext.focus();
+  }
+  /* After a test that didn't pass: when the retake opens, and a way to go through the misses with the professor. */
+  function retakeHelp(r) {
+    const m = MODULES.find(x => x.key === r.module) || { name: r.module }; const hours = r.attempt >= 2 ? 72 : 24; const at = new Date(Date.now() + hours * 36e5);
+    const msg = "I've just sat the " + m.name + " test: " + r.score + "% on attempt " + r.attempt + " (70% passes)." + (r.missed && r.missed.length ? " I missed: " + r.missed.join(", ") + "." : "") +
+      " Please go through what I missed: ask me questions first, then explain, and check I've got it before I retake.";
+    const p = AA.own.profile(); const L = p.professor && /^https?:\/\//.test(p.professor) ? professorLink(p.professor, msg) : null;
+    return '<div class="qz-next"><p style="margin:0"><b>Retake opens ' + esc(fmtWhen(at.toISOString())) + "</b>" + (r.attempt >= 2 ? ", after a session with your professor." : ".") + " Practice is open now and shows explanations.</p>" +
+      '<div class="qz-next-b">' + (L ? '<a class="primary" href="' + esc(L.href) + '" target="_blank" rel="noopener" id="qzProf"' + (L.prefill ? "" : ' data-copy="1" data-msg="' + esc(msg) + '"') + ">Go through it with my professor</a>" : '<a class="primary" href="professor.html">Set up a professor to go through it</a>') + "</div></div>";
+  }
+  function openQuiz(module, qset, confirmed) {
     if (!AA.requireSignIn(qset === "test" ? "take the test" : "take a practice quiz")) return;
     if (!AA.cloud || !AA.cloud.rpc) { AA.toast("Quizzes need the cloud connection"); return; }
+    if (qset === "test" && !confirmed) { testIntro(module); return; }
     const m = MODULES.find(x => x.key === module); QZ.module = module; QZ.set = qset; QZ.done = false;
     $("qzKind").textContent = (qset === "test" ? "Test" : "Practice") + " · " + m.name;
     qzMsg(qset === "test" ? "Starting the test…" : "Starting practice…", "Fetching your questions.");
@@ -586,13 +616,14 @@
   function showResult(r) {
     const test = r.set === "test"; $("qzTimer").hidden = true; $("qzProg").textContent = (test ? "Test" : "Practice") + " · " + r.correct + " of " + r.n + " correct"; $("qzTime").textContent = Math.round(r.seconds / 60) + " min";
     $("qzTitle").textContent = test ? (r.passed ? "Passed" : "Not yet") : "Practice result";
-    let h = '<div class="qz-score">' + r.score + '%' + (test ? ' <small>' + (r.passed ? "posted to your camp · attempt " + r.attempt : "70% needed · attempt " + r.attempt + " · retake in 24 h") + '</small>' : ' <small>not posted; practice as often as you like</small>') + '</div>';
+    let h = '<div class="qz-score">' + r.score + '%' + (test ? ' <small>' + (r.passed ? "posted to your camp · attempt " + r.attempt : "70% needed · attempt " + r.attempt) + '</small>' : ' <small>not posted; practice as often as you like</small>') + '</div>';
     if (r.missed && r.missed.length) h += '<div><div class="eyebrow" style="margin-bottom:6px">Missed</div><div class="qz-missed">' + r.missed.map(t => '<span class="chip">' + esc(t) + '</span>').join("") + '</div></div>';
     if (!test && Array.isArray(r.review) && r.review.length) {
       h += '<div class="qz-rv">' + r.review.map((it, k) => { const q = QZ.qs.find(x => x.id === it.id) || { prompt: "", options: [] }; const okk = it.given === it.correct;
         return '<div class="it ' + (okk ? "ok" : "bad") + '"><div><b>' + (k + 1) + '.</b> ' + md(q.prompt) + '</div><div style="margin-top:4px">' + (okk ? "✓ " : "✗ Your answer: " + (it.given == null ? "<i>none</i>" : md(q.options[it.given] || "")) + "<br>✓ ") + md(q.options[it.correct] || "") + '</div><div class="ex">' + esc(it.explanation || "") + '</div></div>'; }).join("") + '</div>';
-    } else if (test && !r.passed) h += '<p class="muted" style="margin:0;font-size:13px">Use the practice quiz to see explanations, then come back for the retake.</p>';
-    qzBody.innerHTML = h; qzNext.disabled = false; qzNext.textContent = "Close"; qzNext.onclick = qzHide; qzPrev.hidden = !(!test); qzPrev.disabled = false; qzPrev.textContent = "Another practice"; qzPrev.onclick = () => { qzHide(); openQuiz(QZ.module, "practice"); };
+    } else if (test && !r.passed) h += retakeHelp(r);
+    qzBody.innerHTML = h;
+    const qp = $("qzProf"); if (qp && qp.dataset.copy) qp.addEventListener("click", () => AA.copyText(qp.dataset.msg || "")); qzNext.disabled = false; qzNext.textContent = "Close"; qzNext.onclick = qzHide; qzPrev.hidden = test && r.passed; qzPrev.disabled = false; qzPrev.textContent = test ? "Practise now" : "Another practice"; qzPrev.onclick = () => { qzHide(); openQuiz(QZ.module, "practice"); };
   }
   $("qzClose").addEventListener("click", () => { if (QZ.set === "test" && QZ.session && !QZ.done) AA.toast("The test clock keeps running on the server; come back before it ends or it counts as an attempt."); qzHide(); });
   window.addEventListener("keydown", e => { if (e.key === "Escape" && !qzEl.hidden) $("qzClose").click(); });

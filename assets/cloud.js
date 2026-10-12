@@ -26,7 +26,7 @@
     AA.cloud.enabled = true;
     mountUI();
     sb.auth.onAuthStateChange((ev, session) => {
-      user = session ? session.user : null; AA.cloud.user = user; AA.cloud.ready = true; AA.cloud.viewOnly = !user;
+      user = session ? session.user : null; AA.cloud.user = user; AA.cloud.ready = true; AA.cloud.viewOnly = !user; if (!user || AA.cloud.pulled !== user.id) AA.cloud.pulled = null;
       AA.clearView(); AA.cloud.viewId = null;
       paint(); window.dispatchEvent(new CustomEvent("aa:auth"));
       if (user) pull(); else pullPublic();
@@ -40,6 +40,8 @@
     /* Climbers who joined or moved while this tab sat open appear when you come back to it. */
     let expAt = 0; document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && Date.now() - expAt > 30000) { expAt = Date.now(); expedition(); } });
     AA.cloud.rpc = (fn, args) => sb.rpc(fn, args || {});
+    /* Call one of the project's Edge Functions as the signed-in climber (their token goes with it). */
+    AA.cloud.invoke = (name, body) => (user ? sb.functions.invoke(name, { body: body || {} }) : Promise.resolve({ error: { message: "Sign in first" } }));
     /* The shared course (ids of every resource and exercise, per camp), loaded once: used to check a plan before it's applied. */
     let coursePromise = null;
     AA.cloud.course = () => coursePromise || (coursePromise = Promise.all([
@@ -162,7 +164,7 @@
     cloudKeys = { module: new Set(Object.keys(cloud.module)), checkin: new Set(Object.keys(cloud.checkin)), session: new Set(Object.keys(cloud.session)), profile: new Set(Object.keys(cloud.profile)), plan: new Set(Object.keys(cloud.plan)) };
     // Push anything that only existed locally.
     await push("modules"); await push("checkins"); await push("sessions"); await push("profile"); await push("plan");
-    status("Synced.");
+    status("Synced."); AA.cloud.pulled = user.id; window.dispatchEvent(new CustomEvent("aa:pulled"));
   }
 
   /* Signed-out read: one climber's rows (the last one viewed on this device, else the default climber) into the view overlay. */
